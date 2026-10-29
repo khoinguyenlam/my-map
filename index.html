@@ -700,6 +700,17 @@ body.about-open button.brand{transition-delay:0ms}
 .pv-pic{position:relative}
 .pv-pic .wm{left:10px;top:9px;font-size:11px}
 @media (max-width:520px){.screen .wm{left:12px;top:10px;font-size:12px}}
+/* intro: the name sits on the same frosted card as the other panels, so it stays readable
+   while the map opens up behind it; the card eases out a touch smaller as it fades */
+.intro div{position:relative;gap:12px;padding:28px 40px 32px;border-radius:24px;max-width:calc(100vw - 32px);box-sizing:border-box;
+  background:var(--glass-fill-strong);-webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);box-shadow:var(--glass-shadow);
+  transition:transform .8s var(--ease-cine)}
+.intro div::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1px;pointer-events:none;background:var(--glass-rim);
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0)}
+.intro strong{font-size:clamp(40px,7vw,88px)}
+.intro.gone div{transform:scale(.97)}
+@media (max-width:520px){.intro div{padding:20px 24px 24px;border-radius:18px}}
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){.intro div{background:rgba(255,253,248,.96)}}
 @media (prefers-reduced-motion:reduce){
   .pin::before,.pin.is-hot::before,.grain,.screen .media.kb,.rec::before{animation:none}
   .preview,.preview.show{transform:none}
