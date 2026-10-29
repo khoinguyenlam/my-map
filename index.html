@@ -582,6 +582,28 @@ button.brand:hover{box-shadow:var(--glass-shadow)}
   .info dl{grid-template-columns:88px minmax(0,1fr)}
 }
 @media (max-width:400px){.bar-ui .count{display:none}}
+.frame-cap{display:grid;gap:2px;min-width:0}
+.frame-when{font:400 12px/1.3 var(--f-mono);letter-spacing:.04em;color:var(--muted);font-variant-numeric:tabular-nums}
+.facts{grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr)}
+@media (max-width:520px){.facts{grid-auto-flow:row;grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (min-width:861px){
+  /* the photo column is exactly as wide as the photo, so the details card sits right beside it
+     and the pair is centred, instead of the photo floating in the middle of a wide column */
+  .film-inner{grid-template-columns:auto minmax(300px,400px);justify-content:center}
+  .stage-inner{width:min(calc((var(--filmH) - 240px) * var(--ar,1.5)),calc(100vw - 472px));min-width:0}
+}
+/* opening: one continuous move. The backdrop settles in, the photo rises into place, then the
+   title, details and filmstrip follow a step behind each other */
+.film{transition:opacity 700ms var(--ease-cine)}
+.film.closing{transition:opacity var(--t-slow) var(--ease-in)}
+.screen{opacity:0;transform:translateY(12px) scale(.97);transform-origin:50% 60%;
+  transition:opacity 800ms var(--ease-cine) 80ms,transform 1000ms var(--ease-cine) 80ms}
+.film.is-on .screen{opacity:1;transform:none}
+.film.closing .screen{transition-duration:var(--t-slow);transition-delay:0ms}
+.rv{transform:translateY(10px);transition:opacity 700ms var(--ease-cine),transform 900ms var(--ease-cine);transition-delay:calc(var(--d,0) * .5ms)}
+.title .w > span{transition:transform 900ms var(--ease-cine);transition-delay:calc(var(--d,0) * .5ms)}
+.film.closing .rv,.film.closing .title .w > span{transition-duration:var(--t-med);transition-delay:0ms}
+.screen .layer{transform:scale(1.03);transition:opacity 700ms var(--ease-cine),transform 1200ms var(--ease-cine)}
 @media (prefers-reduced-motion:reduce){
   .pin::before,.pin.is-hot::before,.grain,.screen .media.kb,.rec::before{animation:none}
   .preview,.preview.show{transform:none}
@@ -672,7 +694,7 @@ button.brand:hover{box-shadow:var(--glass-shadow)}
           <div class="screen-hud"><span id="fTc"></span><span id="fAspect"></span></div>
         </div>
         <div class="frame-bar rv" style="--d:300">
-          <p class="frame-text"><span class="frame-no" id="fNo"></span><b id="fCaption"></b></p>
+          <p class="frame-text"><span class="frame-no" id="fNo"></span><span class="frame-cap"><b id="fCaption"></b><span class="frame-when" id="fWhen"></span></span></p>
           <div class="frame-nav">
             <button class="icon-btn tip" id="framePrev" type="button" aria-label="Previous photo" data-tip="Previous photo (←)">‹</button>
             <button class="icon-btn tip" id="frameNext" type="button" aria-label="Next photo" data-tip="Next photo (→)">›</button>
@@ -1365,7 +1387,8 @@ function frame(now){
     if(goal){
       stepCamera(goal,goal.rx,goal.ry,1.25,dt/1000,false);
       cam.c+=(goal.c-cam.c)*(1-Math.pow(.9,dt/16.67));
-      if(goal.done&&Math.hypot(goal.x-cam.x,goal.y-cam.y)*cam.s<10&&Math.abs(Math.log(goal.s/cam.s))<.03){const d=goal.done;goal.done=null;d()}
+      // the project view starts to appear during the camera's last easing, so the two read as one move
+      if(goal.done&&Math.hypot(goal.x-cam.x,goal.y-cam.y)*cam.s<36&&Math.abs(Math.log(goal.s/cam.s))<.07){const d=goal.done;goal.done=null;d()}
     }
   } else if(mode==='roam'||mode==='intro'){
     const t=roamTarget(),sec=dt/1000;
@@ -1712,15 +1735,20 @@ function showMedia(p,i){
   else{el=document.createElement('img');el.src=renderStill(p,i,1600);el.alt=m.caption||p.title}
   el.classList.add('media');if(m.type!=='video'&&!RM)el.classList.add('kb');
   layer.append(el);screen.insertBefore(layer,screen.querySelector('.vf'));
-  requestAnimationFrame(()=>requestAnimationFrame(()=>layer.classList.add('in')));
+  // fade the photo in once it has loaded and decoded, so it never appears blank and then pops in
+  const reveal=()=>requestAnimationFrame(()=>requestAnimationFrame(()=>layer.classList.add('in')));
+  if(el.tagName==='IMG'&&el.decode)Promise.race([el.decode().catch(()=>{}),new Promise(r=>setTimeout(r,900))]).then(reveal);else reveal();
   const layers=screen.querySelectorAll('.layer');
   layers.forEach((l,k)=>{if(k<layers.length-1){l.classList.remove('in');setTimeout(()=>l.remove(),1100)}});
   $('#fCaption').textContent=m.caption||'';
   $('#fNo').textContent=`${i+1} / ${p.media.length}`;
   $('#fTc').innerHTML=m.type==='video'?'<span class="rec">TC 00:00:00:00</span>':'';
   // the camera data for this photo, as labelled values
+  // when it was taken sits under the caption; the camera settings stay on one row below the photo
+  const all=frameFacts(m),when=all.filter(([k])=>k==='Taken'||k==='Note').map(x=>x[1]).join(' · ');
+  $('#fWhen').textContent=when;$('#fWhen').hidden=!when;
   const facts=$('#fFacts');facts.textContent='';
-  frameFacts(m).forEach(([k,v])=>{const d=document.createElement('div');if(k==='Taken'||k==='Note')d.className='wide';const dt=document.createElement('dt'),dd=document.createElement('dd');dt.textContent=k;dd.textContent=v;d.append(dt,dd);facts.append(d)});
+  all.filter(([k])=>k!=='Taken'&&k!=='Note').forEach(([k,v])=>{const d=document.createElement('div');const dt=document.createElement('dt'),dd=document.createElement('dd');dt.textContent=k;dd.textContent=v;d.append(dt,dd);facts.append(d)});
   facts.hidden=!facts.children.length;
   const one=p.media.length<2;$('#framePrev').hidden=$('#frameNext').hidden=one;$('#fThumbs').hidden=one;
   $('#fThumbs').querySelectorAll('.thumb').forEach((b,k)=>{b.setAttribute('aria-current',String(k===i));if(k===i){const st=b.parentElement;st.scrollTo({left:b.offsetLeft-st.clientWidth/2+b.offsetWidth/2,behavior:RM?'auto':'smooth'})}});
