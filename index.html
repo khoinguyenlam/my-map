@@ -768,7 +768,7 @@ body.intro-on button.brand{opacity:0;transition:none}
 <footer class="hud hud-bottom">
   <div class="readout">
     <div class="row coords" hidden><b id="rCoord"></b><span id="rProv"></span></div>
-    <div class="row legend"><span><i class="glyph"></i>Video</span><span><i class="glyph sq"></i>Photo</span></div>
+    <div class="row legend"><span data-medium="film"><i class="glyph"></i>Video</span><span data-medium="photo"><i class="glyph sq"></i>Photo</span></div>
     <div class="hint" id="hint">Hover a marker to preview a project, click to open it</div>
   </div>
 </footer>
@@ -901,48 +901,6 @@ const OWNER = {
 };
 
 const PROJECTS = [
-  { id:"highway-1", title:"Last Light, Highway 1", medium:"photo", kind:"Photo series", year:2022,
-    role:"Photographer", client:"Personal work", place:"Trans-Canada Highway, Lake Louise, AB", pos:[51.43,-116.18],
-    camera:"Leica M6 · Kodak Portra 400", lens:"Summicron 35mm f/2", format:"35mm film · 3:2", length:"36 frames", aspect:3/2,
-    synopsis:"One roll, one evening drive through the Rockies. I stopped only when the light changed: gas stations, avalanche sheds, and the last ten minutes of sun on the peaks.",
-    pal:["#28324d","#e7a06a","#ffd79c","#17140f"],
-    media:[{scene:"mountain",caption:"Frame 04 · Kicking Horse Pass",exif:"f/5.6 · 1/125"},{scene:"dusk",caption:"Frame 11 · pull-off near Field",exif:"f/4 · 1/250"},{scene:"mountain",caption:"Frame 19 · Bow Valley at dusk",exif:"f/2.8 · 1/60"},{scene:"dusk",caption:"Frame 33 · last frame on the roll",exif:"f/2 · 1/30"}]},
-  { id:"concrete-gardens", title:"Concrete Gardens", medium:"photo", kind:"Photo series", year:2023,
-    role:"Photographer", client:"Sample magazine feature", place:"Plateau-Mont-Royal, Montréal, QC", pos:[45.52,-73.58],
-    camera:"Fujifilm GFX 100S", lens:"GF 45mm f/2.8", format:"Medium format · 4:5", length:"14 frames", aspect:4/5,
-    synopsis:"Balcony gardens and outdoor staircases on triplexes, shot in flat morning light so the plants carry the colour and the brick stays quiet.",
-    pal:["#8ea2ac","#d8cebf","#f4e2c0","#373c3f"],
-    media:[{scene:"city",caption:"Rue Saint-Hubert, east face",exif:"f/8 · 1/250 · ISO 100"},{scene:"city",caption:"Spiral stair, morning",exif:"f/5.6 · 1/60"},{scene:"interior",caption:"Kitchen window, 3rd floor",exif:"f/4 · 1/30"}]},
-  { id:"tide-workers", title:"Tide Workers", medium:"photo", kind:"Photo essay", year:2023,
-    role:"Photographer", client:"Sample NGO report", place:"Minas Basin, Bay of Fundy, NS", pos:[45.25,-64.30],
-    camera:"Nikon Z6", lens:"28mm f/2.8", format:"Digital · 3:2", length:"22 frames", aspect:3/2,
-    synopsis:"Clam diggers who work the Fundy flats in the hours around low tide, where the water drops more than twelve metres. I followed one crew for a week of early starts.",
-    pal:["#5d7b92","#d7c4a6","#fff0cc","#20262a"],
-    media:[{scene:"sea",caption:"05:12 · walking out",exif:"f/4 · 1/500"},{scene:"sea",caption:"06:40 · the turn",exif:"f/5.6 · 1/1000"},{scene:"dusk",caption:"Return with the catch",exif:"f/2.8 · 1/250"}]},
-  { id:"night-ferry", title:"The Night Ferry", medium:"film", kind:"Short film", year:2024,
-    role:"Director of photography", client:"Sample production", place:"Horseshoe Bay, West Vancouver, BC", pos:[49.37,-123.27], labelSide:"l",
-    camera:"ARRI Alexa Mini", lens:"Zeiss Super Speed 25 / 50 / 85", format:"ProRes 4444 · 2.39:1", length:"14:20", aspect:2.39,
-    synopsis:"A deckhand's last night sailing before the route is cut. Lit almost entirely with practicals, dock lamps and the glow off the water.",
-    pal:["#0a1530","#2b4b6c","#ffb35c","#04060b"],
-    media:[{type:"video",scene:"sea",caption:"Scene 12 · the last crossing"},{scene:"neon",caption:"Scene 4 · terminal café",exif:"T1.3 · 800 EI"},{scene:"city",caption:"Scene 18 · Lions Gate lights",exif:"T2 · 1280 EI"}]},
-  { id:"ice-road", title:"Ice Road", medium:"film", kind:"Documentary short", year:2024,
-    role:"Camera & edit", client:"Sample festival commission", place:"Yellowknife and the Ingraham Trail, NT", pos:[62.45,-114.37],
-    camera:"Canon C70", lens:"RF 24–70mm f/2.8", format:"4K · 1.85:1", length:"9:05", aspect:1.85,
-    synopsis:"The six weeks a year when the lake freezes thick enough to drive on. Handheld, natural light, shot at minus thirty-five.",
-    pal:["#5f7b92","#c9d3d6","#f2f6f4","#1e2a33"],
-    media:[{type:"video",scene:"mountain",caption:"Haul trucks at first light"},{scene:"mountain",caption:"Great Slave Lake, noon",exif:"f/4 · ISO 400"},{scene:"interior",caption:"Warming hut",exif:"f/2.8 · ISO 3200"}]},
-  { id:"salt-static", title:"Salt & Static", medium:"film", kind:"Music video", year:2025,
-    role:"Director of photography", client:"Sample artist", place:"Little Manitou Lake, Watrous, SK", pos:[51.68,-105.50],
-    camera:"Sony FX6", lens:"Cooke Panchro/i Classic 32 & 50mm", format:"4K · 2.39:1", length:"3:42", aspect:2.39,
-    synopsis:"Shot across two golden hours on a prairie salt lake, with a mirror rig to throw the sunset back into the performer's face.",
-    pal:["#3a2e4f","#f0a5a0","#fff0d4","#2a212f"],
-    media:[{type:"video",scene:"dusk",caption:"Chorus · wide"},{scene:"sea",caption:"Verse 2 · reflection",exif:"T2.2 · 800 ISO"},{scene:"dusk",caption:"Final shot",exif:"T4 · 800 ISO"}]},
-  { id:"paper-moon", title:"Paper Moon Café", medium:"film", kind:"Commercial", year:2026,
-    role:"Director of photography", client:"Sample café brand", place:"Petit-Champlain, Québec City, QC", pos:[46.81,-71.20],
-    camera:"RED Komodo 6K", lens:"Sigma Cine 18–35mm", format:"6K · 16:9", length:"0:30", aspect:16/9,
-    synopsis:"A thirty-second spot built around one window and a slow winter afternoon. Hard sun through the blinds, steam as the only movement.",
-    pal:["#4a2e21","#c88954","#ffd8a0","#1b110b"],
-    media:[{type:"video",scene:"interior",caption:"Hero shot · window table"},{scene:"interior",caption:"Pour",exif:"T2 · 800 ISO"},{scene:"dusk",caption:"Exterior · golden hour",exif:"T5.6"}]},
   { id:"cias-2026", title:"Canadian International Airshow 2026", medium:"photo", kind:"Photo series", year:2026,
     role:"Photographer", place:"Toronto, ON · over Lake Ontario at Exhibition Place", pos:[43.633,-79.418],
     shot:"5–8 September 2026",
@@ -1341,10 +1299,15 @@ $('#ownerName').textContent=OWNER.name;$('#ownerRole').textContent=OWNER.role;$(
 document.querySelectorAll('.wm').forEach(w=>{w.textContent=OWNER.watermark||'';w.hidden=!OWNER.watermark});
 $('#introName').textContent=OWNER.name;$('#introRole').textContent=OWNER.role;
 document.title=`${OWNER.name} · ${OWNER.role}`;
-$('#indexSub').textContent=`${PROJECTS.length} projects across Canada`;
+$('#indexSub').textContent=`${PROJECTS.length} project${PROJECTS.length===1?'':'s'} across Canada`;
 $('#cAll').textContent=PROJECTS.length;
 $('#cFilm').textContent=PROJECTS.filter(p=>p.medium==='film').length;
 $('#cPhoto').textContent=PROJECTS.filter(p=>p.medium==='photo').length;
+// filters and legend only show the kinds of work that are on the map; with a single kind there's
+// nothing to filter, so only the list button stays
+{const kinds=new Set(PROJECTS.map(p=>p.medium));
+  document.querySelectorAll('.controls .chip[data-filter]').forEach(c=>{const f=c.dataset.filter;c.hidden=kinds.size<2||(f!=='all'&&!kinds.has(f))});
+  document.querySelectorAll('.legend [data-medium]').forEach(l=>l.hidden=!kinds.has(l.dataset.medium))}
 
 const pinsEl=$('#pins');
 PROJECTS.forEach((p,i)=>{
@@ -1897,6 +1860,8 @@ function populate(p){
   $('#prevLbl').textContent=prev&&prev!==p?prev.title:'';$('#nextLbl').textContent=next&&next!==p?next.title:'';
   $('#prevBtn').hidden=$('#nextBtn').hidden=list.length<2;
   $('#bCount').textContent=`${pad2(i+1)} / ${pad2(list.length)}`;
+  // with only one project there is nowhere to step to
+  const solo=list.length<2;$('#prevBtn').hidden=$('#nextBtn').hidden=$('#bCount').hidden=solo;
   screen.querySelectorAll('.layer').forEach(l=>l.remove());
   showMedia(p,0);
 }
