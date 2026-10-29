@@ -569,6 +569,17 @@ button.brand:hover{box-shadow:var(--glass-shadow)}
    (a button's default inner padding was shrinking the picture and cutting its sides off) */
 .filmstrip .thumb{padding:0;box-sizing:border-box;overflow:hidden}
 .filmstrip .thumb img{width:100%;height:100%;object-fit:cover;display:block}
+/* the selected outline is drawn inside the preview, so the scrolling strip can't clip it */
+.filmstrip .thumb[aria-current="true"]{box-shadow:none;border-color:transparent}
+.filmstrip .thumb::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  box-shadow:inset 0 0 0 2px var(--tungsten);opacity:0;transition:opacity var(--t-med) var(--ease-out)}
+.filmstrip .thumb[aria-current="true"]::after{opacity:1}
+.filmstrip{padding:4px 0 6px}
+/* when more photos sit past an edge, that edge fades out, so a half-shown preview reads as
+   "scroll for more" rather than a crop */
+.filmstrip.more-r{-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 48px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 48px),transparent)}
+.filmstrip.more-l{-webkit-mask-image:linear-gradient(90deg,transparent,#000 48px);mask-image:linear-gradient(90deg,transparent,#000 48px)}
+.filmstrip.more-l.more-r{-webkit-mask-image:linear-gradient(90deg,transparent,#000 48px,#000 calc(100% - 48px),transparent);mask-image:linear-gradient(90deg,transparent,#000 48px,#000 calc(100% - 48px),transparent)}
 /* details card: title, short intro, then three labelled groups */
 .film .card{align-self:center;align-content:start;gap:16px;padding:24px}
 .film .title{font-size:clamp(36px,3.6vw,56px);line-height:.9}
@@ -1878,6 +1889,7 @@ function showMedia(p,i){
   all.filter(([k])=>k!=='Taken'&&k!=='Note').forEach(([k,v])=>{const d=document.createElement('div');const dt=document.createElement('dt'),dd=document.createElement('dd');dt.textContent=k;dd.textContent=v;d.append(dt,dd);facts.append(d)});
   facts.hidden=!facts.children.length;
   const one=p.media.length<2;$('#framePrev').hidden=$('#frameNext').hidden=one;$('#fThumbs').hidden=one;
+  requestAnimationFrame(()=>window.stripEdges&&stripEdges());
   $('#fThumbs').querySelectorAll('.thumb').forEach((b,k)=>{b.setAttribute('aria-current',String(k===i));if(k===i){const st=b.parentElement;st.scrollTo({left:b.offsetLeft-st.clientWidth/2+b.offsetWidth/2,behavior:RM?'auto':'smooth'})}});
 }
 function drawAnim(now){
@@ -1889,6 +1901,8 @@ function drawAnim(now){
 function stopAnim(){anim=null}
 
 $('#closeBtn').addEventListener('click',()=>closeFilm());
+{const st=$('#fThumbs'),edges=()=>{const max=st.scrollWidth-st.clientWidth;st.classList.toggle('more-l',st.scrollLeft>2);st.classList.toggle('more-r',st.scrollLeft<max-2)};
+  st.addEventListener('scroll',edges,{passive:true});addEventListener('resize',edges);window.stripEdges=edges}
 $('#framePrev').addEventListener('click',()=>frameStep(-1));$('#frameNext').addEventListener('click',()=>frameStep(1));
 // on touch, a sideways swipe across the photo moves to the next or previous one
 {let sw=null;screen.addEventListener('pointerdown',e=>{if(e.pointerType!=='mouse')sw={x:e.clientX,y:e.clientY}});
