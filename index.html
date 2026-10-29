@@ -447,7 +447,7 @@ body.is-flying .fullmap,body.about-open .fullmap{opacity:0;pointer-events:none}
   .bar-ui .pill{padding:0 14px}
   .readout{max-width:calc(100vw - 32px);box-sizing:border-box}
   .readout .hint{white-space:normal;line-height:1.5}
-  .fullmap{bottom:calc(84px + env(safe-area-inset-bottom,0px))}
+  .fullmap{bottom:calc(40px + var(--readoutH,64px) + env(safe-area-inset-bottom,0px))}
 }
 /* ---------- UX audit pass (VectorLab UX + Apple design skills) ----------
    Interface chrome animates only transform and opacity, in 150/200/300ms steps, ease-out on
@@ -1730,6 +1730,9 @@ $('#stage').addEventListener('pointerdown',()=>{if(about.classList.contains('ope
 // ---- Back to full map: shown whenever the map is zoomed in beyond the starting view
 const fullMapBtn=$('#fullMapBtn');fullMapBtn.hidden=false;
 fullMapBtn.addEventListener('click',()=>{releaseFocus();userZoom=1;lock=null;buildClusters()});
+// on phones the full-map button sits just above the legend box, however tall its text wraps
+{const ro=$('.readout');const setH=()=>root.style.setProperty('--readoutH',Math.ceil(ro.getBoundingClientRect().height)+'px');
+  setH();if(window.ResizeObserver)new ResizeObserver(setH).observe(ro);else addEventListener('resize',setH)}
 function updateFullMap(){setIf('fullmap',mode==='roam'&&(userZoom>1.05||(focus&&!focus.mouse)),v=>fullMapBtn.classList.toggle('show',v))}
 if(PHONE)$('#hint').textContent='Tap a marker to open a project. Drag to move, pinch to zoom.';
 const indexEl=$('#index');
