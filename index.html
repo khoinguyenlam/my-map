@@ -502,6 +502,8 @@ button.brand:hover{box-shadow:var(--glass-shadow)}
 .slate span,.slate span:first-child{border:0;background:none;padding:0;border-radius:0;color:var(--muted)}
 .slate span:first-child{color:var(--tungsten)}
 .slate span+span::before{content:"·";margin-right:12px;color:var(--contour)}
+/* the first shown item (the type, now the scene number is gone) gets the accent and no dot */
+#fKind{color:var(--tungsten)}#fKind::before{content:none!important}
 .about-clients{display:block}
 .about-clients li{display:inline;padding:0;background:none;box-shadow:none;font:400 14px/1.6 var(--f-body)}
 .about-clients li+li::before{content:" · ";color:var(--muted)}
@@ -563,6 +565,10 @@ button.brand:hover{box-shadow:var(--glass-shadow)}
 .filmstrip .thumb{flex:none;width:auto;height:64px;max-height:none;aspect-ratio:var(--ar,1.5);scroll-snap-align:start;opacity:.6}
 .filmstrip .thumb[aria-current="true"]{opacity:1;box-shadow:0 0 0 2px var(--tungsten)}
 .filmstrip .thumb:hover{opacity:.9}
+/* the picture fills its button exactly, at the photo's own shape, so no edge gets cropped
+   (a button's default inner padding was shrinking the picture and cutting its sides off) */
+.filmstrip .thumb{padding:0;box-sizing:border-box;overflow:hidden}
+.filmstrip .thumb img{width:100%;height:100%;object-fit:cover;display:block}
 /* details card: title, short intro, then three labelled groups */
 .film .card{align-self:center;align-content:start;gap:16px;padding:24px}
 .film .title{font-size:clamp(36px,3.6vw,56px);line-height:.9}
