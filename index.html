@@ -125,12 +125,12 @@ body.is-flying .pin-label{opacity:0}
 .hud{position:fixed;left:0;right:0;z-index:10;display:flex;justify-content:space-between;gap:16px;pointer-events:none;
   padding-left:max(24px,env(safe-area-inset-left,0px));padding-right:max(24px,env(safe-area-inset-right,0px));
   transition:opacity .7s var(--ease-cine),transform .9s var(--ease-cine)}
-.hud .controls{pointer-events:auto} /* name card and readout let the cursor reach the map */
+.hud .controls,.hud .brand{pointer-events:auto} /* name card and readout let the cursor reach the map */
 .hud-top{top:0;align-items:flex-start;padding-top:calc(20px + env(safe-area-inset-top,0px))}
 .hud-bottom{bottom:0;align-items:flex-end;padding-bottom:calc(20px + env(safe-area-inset-bottom,0px))}
 body.is-flying .hud-top{opacity:0;transform:translateY(-16px);pointer-events:none}
 body.is-flying .hud-bottom{opacity:0;transform:translateY(16px);pointer-events:none}
-body.is-flying .hud .controls{pointer-events:none}
+body.is-flying .hud .controls,body.is-flying .hud .brand{pointer-events:none}
 
 /* header card: frosted panel whose border fades out from the top-left corner */
 .brand{position:relative;display:grid;gap:6px;padding:18px 24px 20px 22px;border-radius:6px;
@@ -141,8 +141,8 @@ body.is-flying .hud .controls{pointer-events:none}
   -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;
   mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0)}
 .eyebrow{font:400 11px/1.2 var(--f-mono);letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
-.brand h1{margin:0;font:800 clamp(30px,3.4vw,46px)/.88 var(--f-display);text-transform:uppercase;letter-spacing:-.005em;text-wrap:balance}
-.brand p{margin:2px 0 0;font:400 13px/1.4 var(--f-body);color:var(--muted);max-width:30ch}
+.brand-name{display:block;margin:0;font:800 clamp(30px,3.4vw,46px)/.88 var(--f-display);text-transform:uppercase;letter-spacing:-.005em;text-wrap:balance}
+.brand-line{display:block;margin:2px 0 0;font:400 13px/1.4 var(--f-body);color:var(--muted);max-width:30ch}
 
 .controls{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
 .chip{font:500 11px/1 var(--f-mono);letter-spacing:.1em;text-transform:uppercase;padding:9px 12px;border:1px solid var(--line);border-top-color:var(--card-edge);
@@ -199,6 +199,7 @@ kbd{font:inherit;border:1px solid var(--line);padding:2px 5px;color:var(--muted)
 .film{position:fixed;left:0;right:0;top:var(--barH);bottom:var(--barH);z-index:20;overflow:auto;
   background:linear-gradient(90deg,rgba(244,239,229,.7),var(--scrim) 55%);opacity:0;transition:opacity .7s var(--ease-cine)}
 .film.is-on{opacity:1}
+.film.closing{transition-duration:.36s}
 .film-inner{min-height:100%;display:grid;grid-template-columns:minmax(0,1fr) minmax(300px,380px);gap:clamp(24px,3vw,48px);align-items:center;
   padding-block:24px;padding-left:max(24px,env(safe-area-inset-left,0px));padding-right:max(24px,env(safe-area-inset-right,0px));box-sizing:border-box}
 .screen-col{display:grid;gap:12px;justify-items:center;min-width:0}
@@ -277,7 +278,7 @@ kbd{font:inherit;border:1px solid var(--line);padding:2px 5px;color:var(--muted)
   .film-inner{grid-template-columns:minmax(0,1fr);align-items:start}
   .screen{width:100%}
   .readout .hint,.legend{display:none}
-  .brand p{display:none}
+  .brand-line{display:none}
   .bar-ui .nb{max-width:28vw}
 }
 .lbl-short{display:none}
@@ -287,7 +288,7 @@ kbd{font:inherit;border:1px solid var(--line);padding:2px 5px;color:var(--muted)
   .controls .chip small{display:none}
   .lbl-long{display:none}.lbl-short{display:inline}
   .brand{padding:12px 16px 14px!important;border-radius:14px!important}
-  .brand h1{font-size:26px}
+  .brand-name{font-size:26px}
   .eyebrow{font-size:9.5px;letter-spacing:.14em}
   .chip{padding:8px 12px!important}
   .readout{padding:9px 12px!important;border-radius:12px!important}
@@ -354,6 +355,58 @@ kbd{font:inherit;border:1px solid var(--line);padding:2px 5px;color:var(--muted)
 .bar.top{box-shadow:inset 0 -1px 0 rgba(255,255,255,.7)}
 .bar.bot{box-shadow:inset 0 1px 0 rgba(255,255,255,.7)}
 .bar-ui kbd{border-radius:6px;border-color:rgba(43,40,34,.18);background:rgba(255,255,255,.5)}
+/* ---------- name card as a button, and the About & contact sheet ---------- */
+button.brand{font:inherit;color:inherit;text-align:left;cursor:pointer;
+  transition:transform .4s cubic-bezier(.2,.9,.25,1.1),box-shadow .35s var(--ease-cine)}
+button.brand:hover{transform:translateY(-2px);box-shadow:inset 0 1px 0 rgba(255,255,255,.65),0 30px 60px -26px rgba(70,58,38,.45),0 2px 8px -3px rgba(70,58,38,.16)}
+button.brand:active{transform:scale(.985);transition-duration:100ms}
+/* the cue that there is more behind the card: an amber tag with an arrow that leans on hover */
+.brand-more{display:inline-flex;align-items:center;gap:8px;justify-self:start;margin-top:10px;padding:6px 11px 6px 12px;border-radius:999px;
+  font:500 10.5px/1 var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:#fffdf8;background:var(--tungsten);
+  box-shadow:0 4px 12px -5px rgba(120,66,8,.6)}
+.brand-more i{font-style:normal;transition:transform .35s cubic-bezier(.2,.9,.25,1.2)}
+button.brand:hover .brand-more i,button.brand:focus-visible .brand-more i{transform:translateX(4px)}
+.brand-more.nudge{animation:nudge 1.6s var(--ease-cine) 2}
+@keyframes nudge{0%,100%{box-shadow:0 4px 12px -5px rgba(120,66,8,.6)}40%{box-shadow:0 0 0 6px rgba(196,116,28,.18),0 4px 12px -5px rgba(120,66,8,.6)}}
+body.about-open button.brand{opacity:0;pointer-events:none}
+
+.about{position:fixed;left:12px;top:12px;bottom:12px;z-index:26;width:min(430px,calc(100% - 24px));border-radius:24px;overflow:hidden;
+  background:var(--glass-fill-strong);-webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);box-shadow:var(--glass-shadow);
+  transform-origin:24px 24px;opacity:0;transform:scale(.9) translateY(-8px);pointer-events:none;
+  transition:opacity .3s var(--ease-cine),transform .55s cubic-bezier(.2,.9,.25,1)}
+.about.open{opacity:1;transform:none;pointer-events:auto}
+.about::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1px;pointer-events:none;background:var(--glass-rim);z-index:1;
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0)}
+.about-scroll{height:100%;overflow:auto;box-sizing:border-box;padding:28px 28px calc(28px + env(safe-area-inset-bottom,0px));overscroll-behavior:contain}
+.about-close{position:absolute;top:14px;right:14px;z-index:2;width:36px;height:36px;border-radius:50%;font-size:20px;line-height:1;
+  background:rgba(255,255,255,.7);box-shadow:inset 0 1px 0 #fff,0 0 0 1px rgba(43,40,34,.08);transition:transform .2s,background .2s}
+.about-close:hover{background:#fff}.about-close:active{transform:scale(.92)}
+.about-head{display:flex;gap:16px;align-items:center;padding-right:40px}
+.monogram{flex:none;width:58px;height:58px;border-radius:50%;display:grid;place-items:center;background:var(--paper);color:var(--ink);
+  font:800 22px/1 var(--f-display);letter-spacing:.02em;box-shadow:0 6px 16px -8px rgba(43,40,34,.6)}
+.about h2{margin:4px 0 4px;font:800 34px/.9 var(--f-display);text-transform:uppercase;letter-spacing:-.01em}
+.about-meta{font:400 11px/1.4 var(--f-mono);color:var(--muted);letter-spacing:.04em}
+.about-avail{display:inline-flex;align-items:center;gap:8px;margin:20px 0 0;padding:7px 12px;border-radius:999px;background:rgba(79,138,91,.12);
+  font:500 12px/1.2 var(--f-body);color:#355e3e}
+.about-avail::before{content:"";width:7px;height:7px;border-radius:50%;background:#4f8a5b;box-shadow:0 0 0 3px rgba(79,138,91,.2)}
+.about-bio{margin:16px 0 0;font:400 15px/1.6 var(--f-body);color:var(--body-2);max-width:46ch}
+.about h3{margin:26px 0 12px;padding-top:16px;border-top:1px solid rgba(43,40,34,.1);
+  font:500 10.5px/1 var(--f-mono);letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.about ul{list-style:none;margin:0;padding:0}
+.about-services{display:grid;gap:12px}
+.about-services b{display:block;font:600 17px/1.1 var(--f-display);text-transform:uppercase;letter-spacing:.04em}
+.about-services span{display:block;margin-top:3px;font:400 13px/1.5 var(--f-body);color:var(--muted)}
+.about-clients{display:flex;flex-wrap:wrap;gap:6px}
+.about-clients li{padding:6px 11px;border-radius:999px;background:rgba(255,255,255,.6);box-shadow:0 0 0 1px rgba(43,40,34,.08);font:500 12.5px/1.2 var(--f-body)}
+.about-contact{display:grid;gap:8px}
+.about-contact li{display:grid;grid-template-columns:76px minmax(0,1fr) auto;align-items:center;gap:10px;padding:10px 10px 10px 14px;border-radius:14px;
+  background:rgba(255,255,255,.55);box-shadow:0 0 0 1px rgba(43,40,34,.07)}
+.about-contact .k{font:500 10px/1 var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.about-contact .v{font:500 14px/1.3 var(--f-body);overflow-wrap:anywhere;user-select:all}
+.about-contact .act{font:500 11px/1 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;padding:8px 12px;border-radius:999px;
+  background:var(--paper);color:var(--ink);text-decoration:none;white-space:nowrap;transition:transform .15s}
+.about-contact .act:active{transform:scale(.95)}
+@media (max-width:520px){.about{left:8px;right:8px;top:8px;bottom:8px;width:auto}.about-scroll{padding:22px 20px 24px}.about h2{font-size:28px}}
 @media (prefers-reduced-motion:reduce){
   .pin::before,.pin.is-hot::before,.grain,.screen .media.kb,.rec::before{animation:none}
   .preview,.preview.show{transform:none}
@@ -379,11 +432,12 @@ kbd{font:inherit;border:1px solid var(--line);padding:2px 5px;color:var(--muted)
 <div class="vignette"></div>
 
 <header class="hud hud-top">
-  <div class="brand">
+  <button class="brand" id="aboutBtn" type="button" aria-haspopup="dialog" aria-controls="about" aria-expanded="false">
     <span class="eyebrow" id="ownerRole"></span>
-    <h1 id="ownerName"></h1>
-    <p id="ownerLine"></p>
-  </div>
+    <span class="brand-name" id="ownerName"></span>
+    <span class="brand-line" id="ownerLine"></span>
+    <span class="brand-more"><span>About &amp; contact</span><i aria-hidden="true">→</i></span>
+  </button>
   <div class="controls" role="group" aria-label="Filter projects">
     <button class="chip" data-filter="all" aria-pressed="true">All <small id="cAll"></small></button>
     <button class="chip" data-filter="film" aria-pressed="false"><i class="glyph"></i><span class="lbl-long">Moving image</span><span class="lbl-short">Film</span> <small id="cFilm"></small></button>
@@ -411,6 +465,24 @@ kbd{font:inherit;border:1px solid var(--line);padding:2px 5px;color:var(--muted)
     <button class="chip" id="indexClose">Close</button>
   </header>
   <ol id="indexList"></ol>
+</aside>
+
+<aside class="about" id="about" role="dialog" aria-labelledby="aboutName" inert>
+  <button class="about-close" id="aboutClose" type="button" aria-label="Close about and contact">×</button>
+  <div class="about-scroll">
+    <header class="about-head">
+      <div class="monogram" id="aboutMono" aria-hidden="true"></div>
+      <div><span class="eyebrow" id="aboutRole"></span><h2 id="aboutName"></h2><span class="about-meta" id="aboutMeta"></span></div>
+    </header>
+    <p class="about-avail" id="aboutAvail"></p>
+    <p class="about-bio" id="aboutBio"></p>
+    <h3>What I do</h3>
+    <ul class="about-services" id="aboutServices"></ul>
+    <h3>Selected clients</h3>
+    <ul class="about-clients" id="aboutClients"></ul>
+    <h3>Contact</h3>
+    <ul class="about-contact" id="aboutContact"></ul>
+  </div>
 </aside>
 
 <section class="film" id="film" role="dialog" aria-modal="true" aria-labelledby="fTitle" hidden>
@@ -461,7 +533,25 @@ kbd{font:inherit;border:1px solid var(--line);padding:2px 5px;color:var(--muted)
 const OWNER = {
   name: "Your Name",
   role: "Cinematography · Photography",
-  line: "Films, music videos and still series, plotted where they were shot."
+  line: "Films, music videos and still series, plotted where they were shot.",
+  // the About & contact panel (opened from the name card)
+  based: "Based in Vancouver, BC · working across Canada",
+  available: "Available for projects from January 2027",
+  bio: "I'm a director of photography and photographer working on short films, music videos, commercials and documentary. I like small crews, practical light and places that are hard to get to. Replace this paragraph with a few lines about yourself.",
+  services: [
+    ["Cinematography", "Director of photography for short films, music videos and commercials."],
+    ["Photography", "Editorial, fashion and documentary still series."],
+    ["Documentary", "Camera and edit for small-crew documentary work."],
+    ["Colour", "Grading and look development, for my own footage and others'."]
+  ],
+  clients: ["Sample artist", "Sample label", "Sample café brand", "Sample festival", "Sample NGO"],
+  // [label, what to show, link] - a link of "copy" shows a Copy button instead of opening anything
+  contact: [
+    ["Email", "hello@yourname.com", "copy"],
+    ["Instagram", "@yourname", "https://instagram.com/yourname"],
+    ["Vimeo", "vimeo.com/yourname", "https://vimeo.com/yourname"],
+    ["Website", "yourname.com", "https://yourname.com"]
+  ]
 };
 
 const PROJECTS = [
@@ -1030,6 +1120,14 @@ function stepCamera(t,trx,tryy,response,dt,holdXY){
   if(rest(tryy-cam.ry,camV.ry,.003)){cam.ry=tryy;camV.ry=0}
   cam.s=Math.exp(ls);
 }
+// one critically damped spring channel, sub-stepped so it stays stable at any frame rate
+function springTo(cur,v,target,response,dt){
+  const n=Math.max(1,Math.ceil(dt*120)),h=dt/n,w=2*Math.PI/response;
+  for(let i=0;i<n;i++){v+=(w*w*(target-cur)-2*w*v)*h;cur+=v*h}
+  if(Math.abs(target-cur)<.05&&Math.abs(v)<.2){cur=target;v=0}
+  return[cur,v];
+}
+let goal=null,closedAt=-1e9;
 // Apple's momentum projection: where a flick at this speed (px/s) would coast to
 const project=(v,d=.998)=>(v/1000)*d/(1-d);
 
@@ -1047,12 +1145,30 @@ function frame(now){
     cam.rx=lerp(tw.from.rx,tw.to.rx,e);cam.ry=lerp(tw.from.ry,tw.to.ry,e);cam.c=lerp(tw.from.c,tw.to.c,e);
     if(tw.mid&&p>=.72){const m=tw.mid;tw.mid=null;m()}
     if(p>=1){tween=null;tw.done&&tw.done()}
+  } else if(mode==='fly'||mode==='film'){
+    // flying to a project on a spring: it starts from the camera's current speed, so there is no jolt
+    if(goal){
+      stepCamera(goal,goal.rx,goal.ry,.95,dt/1000,false);
+      cam.c+=(goal.c-cam.c)*(1-Math.pow(.9,dt/16.67));
+      if(goal.done&&Math.hypot(goal.x-cam.x,goal.y-cam.y)*cam.s<10&&Math.abs(Math.log(goal.s/cam.s))<.03){const d=goal.done;goal.done=null;d()}
+    }
   } else if(mode==='roam'||mode==='intro'){
-    const t=roamTarget();
-    const zoomingOut=!focus&&cam.s>t.s*1.03;
+    const t=roamTarget(),sec=dt/1000;
+    const zoomingOut=!focus&&cam.s>t.s*1.03,closing=now-closedAt<1600;
     const trx=RM||!mouse.has?0:focus?6:(.5-mouse.fy)*5, tryy=RM||!mouse.has||focus?0:(mouse.fx-.5)*7;
-    // response in seconds: snappy when letting go of a project, gentler while just roaming
-    stepCamera(t,trx,tryy,mode==='intro'?1.3:focus?.6:zoomingOut?.42:.75,dt/1000,!!drag);
+    if(focus&&!drag){
+      // zooming onto a project: the marker's on-screen offset from the centre and the zoom each
+      // have their own spring, so the marker glides straight to the centre while the map zooms
+      // around it (springing the map position instead makes the marker swing out, then back)
+      if(!focus.v)focus.v={x:-camV.x*cam.s,y:-camV.y*cam.s};
+      let dx=(t.x-cam.x)*cam.s,dy=(t.y-cam.y)*cam.s;
+      [dx,focus.v.x]=springTo(dx,focus.v.x,0,.62,sec);[dy,focus.v.y]=springTo(dy,focus.v.y,0,.62,sec);
+      stepCamera(t,trx,tryy,.7,sec,true);
+      cam.x=t.x-dx/cam.s;cam.y=t.y-dy/cam.s;camV.x=-focus.v.x/cam.s;camV.y=-focus.v.y/cam.s;
+    } else {
+      // response in seconds: snappy when letting go of a hover, slower after closing a project
+      stepCamera(t,trx,tryy,mode==='intro'?1.3:closing?.85:zoomingOut?.45:.75,sec,!!drag);
+    }
     cam.c+=(0-cam.c)*(1-Math.pow(.9,dt/16.67));
     if(focus&&!focus.settled&&Math.hypot(t.x-cam.x,t.y-cam.y)*cam.s<8&&Math.abs(t.s-cam.s)<t.s*.02)focus.settled=true;
   }
@@ -1094,7 +1210,7 @@ addEventListener('pointermove',e=>{
       else if(focus.armed)releaseFocus();
       else{focus.minD=Math.min(focus.minD,d);if(d>focus.minD+80)releaseFocus()}
     }
-    if(e.target.closest('.hud,.index,.film,.bar-ui,.preview'))return;
+    if(e.target.closest('.hud,.index,.film,.bar-ui,.preview,.about'))return;
     if(block&&distTo(block,x,y)>70)block=null;
     if(focus&&focus.c&&mode==='roam'){ // inside a zoomed group the nearest marker shows its card
       let best=null,bd=55;
@@ -1212,6 +1328,41 @@ document.querySelectorAll('[data-filter]').forEach(b=>b.addEventListener('click'
   releaseFocus();buildClusters();declutter();
 }));
 const visible=()=>PROJECTS.filter(p=>filter==='all'||p.medium===filter);
+// ---- About & contact
+const about=$('#about'),aboutBtn=$('#aboutBtn');
+(function fillAbout(){
+  $('#aboutMono').textContent=OWNER.name.split(/\s+/).map(w=>w[0]||'').join('').slice(0,2).toUpperCase();
+  $('#aboutRole').textContent=OWNER.role;$('#aboutName').textContent=OWNER.name;$('#aboutMeta').textContent=OWNER.based||'';
+  $('#aboutAvail').textContent=OWNER.available||'';$('#aboutAvail').hidden=!OWNER.available;
+  $('#aboutBio').textContent=OWNER.bio||'';
+  const sv=$('#aboutServices');(OWNER.services||[]).forEach(([t,d])=>{const li=document.createElement('li'),b=document.createElement('b'),sp=document.createElement('span');b.textContent=t;sp.textContent=d;li.append(b,sp);sv.append(li)});
+  const cl=$('#aboutClients');(OWNER.clients||[]).forEach(c=>{const li=document.createElement('li');li.textContent=c;cl.append(li)});
+  const ct=$('#aboutContact');(OWNER.contact||[]).forEach(([k,v,link])=>{
+    const li=document.createElement('li'),kk=document.createElement('span'),vv=document.createElement('span');
+    kk.className='k';kk.textContent=k;vv.className='v';vv.textContent=v;li.append(kk,vv);
+    if(link==='copy'){
+      const b=document.createElement('button');b.type='button';b.className='act';b.textContent='Copy';
+      b.addEventListener('click',()=>{
+        const done=()=>{b.textContent='Copied';setTimeout(()=>b.textContent='Copy',1600)};
+        try{navigator.clipboard.writeText(v).then(done,()=>{getSelection().selectAllChildren(vv);b.textContent='Selected'})}
+        catch(err){getSelection().selectAllChildren(vv);b.textContent='Selected'}
+      });li.append(b);
+    }else if(link){
+      const a=document.createElement('a');a.className='act';a.href=link;a.target='_blank';a.rel='noopener';a.textContent='Open ↗';li.append(a);
+    }
+    ct.append(li);
+  });
+})();
+function toggleAbout(open){
+  about.classList.toggle('open',open);about.inert=!open;aboutBtn.setAttribute('aria-expanded',String(open));
+  document.body.classList.toggle('about-open',open);
+  if(open){releaseFocus();setTimeout(()=>$('#aboutClose').focus({preventScroll:true}),60)}
+  else aboutBtn.focus({preventScroll:true});
+}
+aboutBtn.addEventListener('click',()=>{if(mode==='roam'||mode==='intro')toggleAbout(!about.classList.contains('open'))});
+$('#aboutClose').addEventListener('click',()=>toggleAbout(false));
+// a press on the map outside the sheet closes it
+$('#stage').addEventListener('pointerdown',()=>{if(about.classList.contains('open'))toggleAbout(false)});
 const indexEl=$('#index');
 function toggleIndex(open){
   indexEl.classList.toggle('open',open);indexEl.inert=!open;$('#indexBtn').setAttribute('aria-expanded',String(open));
@@ -1229,9 +1380,17 @@ function openProject(p,fromFilm){
   clearTimeout(dwell);focus=null;hover(null);current=p;mode='fly';
   document.body.classList.add('is-flying');
   PROJECTS.forEach(q=>q.pin.classList.toggle('is-active',q===p));
-  const s1=baseScale()*2.8;
-  const go=()=>flyTo({x:p.x,y:p.y,s:s1,rx:RM?0:16,ry:RM?0:-4,c:1},fromFilm?2000:1700,{arc:fromFilm?.62:0,mid:()=>showFilm(p)},()=>{mode='film'});
-  if(fromFilm){film.classList.remove('is-on');stopAnim();setTimeout(go,RM?0:450)}else go();
+  const s1=Math.max(focusScale()*1.15,cam.s);
+  const at={x:p.x,y:p.y,s:s1,rx:RM?0:14,ry:RM?0:-3,c:1};
+  if(fromFilm){
+    // switching projects: the open view fades first (so nothing is re-blurred while the map
+    // moves), then the camera arcs out and back in to the next location
+    film.classList.remove('is-on');stopAnim();
+    setTimeout(()=>{goal=null;flyTo(at,RM?1:1800,{arc:.55},()=>{goal={...at};mode='film';showFilm(p)})},RM?0:420);
+  }else{
+    // opening: spring from wherever the camera is; the view reveals once the camera has arrived
+    goal={...at,done:()=>{mode='film';showFilm(p)}};
+  }
 }
 function showFilm(p){
   populate(p);
@@ -1242,17 +1401,16 @@ function showFilm(p){
 }
 function closeFilm(){
   if(mode!=='film'&&mode!=='fly')return;
-  film.classList.remove('is-on');document.body.classList.remove('film-open');stopAnim();
-  setTimeout(()=>{if(!film.classList.contains('is-on'))film.hidden=true},700);
-  tween=null;mode='fly';
+  film.classList.add('closing');film.classList.remove('is-on');document.body.classList.remove('film-open');stopAnim();
+  tween=null;if(goal)goal.done=null;
+  // the view fades out over the still map first; only then does the camera pull back on its spring
   setTimeout(()=>{
-    const t=roamTarget();
-    flyTo({x:t.x,y:t.y,s:t.s,rx:0,ry:0,c:0},1500,{},()=>{
-      mode='roam';document.body.classList.remove('is-flying');
-      PROJECTS.forEach(q=>q.pin.classList.remove('is-active'));
-      returnFocus&&returnFocus.focus({preventScroll:true});
-    });
-  },RM?0:250);
+    if(!film.classList.contains('is-on')){film.hidden=true;film.classList.remove('closing')}
+    goal=null;mode='roam';closedAt=performance.now();
+    document.body.classList.remove('is-flying');
+    PROJECTS.forEach(q=>q.pin.classList.remove('is-active'));
+    returnFocus&&returnFocus.focus({preventScroll:true});
+  },RM?0:380);
 }
 function step(dir){
   if(mode!=='film')return;
@@ -1318,7 +1476,7 @@ $('#closeBtn').addEventListener('click',closeFilm);
 $('#prevBtn').addEventListener('click',()=>step(-1));
 $('#nextBtn').addEventListener('click',()=>step(1));
 addEventListener('keydown',e=>{
-  if(e.key==='Escape'){if(indexEl.classList.contains('open')){toggleIndex(false);$('#indexBtn').focus()}else if(mode==='film')closeFilm();else if(focus)releaseFocus()}
+  if(e.key==='Escape'){if(about.classList.contains('open'))toggleAbout(false);else if(indexEl.classList.contains('open')){toggleIndex(false);$('#indexBtn').focus()}else if(mode==='film')closeFilm();else if(focus)releaseFocus()}
   if(mode==='film'&&!e.target.closest('input,textarea')){
     if(e.key==='ArrowRight')step(1);if(e.key==='ArrowLeft')step(-1);
   }
@@ -1333,6 +1491,7 @@ Promise.all([reliefReady,Promise.race([document.fonts?document.fonts.ready:Promi
   try{drawTerrain()}catch(err){console.error('Map drawing failed',err)}
   try{placeCities();measureLabels();declutter();buildClusters()}catch(err){console.error('Labels failed',err)}
   setTimeout(()=>{introStart=performance.now()},RM?0:500);
+  if(!RM)setTimeout(()=>document.querySelector('.brand-more').classList.add('nudge'),RM?0:2600);
   // preview stills are made a little later, one per frame, so they never hold up the first view
   PROJECTS.forEach((p,i)=>setTimeout(()=>renderStill(p,0,PHONE?320:500),1200+i*120));
 });
