@@ -274,6 +274,8 @@ kbd{font:inherit;border:1px solid var(--line);padding:2px 5px;color:var(--muted)
 .intro strong{font:700 clamp(40px,8vw,96px)/.85 var(--f-display);text-transform:uppercase;letter-spacing:.02em}
 .intro.gone{opacity:0}
 
+/* desktop: a tall details card scrolls on its own, so the row fits and the photo stays centred */
+@media (min-width:861px){.film .card{max-height:calc(var(--filmH) - 48px);overflow:auto;box-sizing:border-box}}
 @media (max-width:860px){
   .film-inner{grid-template-columns:minmax(0,1fr);align-items:start}
   .screen{width:100%}
@@ -708,18 +710,31 @@ const PROJECTS = [
     synopsis:"Shot across two golden hours on a prairie salt lake, with a mirror rig to throw the sunset back into the performer's face.",
     pal:["#3a2e4f","#f0a5a0","#fff0d4","#2a212f"],
     media:[{type:"video",scene:"dusk",caption:"Chorus · wide"},{scene:"sea",caption:"Verse 2 · reflection",exif:"T2.2 · 800 ISO"},{scene:"dusk",caption:"Final shot",exif:"T4 · 800 ISO"}]},
-  { id:"neon-wet", title:"Neon Wet", medium:"photo", kind:"Fashion editorial", year:2025,
-    role:"Photographer", client:"Sample label", place:"Spadina Avenue, Toronto, ON", pos:[43.65,-79.40],
-    camera:"Sony A7 IV", lens:"85mm f/1.4", format:"Digital · 4:5", length:"12 frames", aspect:4/5,
-    synopsis:"Rain machines, shop signs, and one bare tungsten bulb. Everything else came from the street.",
-    pal:["#13081e","#ff3e80","#3fdcff","#06040a"],
-    media:[{scene:"neon",caption:"Look 01",exif:"f/1.4 · 1/160 · ISO 3200"},{scene:"neon",caption:"Look 04",exif:"f/1.8 · 1/125"},{scene:"neon",caption:"Look 07",exif:"f/2 · 1/200"},{scene:"city",caption:"Look 09",exif:"f/1.4 · 1/100"}]},
   { id:"paper-moon", title:"Paper Moon Café", medium:"film", kind:"Commercial", year:2026,
     role:"Director of photography", client:"Sample café brand", place:"Petit-Champlain, Québec City, QC", pos:[46.81,-71.20],
     camera:"RED Komodo 6K", lens:"Sigma Cine 18–35mm", format:"6K · 16:9", length:"0:30", aspect:16/9,
     synopsis:"A thirty-second spot built around one window and a slow winter afternoon. Hard sun through the blinds, steam as the only movement.",
     pal:["#4a2e21","#c88954","#ffd8a0","#1b110b"],
-    media:[{type:"video",scene:"interior",caption:"Hero shot · window table"},{scene:"interior",caption:"Pour",exif:"T2 · 800 ISO"},{scene:"dusk",caption:"Exterior · golden hour",exif:"T5.6"}]}
+    media:[{type:"video",scene:"interior",caption:"Hero shot · window table"},{scene:"interior",caption:"Pour",exif:"T2 · 800 ISO"},{scene:"dusk",caption:"Exterior · golden hour",exif:"T5.6"}]},
+  { id:"cias-2026", title:"Canadian International Airshow 2026", medium:"photo", kind:"Photo series", year:2026,
+    role:"Photographer", place:"Toronto, ON · over Lake Ontario at Exhibition Place", pos:[43.633,-79.418],
+    shot:"5–8 September 2026",
+    camera:"Nikon COOLPIX P600", lens:"4.3–258 mm zoom (24–1440 mm equiv.), used at 135–1000 mm",
+    format:"Digital · 4:3 · black and white, edited in Pixelmator Pro", length:"10 frames", aspect:4/3,
+    synopsis:"Ten black-and-white frames from the Canadian International Airshow over Toronto's waterfront, shot from the shore across four days with a long-zoom compact. Fast shutter speeds and low ISO throughout, then finished in Pixelmator Pro with heavy grain and soft, overcast skies.",
+    pal:["#cfcfcf","#9a9a9a","#ffffff","#2a2a2a"],
+    media:[
+      {src:"media/airshow-2026/01.jpg",thumb:"media/airshow-2026/01-thumb.jpg",caption:"Snowbirds formation past the CN Tower",exif:"8 Sep 2026, 12:50 · f/7.1 · 1/1000 s · ISO 100 · 400 mm equiv."},
+      {src:"media/airshow-2026/02.jpg",thumb:"media/airshow-2026/02-thumb.jpg",caption:"P-51 Mustang inverted overhead",exif:"5 Sep 2026, 12:51 · f/6.9 · 1/1250 s · ISO 100 · 330 mm equiv."},
+      {src:"media/airshow-2026/03.jpg",thumb:"media/airshow-2026/03-thumb.jpg",caption:"Hornet pulling vapour in a hard turn",exif:"6 Sep 2026, 12:04 · f/8 · 1/1250 s · ISO 100 · 400 mm equiv."},
+      {src:"media/airshow-2026/04.jpg",thumb:"media/airshow-2026/04-thumb.jpg",caption:"Jet trainer trailing smoke above the cloud",exif:"6 Sep 2026, 12:33 · f/5.6 · 1/2000 s · ISO 100 · 450 mm equiv."},
+      {src:"media/airshow-2026/05.jpg",thumb:"media/airshow-2026/05-thumb.jpg",caption:"Three Mustangs overhead",exif:"6 Sep 2026, 12:51 · f/5.6 · 1/1000 s · ISO 100 · 450 mm equiv."},
+      {src:"media/airshow-2026/06.jpg",thumb:"media/airshow-2026/06-thumb.jpg",caption:"Three Mustangs in echelon",exif:"6 Sep 2026, 12:59 · f/5.3 · 1/1000 s · ISO 100 · 180 mm equiv."},
+      {src:"media/airshow-2026/07.jpg",thumb:"media/airshow-2026/07-thumb.jpg",caption:"Black Hawk with crew in the open door",exif:"6 Sep 2026, 13:30 · f/5.6 · 1/1600 s · ISO 100 · 1000 mm equiv."},
+      {src:"media/airshow-2026/08.jpg",thumb:"media/airshow-2026/08-thumb.jpg",caption:"Hornet, vapour off the wingtips",exif:"7 Sep 2026, 12:00 · f/7.1 · 1/1250 s · ISO 100 · 500 mm equiv."},
+      {src:"media/airshow-2026/09.jpg",thumb:"media/airshow-2026/09-thumb.jpg",caption:"Heritage flight: Spitfire, Hurricane, Tutor and Hornet",exif:"7 Sep 2026, 12:18 · f/5 · 1/1250 s · ISO 100 · 135 mm equiv."},
+      {src:"media/airshow-2026/10.jpg",thumb:"media/airshow-2026/10-thumb.jpg",caption:"Two RCAF Tutors in a mirror pass",exif:"7 Sep 2026, 15:17 · f/5.6 · 1/1600 s · ISO 100 · 400 mm equiv."}
+    ]}
 ];
 
 /* ===================================================================== */
@@ -1078,7 +1093,7 @@ const sceneFor=(p,i)=>({type:p.media[i].scene||'dusk',pal:p.media[i].pal||p.pal,
 const stillCache=new Map();
 function renderStill(p,i,wpx){
   const m=p.media[i];
-  if(m.src&&m.type!=='video')return m.src;
+  if(m.src&&m.type!=='video')return m.thumb&&wpx<=500?m.thumb:m.src; // small slots use the thumbnail
   if(m.poster)return m.poster;
   const key=`${p.id}/${i}/${wpx}`;
   if(stillCache.has(key))return stillCache.get(key);
@@ -1583,7 +1598,7 @@ function populate(p){
     s.textContent=w;s.style.setProperty('--d',300+k*90);o.append(s);t.append(o,' ')});
   $('#fSynopsis').textContent=p.synopsis;
   const rows=[['Role',p.role],['Client',p.client],['Camera',p.camera],['Lens',p.lens],['Format',p.format],
-    [p.medium==='film'?'Runtime':'Frames',p.length],['Location',p.place],['Coordinates',fmtLL(p.pos[0],p.pos[1])]];
+    [p.medium==='film'?'Runtime':'Frames',p.length],['Shot',p.shot],['Location',p.place],['Coordinates',fmtLL(p.pos[0],p.pos[1])]];
   const dl=$('#fMeta');dl.textContent='';
   rows.forEach(([k,v])=>{if(!v)return;const dt=document.createElement('dt');dt.textContent=k;const dd=document.createElement('dd');dd.textContent=v;dl.append(dt,dd)});
   const th=$('#fThumbs');th.textContent='';
@@ -1593,7 +1608,7 @@ function populate(p){
     if(m.type==='video'){const s=document.createElement('span');s.className='play';s.textContent='▶ MOV';b.append(s)}
     b.addEventListener('click',()=>showMedia(p,k));th.append(b);
   });
-  $('#fAspect').textContent=(p.aspect===2.39?'2.39':p.aspect===16/9?'16:9':p.aspect===4/5?'4:5':p.aspect===3/2?'3:2':p.aspect.toFixed(2))+(p.aspect>1.6?' : 1':'');
+  $('#fAspect').textContent=(p.aspect===2.39?'2.39':p.aspect===16/9?'16:9':p.aspect===4/5?'4:5':p.aspect===3/2?'3:2':p.aspect===4/3?'4:3':p.aspect.toFixed(2))+(p.aspect>1.6?' : 1':'');
   $('#bSlate').textContent=`SC ${pad2(p.sc)} · ${p.year}`;$('#bTitle').textContent=p.title;
   const prev=list[(i-1+list.length)%list.length],next=list[(i+1)%list.length];
   $('#prevLbl').textContent=prev&&prev!==p?prev.title:'';$('#nextLbl').textContent=next&&next!==p?next.title:'';
