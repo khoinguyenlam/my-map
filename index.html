@@ -582,6 +582,11 @@ button.brand:hover{box-shadow:var(--glass-shadow)}
   .info dl{grid-template-columns:88px minmax(0,1fr)}
 }
 @media (max-width:400px){.bar-ui .count{display:none}}
+/* no live blur behind the project view: the map keeps moving while it fades in, and re-blurring
+   the whole screen every frame is what made the opening stutter. A soft cream veil instead. */
+.film{background:rgba(244,239,229,.88);-webkit-backdrop-filter:none;backdrop-filter:none}
+.film:not(.is-on){pointer-events:none}
+.film .card{-webkit-backdrop-filter:none;backdrop-filter:none;background:linear-gradient(140deg,rgba(255,255,255,.92),rgba(255,251,244,.8))}
 /* the details card scrolls, and a drawn-on rim layer would scroll with its content and show up
    as a stray line part-way down; a real border stays on the card's edge */
 .film .card::before{display:none}
@@ -1187,6 +1192,12 @@ function drawScene(ctx,w,h,sc,t){
 }
 const sceneFor=(p,i)=>({type:p.media[i].scene||'dusk',pal:p.media[i].pal||p.pal,seed:hashStr(p.id)+i*97});
 const stillCache=new Map();
+// draw every project's pictures ahead of time while the page is idle, so opening a project never
+// has to stop and draw them in the middle of its animation
+{const warm=[];PROJECTS.forEach(p=>p.media.forEach((m,k)=>{warm.push([p,k,240]);if(k===0)warm.push([p,0,1600])}));
+  const idle=window.requestIdleCallback||(f=>setTimeout(()=>f({timeRemaining:()=>10}),120));
+  const next=dl=>{while(warm.length&&dl.timeRemaining()>4){const[p,k,w]=warm.shift();renderStill(p,k,w)}if(warm.length)idle(next,{timeout:4000})};
+  setTimeout(()=>idle(next),2500)}
 function renderStill(p,i,wpx){
   const m=p.media[i];
   if(m.src&&m.type!=='video')return m.thumb&&wpx<=500?m.thumb:m.src; // small slots use the thumbnail
@@ -1645,9 +1656,11 @@ function openProject(p,fromFilm){
     // switching projects: the open view fades first (so nothing is re-blurred while the map
     // moves), then the camera arcs out and back in to the next location
     film.classList.remove('is-on');stopAnim();
-    setTimeout(()=>{goal=null;flyTo(at,RM?1:2200,{arc:.45},()=>{goal={...at};mode='film';showFilm(p)})},RM?0:420);
+    setTimeout(()=>{prepareFilm(p);goal=null;flyTo(at,RM?1:2200,{arc:.45},()=>{goal={...at};mode='film';showFilm(p)})},RM?0:420);
   }else{
-    // opening: spring from wherever the camera is; the view reveals once the camera has arrived
+    // opening: spring from wherever the camera is; the view is built now, while the camera
+    // flies, and only revealed once it arrives, so the reveal's first frames aren't held up
+    prepareFilm(p);
     goal={...at,done:()=>{mode='film';showFilm(p)}};
   }
 }
@@ -1656,10 +1669,12 @@ function openProject(p,fromFilm){
 const projectFromHash=()=>PROJECTS.find(p=>p.id===decodeURIComponent(location.hash.slice(1)));
 addEventListener('popstate',()=>{const p=projectFromHash();
   if(p&&mode==='roam')openProject(p);else if(!p&&(mode==='film'||mode==='fly'))closeFilm(true)});
+let prepared=null;
+function prepareFilm(p){populate(p);film.hidden=false;film.scrollTop=0;film.classList.remove('closing');prepared=p}
 function showFilm(p){
+  if(prepared!==p)prepareFilm(p);prepared=null;
   if(location.hash!=='#'+p.id){try{history[history.state&&history.state.project?'replaceState':'pushState']({project:p.id},'','#'+p.id)}catch(err){}}
-  populate(p);
-  film.hidden=false;film.scrollTop=0;
+  film.hidden=false;
   document.body.classList.add('film-open');
   requestAnimationFrame(()=>requestAnimationFrame(()=>film.classList.add('is-on')));
   $('#closeBtn').focus({preventScroll:true});
