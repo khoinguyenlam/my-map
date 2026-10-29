@@ -80,26 +80,42 @@ body.is-flying .city{opacity:.25}
 .vignette{position:fixed;inset:0;pointer-events:none;z-index:2;
   background:radial-gradient(ellipse 75% 70% at 50% 50%,transparent 45%,rgba(120,104,78,.16) 100%)}
 
-.pin{position:absolute;width:26px;height:26px;margin:-13px 0 0 -13px;transform:scale(var(--inv,1));transform-origin:13px 13px;
-  transition:opacity .6s var(--ease-cine);z-index:1}
-.pin-mark{position:absolute;inset:4px;border:1.5px solid var(--tungsten);border-radius:50%;background:rgba(255,253,248,.9);
-  transition:transform .5s var(--ease-cine),background .3s}
-.pin[data-medium="photo"] .pin-mark{border-radius:2px;inset:5px}
-.pin-mark::after{content:"";position:absolute;left:50%;top:50%;width:4px;height:4px;margin:-2px 0 0 -2px;background:var(--tungsten);border-radius:50%}
-.pin::before{content:"";position:absolute;inset:0;border:1px solid var(--tungsten);border-radius:50%;opacity:0}
+.pin{position:absolute;width:30px;height:30px;margin:-15px 0 0 -15px;transform:scale(var(--inv,1));transform-origin:15px 15px;
+  transition:opacity .6s var(--ease-cine);z-index:2}
+.pin:hover,.pin.is-hot,.pin:focus-visible{z-index:3}
+/* project markers are solid amber badges with a white rim and a glyph for the medium (play for
+   film, a lens ring for stills), so they read as the things to press, apart from the map's dots */
+.pin-mark{position:absolute;inset:2px;border-radius:50%;background:var(--tungsten);border:2px solid #fffdf8;
+  box-shadow:0 0 0 1px rgba(196,116,28,.35),0 4px 10px -3px rgba(120,66,8,.6);
+  transition:transform .35s cubic-bezier(.2,.9,.25,1.15),box-shadow .3s}
+.pin[data-medium="photo"] .pin-mark{border-radius:7px;inset:3px}
+.pin-mark::after{content:"";position:absolute;left:50%;top:50%;width:8px;height:9px;margin:-4.5px 0 0 -3px;background:#fffdf8;
+  clip-path:polygon(0 0,100% 50%,0 100%)}
+.pin[data-medium="photo"] .pin-mark::after{width:5px;height:5px;margin:-4.5px 0 0 -4.5px;clip-path:none;background:transparent;
+  border:2px solid #fffdf8;border-radius:50%}
+.pin::before{content:"";position:absolute;inset:0;border:1.5px solid var(--tungsten);border-radius:50%;opacity:0}
+.pin[data-medium="photo"]::before{border-radius:9px}
 /* a marker pulses once when it becomes the one you're on, rather than every marker looping forever */
 .pin.is-hot::before{animation:ping 1.1s var(--ease-cine) 1}
-.pin:active .pin-mark{transform:scale(1.15);transition-duration:80ms}
-.pin[data-medium="photo"]::before{border-radius:3px}
-@keyframes ping{0%{transform:scale(.6);opacity:.7}70%,100%{transform:scale(2.4);opacity:0}}
-.pin-label{position:absolute;left:32px;top:50%;transform:translateY(-50%);white-space:nowrap;display:flex;align-items:baseline;gap:8px;
-  pointer-events:none;text-shadow:0 0 8px var(--halo),0 0 3px var(--halo),0 0 1px var(--halo);transition:opacity .4s,transform .5s var(--ease-cine)}
-.pin.label-l .pin-label{left:auto;right:32px;flex-direction:row-reverse}
-.pin.label-l:hover .pin-label,.pin.label-l.is-hot .pin-label{transform:translate(-4px,-50%)}
+@keyframes ping{0%{transform:scale(.7);opacity:.8}70%,100%{transform:scale(2.2);opacity:0}}
+.pin:hover .pin-mark,.pin:focus-visible .pin-mark,.pin.is-hot .pin-mark{transform:scale(1.18);
+  box-shadow:0 0 0 1px rgba(196,116,28,.45),0 8px 18px -4px rgba(120,66,8,.65)}
+.pin:active .pin-mark{transform:scale(.92);transition-duration:80ms}
+/* the project's name sits on a small cream tag so it reads apart from the map's own labels */
+.pin-label{position:absolute;left:38px;top:50%;transform:translateY(-50%);white-space:nowrap;display:flex;align-items:baseline;gap:7px;
+  padding:5px 10px 4px 9px;border-radius:999px;background:rgba(255,253,248,.95);
+  box-shadow:inset 0 1px 0 #fff,0 0 0 1px rgba(43,40,34,.08),0 4px 12px -5px rgba(70,58,38,.45);
+  pointer-events:none;transition:opacity .35s var(--ease-cine),transform .45s var(--ease-cine)}
+.pin.label-l .pin-label{left:auto;right:38px}
+.pin.label-b .pin-label{left:50%;top:calc(100% + 6px);transform:translateX(-50%)}
+.pin.label-t .pin-label{left:50%;top:auto;bottom:calc(100% + 6px);transform:translateX(-50%)}
 .pin-label b{font:500 10px/1 var(--f-mono);color:var(--tungsten);letter-spacing:.08em}
-.pin-label span{font:600 17px/1 var(--f-display);text-transform:uppercase;letter-spacing:.05em;color:var(--paper)}
-.pin:hover .pin-mark,.pin:focus-visible .pin-mark,.pin.is-hot .pin-mark{transform:scale(1.35);background:var(--tungsten-soft)}
-.pin:hover .pin-label,.pin.is-hot .pin-label{transform:translate(4px,-50%)}
+.pin-label span{font:600 15px/1 var(--f-display);text-transform:uppercase;letter-spacing:.05em;color:var(--paper)}
+/* a name steps aside when there's no room for it, and comes back when you zoom in or point at its marker */
+.pin.lbl-off .pin-label{opacity:0;transform:translateY(-50%) scale(.9)}
+.pin.lbl-off.label-b .pin-label,.pin.lbl-off.label-t .pin-label{transform:translateX(-50%) scale(.9)}
+.pin.lbl-off:hover .pin-label,.pin.lbl-off.is-hot .pin-label,.pin.lbl-off:focus-visible .pin-label{opacity:1;transform:translateY(-50%)}
+.pin.lbl-off.label-b:hover .pin-label,.pin.lbl-off.label-b.is-hot .pin-label,.pin.lbl-off.label-t:hover .pin-label,.pin.lbl-off.label-t.is-hot .pin-label{transform:translateX(-50%)}
 .pin.is-dim{opacity:.16;pointer-events:none}
 .pin.is-dim .pin-label{opacity:0}
 body.is-flying .pin:not(.is-active){opacity:0;pointer-events:none}
@@ -146,7 +162,7 @@ body.is-flying .hud .controls{pointer-events:none}
 .readout .hint{color:var(--paper);opacity:.75}
 .legend{display:flex;gap:14px;align-items:center}
 .legend span{display:inline-flex;gap:7px;align-items:center}
-.legend .glyph{color:var(--tungsten)}
+.legend .glyph{color:var(--tungsten);background:var(--tungsten);border-color:var(--tungsten)}
 
 
 /* ---------- hover preview ---------- */
@@ -692,10 +708,11 @@ function placeCities(){
     el.style.left=x+'px';el.style.top=y+'px';layer.append(el);
     LABELS.push({kind:'region',el,text:el,x,y,sides:['c'],prio:size<14?6:4});
   });
-  PROJECTS.forEach(p=>{p.labelRect=()=>{const l=LABELS.find(q=>q.p===p),[x,y]=screenOf(p),left=p.pin.classList.contains('label-l');
-    return left?{left:x-19-l.w,right:x-19,top:y-l.h/2,bottom:y+l.h/2}:{left:x+19,right:x+19+l.w,top:y-l.h/2,bottom:y+l.h/2}}});
+  PROJECTS.forEach(p=>{p.labelRect=()=>{const l=LABELS.find(q=>q.p===p),[x,y]=screenOf(p),w=l.w,h=l.h;
+    return l.side==='l'?{left:x-23-w,right:x-23,top:y-h/2,bottom:y+h/2}:l.side==='b'?{left:x-w/2,right:x+w/2,top:y+21,bottom:y+21+h}
+      :l.side==='t'?{left:x-w/2,right:x+w/2,top:y-21-h,bottom:y-21}:{left:x+23,right:x+23+w,top:y-h/2,bottom:y+h/2}}});
   PROJECTS.forEach(p=>LABELS.push({kind:'pin',el:p.pin,text:p.pin.querySelector('.pin-label'),x:p.x,y:p.y,p,
-    sides:p.labelSide==='l'?['l','r']:['r','l'],prio:0}));
+    sides:[...new Set([p.labelSide||'r','r','l','b','t'])],prio:0}));
   LABELS.sort((a,b)=>a.prio-b.prio);
 }
 function measureLabels(){LABELS.forEach(l=>{l.w=l.text.offsetWidth;l.h=l.text.offsetHeight})}
@@ -706,20 +723,19 @@ function declutter(){
   const overlaps=b=>placed.some(o=>b[0]<o[2]&&b[2]>o[0]&&b[1]<o[3]&&b[3]>o[1]);
   const add=(b,m=0)=>placed.push([b[0]-m,b[1]-m,b[2]+m,b[3]+m]);
   // markers and city dots are obstacles every label must avoid
-  PROJECTS.forEach(p=>{if(!p.pin.classList.contains('is-dim'))add([p.x*s-15,p.y*s-15,p.x*s+15,p.y*s+15])});
+  PROJECTS.forEach(p=>{if(!p.pin.classList.contains('is-dim'))add([p.x*s-17,p.y*s-17,p.x*s+17,p.y*s+17])});
   LABELS.forEach(l=>{if(l.kind==='city'&&l.prio<5)add([l.x*s-l.dot,l.y*s-l.dot,l.x*s+l.dot,l.y*s+l.dot])});
   for(const l of LABELS){
     if(l.kind==='pin'&&l.p.pin.classList.contains('is-dim'))continue;
     const ax=l.x*s,ay=l.y*s,w=l.w,h=l.h;
-    const g=l.kind==='pin'||(l.kind==='city'&&PROJECTS.some(p=>Math.hypot(p.x-l.x,p.y-l.y)*s<16))?19:9;
+    const pin=l.kind==='pin',g=pin?23:l.kind==='city'&&PROJECTS.some(p=>Math.hypot(p.x-l.x,p.y-l.y)*s<18)?23:9,gv=pin?21:g-2;
     const box=side=>side==='r'?[ax+g,ay-h/2,ax+g+w,ay+h/2]:side==='l'?[ax-g-w,ay-h/2,ax-g,ay+h/2]
-      :side==='b'?[ax-w/2,ay+g-2,ax+w/2,ay+g-2+h]:side==='t'?[ax-w/2,ay-g+2-h,ax+w/2,ay-g+2]:[ax-w/2,ay-h/2,ax+w/2,ay+h/2];
-    let side=l.sides.find(sd=>!overlaps(box(sd)));
-    if(!side&&l.kind==='pin')side=l.sides[0]; // project names always show
+      :side==='b'?[ax-w/2,ay+gv,ax+w/2,ay+gv+h]:side==='t'?[ax-w/2,ay-gv-h,ax+w/2,ay-gv]:[ax-w/2,ay-h/2,ax+w/2,ay+h/2];
+    const side=l.sides.find(sd=>!overlaps(box(sd)));
     if(side){
-      add(box(side),4);
+      add(box(side),4);l.side=side;
       if(l.kind==='city'){l.el.style.setProperty('--g',g+'px');l.el.classList.remove('side-r','side-l','side-b','side-t');l.el.classList.add('side-'+side)}
-      if(l.kind==='pin')l.el.classList.toggle('label-l',side==='l');
+      if(pin){l.el.classList.remove('label-l','label-b','label-t');if(side!=='r')l.el.classList.add('label-'+side)}
       if(l.kind==='city'&&l.prio===5)add([ax-l.dot,ay-l.dot,ax+l.dot,ay+l.dot]);
     }
     l.el.classList.toggle('lbl-off',!side);
