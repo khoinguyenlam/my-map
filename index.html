@@ -2,7 +2,7 @@
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800&family=JetBrains+Mono:wght@400;500&family=Manrope:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700&family=JetBrains+Mono:wght@400;500&family=Manrope:wght@400;500&display=swap">
 <style>
 /* Layout: a full-bleed map of Canada steered by the cursor; each project opens as a letterboxed screening card. */
 :root{
@@ -60,9 +60,9 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .city.nat i{left:-6px;top:-6px;width:12px;height:12px;border-radius:0;background:var(--paper);
   clip-path:polygon(50% 0,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%)}
 .city span{position:absolute;top:0;white-space:nowrap;transform:translateY(-50%);
-  font:600 13px/1 var(--f-body);color:var(--paper);letter-spacing:.01em;text-shadow:0 0 6px var(--halo),0 0 2px var(--halo),0 0 1px var(--halo)}
+  font:500 13px/1 var(--f-body);color:var(--paper);letter-spacing:.01em;text-shadow:0 0 6px var(--halo),0 0 2px var(--halo),0 0 1px var(--halo)}
 .city.t2 span{font-weight:500;font-size:12px}
-.city.t3 span{font-weight:500;font-size:10.5px;color:var(--muted)}
+.city.t3 span{font-weight:500;font-size:12px;color:var(--muted)}
 .city.side-r span{left:var(--g,9px)}
 .city.side-l span{right:var(--g,9px)}
 .city.side-b span{left:0;top:calc(var(--g,9px) - 2px);transform:translateX(-50%)}
@@ -70,11 +70,11 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .city span,.city i{transition:opacity .45s var(--ease-cine)}
 .city.lbl-off span,.city.t3.lbl-off i{opacity:0}
 .region{position:absolute;white-space:nowrap;transform-origin:0 0;transform:scale(var(--inv,1)) translate(-50%,-50%);
-  font:600 15px/1 var(--f-display);letter-spacing:.22em;text-transform:uppercase;color:var(--label-region);transition:opacity .45s var(--ease-cine)}
-.region.sm{font-size:11px;letter-spacing:.16em}
+  font:700 15px/1 var(--f-display);letter-spacing:.22em;text-transform:uppercase;color:var(--label-region);transition:opacity .45s var(--ease-cine)}
+.region.sm{font-size:12px;letter-spacing:.16em}
 .region.foreign{color:var(--label-foreign)}
 .region.water{font:italic 500 12px/1 var(--f-body);letter-spacing:.08em;text-transform:none;color:var(--label-water)}
-.region.water.sm{font-size:10.5px}
+.region.water.sm{font-size:12px}
 .region.lbl-off,body.is-flying .region{opacity:0}
 body.is-flying .city{opacity:.25}
 .vignette{position:fixed;inset:0;pointer-events:none;z-index:2;
@@ -109,8 +109,8 @@ body.is-flying .city{opacity:.25}
 .pin.label-l .pin-label{left:auto;right:38px}
 .pin.label-b .pin-label{left:50%;top:calc(100% + 6px);transform:translateX(-50%)}
 .pin.label-t .pin-label{left:50%;top:auto;bottom:calc(100% + 6px);transform:translateX(-50%)}
-.pin-label b{font:500 10px/1 var(--f-mono);color:var(--tungsten);letter-spacing:.08em}
-.pin-label span{font:600 15px/1 var(--f-display);text-transform:uppercase;letter-spacing:.05em;color:var(--paper)}
+.pin-label b{font:500 12px/1 var(--f-mono);color:var(--tungsten);letter-spacing:.08em}
+.pin-label span{font:700 15px/1 var(--f-display);text-transform:uppercase;letter-spacing:.05em;color:var(--paper)}
 /* a name steps aside when there's no room for it, and comes back when you zoom in or point at its marker */
 .pin.lbl-off .pin-label{opacity:0;transform:translateY(-50%) scale(.9)}
 .pin.lbl-off.label-b .pin-label,.pin.lbl-off.label-t .pin-label{transform:translateX(-50%) scale(.9)}
@@ -140,23 +140,23 @@ body.is-flying .hud .controls,body.is-flying .hud .brand{pointer-events:none}
   background:linear-gradient(140deg,var(--card-edge) 0%,transparent 55%,var(--card-edge-warm) 100%);
   -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;
   mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0)}
-.eyebrow{font:400 11px/1.2 var(--f-mono);letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
-.brand-name{display:block;margin:0;font:800 clamp(30px,3.4vw,46px)/.88 var(--f-display);text-transform:uppercase;letter-spacing:-.005em;text-wrap:balance}
+.eyebrow{font:400 12px/1.2 var(--f-mono);letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.brand-name{display:block;margin:0;font:700 clamp(30px,3.4vw,46px)/.88 var(--f-display);text-transform:uppercase;letter-spacing:-.005em;text-wrap:balance}
 .brand-line{display:block;margin:2px 0 0;font:400 13px/1.4 var(--f-body);color:var(--muted);max-width:30ch}
 
 .controls{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
-.chip{font:500 11px/1 var(--f-mono);letter-spacing:.1em;text-transform:uppercase;padding:9px 12px;border:1px solid var(--line);border-top-color:var(--card-edge);
+.chip{font:500 12px/1 var(--f-mono);letter-spacing:.1em;text-transform:uppercase;padding:9px 12px;border:1px solid var(--line);border-top-color:var(--card-edge);
   background:var(--card-bg);-webkit-backdrop-filter:blur(12px) saturate(150%);backdrop-filter:blur(12px) saturate(150%);color:var(--paper);display:inline-flex;gap:8px;align-items:center;
   transition:background .25s,color .25s,border-color .25s,transform .2s var(--ease-cine)}
 /* feedback lands on press, not on release */
 .chip:active,.bar-ui button:active,.thumb:active,.index li button:active,.preview.show:active{transform:scale(.97);transition-duration:100ms}
 .chip:hover{border-color:var(--contour)}
 .chip[aria-pressed="true"]{background:var(--paper);border-color:var(--paper);color:var(--ink)}
-.chip small{font-size:10px;opacity:.7}
+.chip small{font-size:12px;opacity:.7}
 .glyph{display:inline-block;width:9px;height:9px;border:1.5px solid currentColor;border-radius:50%}
 .glyph.sq{border-radius:1px}
 
-.readout{display:grid;gap:10px;font:400 11px/1.5 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.readout{display:grid;gap:10px;font:400 12px/1.5 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .readout .row{display:flex;gap:18px;flex-wrap:wrap}
 .readout b{color:var(--paper);font-weight:500;font-variant-numeric:tabular-nums}
 .readout .hint{color:var(--paper);opacity:.75}
@@ -173,16 +173,16 @@ body.is-flying .hud .controls,body.is-flying .hud .brand{pointer-events:none}
 .preview.show{opacity:1;transform:none;pointer-events:auto;cursor:pointer}
 .preview img{display:block;width:100%;height:140px;object-fit:cover}
 .preview .pv-body{padding:12px 14px 14px;display:grid;gap:6px}
-.preview .pv-meta{font:400 10px/1 var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--tungsten)}
-.preview .pv-title{font:800 22px/.95 var(--f-display);text-transform:uppercase;letter-spacing:.02em}
-.preview .pv-cta{font:400 11px/1.3 var(--f-mono);color:var(--muted);letter-spacing:.06em}
+.preview .pv-meta{font:400 12px/1 var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--tungsten)}
+.preview .pv-title{font:700 22px/.95 var(--f-display);text-transform:uppercase;letter-spacing:.02em}
+.preview .pv-cta{font:400 12px/1.3 var(--f-mono);color:var(--muted);letter-spacing:.06em}
 
 /* ---------- letterbox ---------- */
 .bar{position:fixed;left:0;right:0;height:var(--barH);background:var(--bar);z-index:30;pointer-events:none}
 .bar.top{top:0}.bar.bot{bottom:0}
 .bar-ui{position:fixed;left:0;right:0;z-index:31;height:var(--barH);display:flex;align-items:center;justify-content:space-between;gap:16px;
   padding-left:max(24px,env(safe-area-inset-left,0px));padding-right:max(24px,env(safe-area-inset-right,0px));
-  font:400 11px/1.2 var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);
+  font:400 12px/1.2 var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);
   opacity:0;pointer-events:none;transition:opacity .6s var(--ease-cine)}
 .bar-ui.top{top:0}.bar-ui.bot{bottom:0}
 body.film-open .bar-ui{opacity:1;pointer-events:auto}
@@ -221,31 +221,31 @@ kbd{font:inherit;border:1px solid var(--line);padding:2px 5px;color:var(--muted)
 .vf::after{content:"";position:absolute;left:50%;top:50%;width:14px;height:14px;margin:-7px 0 0 -7px;
   background:linear-gradient(rgba(235,230,218,.5),rgba(235,230,218,.5)) center/1px 100% no-repeat,linear-gradient(rgba(235,230,218,.5),rgba(235,230,218,.5)) center/100% 1px no-repeat}
 .screen-hud{position:absolute;left:22px;right:22px;top:20px;z-index:3;display:flex;justify-content:space-between;
-  font:400 10px/1 var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:rgba(235,230,218,.85);text-shadow:0 1px 4px rgba(0,0,0,.8);font-variant-numeric:tabular-nums}
+  font:400 12px/1 var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:rgba(235,230,218,.85);text-shadow:0 1px 4px rgba(0,0,0,.8);font-variant-numeric:tabular-nums}
 .rec{display:inline-flex;gap:6px;align-items:center}
 .rec::before{content:"";width:7px;height:7px;border-radius:50%;background:#e2483d;animation:blink 1.2s steps(2) infinite}
 @keyframes blink{50%{opacity:0}}
-.caption{width:100%;display:flex;justify-content:space-between;gap:16px;font:400 11px/1.4 var(--f-mono);letter-spacing:.06em;color:var(--muted)}
+.caption{width:100%;display:flex;justify-content:space-between;gap:16px;font:400 12px/1.4 var(--f-mono);letter-spacing:.06em;color:var(--muted)}
 .caption b{color:var(--paper);font-weight:400}
 
 .card{display:grid;gap:18px;align-content:center;min-width:0}
-.slate{display:flex;gap:10px;flex-wrap:wrap;font:500 11px/1 var(--f-mono);letter-spacing:.12em;text-transform:uppercase}
+.slate{display:flex;gap:10px;flex-wrap:wrap;font:500 12px/1 var(--f-mono);letter-spacing:.12em;text-transform:uppercase}
 .slate span{padding:6px 8px;border:1px solid var(--line);color:var(--muted)}
 .slate span:first-child{background:var(--paper);border-color:var(--paper);color:var(--ink)}
-.title{margin:0;font:800 clamp(44px,5vw,82px)/.86 var(--f-display);text-transform:uppercase;letter-spacing:-.015em;text-wrap:balance}
+.title{margin:0;font:700 clamp(44px,5vw,82px)/.86 var(--f-display);text-transform:uppercase;letter-spacing:-.015em;text-wrap:balance}
 .title .w{display:inline-block;overflow:hidden;vertical-align:top;padding-bottom:.04em}
 .title .w > span{display:inline-block;transform:translateY(105%);transition:transform 1s var(--ease-cine);transition-delay:calc(var(--d,0) * 1ms)}
 .film.is-on .title .w > span{transform:none}
 .synopsis{margin:0;font:400 15px/1.6 var(--f-body);color:var(--body-2);max-width:46ch}
 .meta{margin:0;display:grid;grid-template-columns:auto 1fr;column-gap:18px;row-gap:9px;border-top:1px solid var(--line);padding-top:16px}
-.meta dt{font:400 10px/1.6 var(--f-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.meta dt{font:400 12px/1.6 var(--f-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
 .meta dd{margin:0;font:500 13px/1.45 var(--f-body);color:var(--paper)}
 .thumbs{display:flex;gap:8px;flex-wrap:wrap}
 .thumb{position:relative;width:64px;aspect-ratio:var(--ar,1.5);max-height:80px;overflow:hidden;border:1px solid var(--line);opacity:.55;transition:opacity .3s,border-color .3s,transform .4s var(--ease-cine)}
 .thumb img{width:100%;height:100%;object-fit:cover;display:block}
 .thumb:hover{opacity:.9;transform:translateY(-2px)}
 .thumb[aria-current="true"]{opacity:1;border-color:var(--tungsten)}
-.thumb .play{position:absolute;right:4px;bottom:3px;font:500 9px/1 var(--f-mono);color:var(--paper);text-shadow:0 1px 3px #000}
+.thumb .play{position:absolute;right:4px;bottom:3px;font:500 12px/1 var(--f-mono);color:var(--paper);text-shadow:0 1px 3px #000}
 .rv{opacity:0;transform:translateY(14px);transition:opacity .8s var(--ease-cine),transform .9s var(--ease-cine);transition-delay:calc(var(--d,0) * 1ms)}
 .film.is-on .rv{opacity:1;transform:none}
 
@@ -255,14 +255,14 @@ kbd{font:inherit;border:1px solid var(--line);padding:2px 5px;color:var(--muted)
   padding-top:calc(20px + env(safe-area-inset-top,0px));padding-bottom:calc(20px + env(safe-area-inset-bottom,0px));padding-right:env(safe-area-inset-right,0px)}
 .index.open{transform:none}
 .index header{display:flex;justify-content:space-between;align-items:center;padding:0 24px 16px;border-bottom:1px solid var(--line)}
-.index header p{margin:4px 0 0;font:400 11px/1.4 var(--f-mono);color:var(--muted);letter-spacing:.04em}
-.index h2{margin:0;font:800 28px/1 var(--f-display);text-transform:uppercase;letter-spacing:.03em}
+.index header p{margin:4px 0 0;font:400 12px/1.4 var(--f-mono);color:var(--muted);letter-spacing:.04em}
+.index h2{margin:0;font:700 28px/1 var(--f-display);text-transform:uppercase;letter-spacing:.03em}
 .index ol{list-style:none;margin:0;padding:8px 0;overflow:auto}
 .index li button{width:100%;display:grid;grid-template-columns:72px 1fr;gap:14px;align-items:center;text-align:left;padding:10px 24px;transition:background .25s}
 .index li button:hover{background:var(--ink-2)}
 .index li img{width:72px;height:46px;object-fit:cover;display:block}
-.index .ix-meta{font:400 10px/1 var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--tungsten)}
-.index .ix-title{display:block;margin-top:5px;font:600 19px/1 var(--f-display);text-transform:uppercase;letter-spacing:.04em}
+.index .ix-meta{font:400 12px/1 var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--tungsten)}
+.index .ix-title{display:block;margin-top:5px;font:700 19px/1 var(--f-display);text-transform:uppercase;letter-spacing:.04em}
 .index li.is-dim{display:none}
 
 /* ---------- grain + intro ---------- */
@@ -271,7 +271,7 @@ kbd{font:inherit;border:1px solid var(--line);padding:2px 5px;color:var(--muted)
 .intro{position:fixed;inset:0;z-index:35;display:grid;place-items:center;pointer-events:none;transition:opacity .8s var(--ease-cine)}
 .intro div{display:grid;gap:10px;justify-items:center;text-align:center;padding-inline:16px}
 .intro .eyebrow{color:var(--tungsten)}
-.intro strong{font:800 clamp(40px,8vw,96px)/.85 var(--f-display);text-transform:uppercase;letter-spacing:.02em}
+.intro strong{font:700 clamp(40px,8vw,96px)/.85 var(--f-display);text-transform:uppercase;letter-spacing:.02em}
 .intro.gone{opacity:0}
 
 @media (max-width:860px){
@@ -289,7 +289,7 @@ kbd{font:inherit;border:1px solid var(--line);padding:2px 5px;color:var(--muted)
   .lbl-long{display:none}.lbl-short{display:inline}
   .brand{padding:12px 16px 14px!important;border-radius:14px!important}
   .brand-name{font-size:26px}
-  .eyebrow{font-size:9.5px;letter-spacing:.14em}
+  .eyebrow{font-size:12px;letter-spacing:.14em}
   .chip{padding:8px 12px!important}
   .readout{padding:9px 12px!important;border-radius:12px!important}
   .film .card{padding:20px 18px!important;border-radius:18px!important}
@@ -362,7 +362,7 @@ button.brand:hover{transform:translateY(-2px);box-shadow:inset 0 1px 0 rgba(255,
 button.brand:active{transform:scale(.985);transition-duration:100ms}
 /* the cue that there is more behind the card: an amber tag with an arrow that leans on hover */
 .brand-more{display:inline-flex;align-items:center;gap:8px;justify-self:start;margin-top:10px;padding:6px 11px 6px 12px;border-radius:999px;
-  font:500 10.5px/1 var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:#fffdf8;background:var(--tungsten);
+  font:500 12px/1 var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:#fffdf8;background:var(--tungsten);
   box-shadow:0 4px 12px -5px rgba(120,66,8,.6)}
 .brand-more i{font-style:normal;transition:transform .35s cubic-bezier(.2,.9,.25,1.2)}
 button.brand:hover .brand-more i,button.brand:focus-visible .brand-more i{transform:translateX(4px)}
@@ -383,27 +383,27 @@ body.about-open button.brand{opacity:0;pointer-events:none}
 .about-close:hover{background:#fff}.about-close:active{transform:scale(.92)}
 .about-head{display:flex;gap:16px;align-items:center;padding-right:40px}
 .monogram{flex:none;width:58px;height:58px;border-radius:50%;display:grid;place-items:center;background:var(--paper);color:var(--ink);
-  font:800 22px/1 var(--f-display);letter-spacing:.02em;box-shadow:0 6px 16px -8px rgba(43,40,34,.6)}
-.about h2{margin:4px 0 4px;font:800 34px/.9 var(--f-display);text-transform:uppercase;letter-spacing:-.01em}
-.about-meta{font:400 11px/1.4 var(--f-mono);color:var(--muted);letter-spacing:.04em}
+  font:700 22px/1 var(--f-display);letter-spacing:.02em;box-shadow:0 6px 16px -8px rgba(43,40,34,.6)}
+.about h2{margin:4px 0 4px;font:700 34px/.9 var(--f-display);text-transform:uppercase;letter-spacing:-.01em}
+.about-meta{font:400 12px/1.4 var(--f-mono);color:var(--muted);letter-spacing:.04em}
 .about-avail{display:inline-flex;align-items:center;gap:8px;margin:20px 0 0;padding:7px 12px;border-radius:999px;background:rgba(79,138,91,.12);
   font:500 12px/1.2 var(--f-body);color:#355e3e}
 .about-avail::before{content:"";width:7px;height:7px;border-radius:50%;background:#4f8a5b;box-shadow:0 0 0 3px rgba(79,138,91,.2)}
 .about-bio{margin:16px 0 0;font:400 15px/1.6 var(--f-body);color:var(--body-2);max-width:46ch}
 .about h3{margin:26px 0 12px;padding-top:16px;border-top:1px solid rgba(43,40,34,.1);
-  font:500 10.5px/1 var(--f-mono);letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+  font:500 12px/1 var(--f-mono);letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
 .about ul{list-style:none;margin:0;padding:0}
 .about-services{display:grid;gap:12px}
-.about-services b{display:block;font:600 17px/1.1 var(--f-display);text-transform:uppercase;letter-spacing:.04em}
+.about-services b{display:block;font:700 17px/1.1 var(--f-display);text-transform:uppercase;letter-spacing:.04em}
 .about-services span{display:block;margin-top:3px;font:400 13px/1.5 var(--f-body);color:var(--muted)}
 .about-clients{display:flex;flex-wrap:wrap;gap:6px}
 .about-clients li{padding:6px 11px;border-radius:999px;background:rgba(255,255,255,.6);box-shadow:0 0 0 1px rgba(43,40,34,.08);font:500 12.5px/1.2 var(--f-body)}
 .about-contact{display:grid;gap:8px}
 .about-contact li{display:grid;grid-template-columns:76px minmax(0,1fr) auto;align-items:center;gap:10px;padding:10px 10px 10px 14px;border-radius:14px;
   background:rgba(255,255,255,.55);box-shadow:0 0 0 1px rgba(43,40,34,.07)}
-.about-contact .k{font:500 10px/1 var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.about-contact .k{font:500 12px/1 var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
 .about-contact .v{font:500 14px/1.3 var(--f-body);overflow-wrap:anywhere;user-select:all}
-.about-contact .act{font:500 11px/1 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;padding:8px 12px;border-radius:999px;
+.about-contact .act{font:500 12px/1 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;padding:8px 12px;border-radius:999px;
   background:var(--paper);color:var(--ink);text-decoration:none;white-space:nowrap;transition:transform .15s}
 .about-contact .act:active{transform:scale(.95)}
 @media (max-width:520px){.about{left:8px;right:8px;top:8px;bottom:8px;width:auto}.about-scroll{padding:22px 20px 24px}.about h2{font-size:28px}}
@@ -417,7 +417,7 @@ body.about-open button.brand{opacity:0;pointer-events:none}
 .bar-ui .pn{display:none}
 .bar-ui .side.r b{white-space:nowrap}
 .fullmap{position:fixed;z-index:12;right:max(16px,env(safe-area-inset-right,0px));bottom:calc(18px + env(safe-area-inset-bottom,0px));
-  font:500 11px/1 var(--f-mono);letter-spacing:.1em;text-transform:uppercase;
+  font:500 12px/1 var(--f-mono);letter-spacing:.1em;text-transform:uppercase;
   -webkit-backdrop-filter:var(--glass-blur-sm);backdrop-filter:var(--glass-blur-sm);background:var(--glass-fill-strong);
   opacity:0;transform:translateY(8px);transition:opacity .3s var(--ease-cine),transform .4s var(--ease-cine)}
 .fullmap.show{opacity:1;transform:none}
@@ -430,7 +430,7 @@ body.is-flying .fullmap,body.about-open .fullmap{opacity:0;pointer-events:none}
 }
 @media (max-width:520px){
   /* phones: the bars keep to short words that always fit, never cut-off titles */
-  .bar-ui{font-size:10px;gap:8px}
+  .bar-ui{font-size:12px;gap:8px}
   .bar-ui .nb{display:none}
   .bar-ui .pn{display:inline}
   .bar-ui .pill{padding:0 14px}
@@ -438,11 +438,95 @@ body.is-flying .fullmap,body.about-open .fullmap{opacity:0;pointer-events:none}
   .readout .hint{white-space:normal;line-height:1.5}
   .fullmap{bottom:calc(84px + env(safe-area-inset-bottom,0px))}
 }
+/* ---------- UX audit pass (VectorLab UX + Apple design skills) ----------
+   Interface chrome animates only transform and opacity, in 150/200/300ms steps, ease-out on
+   the way in and ease-in on the way out, never overshooting. (The map camera is content, not
+   chrome: it keeps its slower critically damped springs.) Shadows stay at or under 8% alpha with
+   a 1px edge doing the separating; tap targets are at least 44px; buttons are sentence case. */
+:root{--t-fast:150ms;--t-med:200ms;--t-slow:300ms;--ease-out:cubic-bezier(.2,.8,.2,1);--ease-in:cubic-bezier(.4,0,1,1);
+  --glass-shadow:inset 0 1px 0 rgba(255,255,255,.65),0 0 0 1px rgba(43,40,34,.08),0 16px 40px rgba(70,58,38,.08);
+  --glass-shadow-sm:inset 0 1px 0 rgba(255,255,255,.7),0 0 0 1px rgba(43,40,34,.08),0 4px 12px rgba(70,58,38,.06)}
+.hud{transition:opacity var(--t-slow) var(--ease-out),transform var(--t-slow) var(--ease-out)}
+.pin{transition:opacity var(--t-slow) var(--ease-out)}
+.pin-mark{transition:transform var(--t-med) var(--ease-out);box-shadow:0 0 0 1px rgba(196,116,28,.35),0 2px 8px rgba(120,66,8,.08)}
+.pin:hover .pin-mark,.pin:focus-visible .pin-mark,.pin.is-hot .pin-mark{box-shadow:0 0 0 1px rgba(196,116,28,.5),0 4px 12px rgba(120,66,8,.08)}
+.pin-label{transition:opacity var(--t-med) var(--ease-out),transform var(--t-med) var(--ease-out);
+  box-shadow:inset 0 1px 0 #fff,0 0 0 1px rgba(43,40,34,.1),0 2px 8px rgba(70,58,38,.08)}
+.pin::after{content:"";position:absolute;inset:-7px;border-radius:50%}
+@media (pointer:coarse){.pin::after{inset:-11px}}
+.city span,.city i,.region{transition:opacity var(--t-med) var(--ease-out)}
+.preview{transition:opacity var(--t-med) var(--ease-out),transform var(--t-slow) var(--ease-out);
+  box-shadow:inset 0 1px 0 #fff,0 0 0 1px rgba(43,40,34,.1),0 16px 40px rgba(70,58,38,.08)}
+.about{transition:opacity var(--t-med) var(--ease-out),transform var(--t-slow) var(--ease-out)}
+.about:not(.open){transition-timing-function:var(--ease-in)}
+.index{transition:transform var(--t-slow) var(--ease-out)}
+.film{transition:opacity var(--t-slow) var(--ease-out)}
+.film.closing{transition:opacity var(--t-med) var(--ease-in)}
+.bar-ui{transition:opacity var(--t-slow) var(--ease-out)}
+/* the project screen reveals with opacity and a slight scale, not an animated clip shape */
+.screen{clip-path:none;opacity:0;transform:scale(.98);transition:opacity var(--t-slow) var(--ease-out),transform var(--t-slow) var(--ease-out);
+  box-shadow:0 0 0 1px rgba(43,40,34,.1),0 16px 40px rgba(40,32,20,.08)}
+.film.is-on .screen{clip-path:none;opacity:1;transform:none}
+.screen .layer{transition:opacity var(--t-slow) var(--ease-out),transform var(--t-slow) var(--ease-out)}
+/* content reveal: a short stagger, about 30ms a step and 200ms in all */
+.rv{transition:opacity var(--t-slow) var(--ease-out),transform var(--t-slow) var(--ease-out);transition-delay:calc(var(--d,0) * .25ms)}
+.title .w > span{transition:transform var(--t-slow) var(--ease-out);transition-delay:calc(var(--d,0) * .25ms)}
+.chip,.bar-ui .pill,.fullmap,.thumb,.index li button,.about-close,.about-contact .act{transition:transform var(--t-fast) var(--ease-out)}
+button.brand,.brand-more i{transition:transform var(--t-med) var(--ease-out)}
+button.brand:hover{box-shadow:var(--glass-shadow)}
+.thumb{transition:opacity var(--t-med) var(--ease-out),transform var(--t-fast) var(--ease-out);min-height:44px}
+/* no endless decorative loops; the "more" cue nudges twice and stops */
+.grain{animation:none}
+.brand-more.nudge{animation:nudge 1.2s var(--ease-out) 2}
+@keyframes nudge{0%,100%{transform:none}40%{transform:translateX(4px)}}
+.brand-more,.monogram,.controls .chip[aria-pressed="true"]{box-shadow:none}
+.about-close{width:44px;height:44px;box-shadow:inset 0 1px 0 #fff,0 0 0 1px rgba(43,40,34,.1)}
+.bar-ui .pill,.fullmap{min-height:44px;box-shadow:inset 0 1px 0 #fff,0 0 0 1px rgba(43,40,34,.1),0 4px 12px rgba(70,58,38,.06)}
+/* buttons in sentence case, at least 44px tall */
+.chip,.bar-ui .pill,.fullmap,.brand-more,.about-contact .act{text-transform:none;letter-spacing:.02em}
+.chip{min-height:44px;padding:0 14px}
+.about-contact .act{display:inline-flex;align-items:center;min-height:44px;padding:0 16px}
+/* static details read as plain text, not decorative pills */
+.slate{gap:12px;align-items:baseline}
+.slate span,.slate span:first-child{border:0;background:none;padding:0;border-radius:0;color:var(--muted)}
+.slate span:first-child{color:var(--tungsten)}
+.slate span+span::before{content:"·";margin-right:12px;color:var(--contour)}
+.about-clients{display:block}
+.about-clients li{display:inline;padding:0;background:none;box-shadow:none;font:400 14px/1.6 var(--f-body)}
+.about-clients li+li::before{content:" · ";color:var(--muted)}
+.about-avail{padding:0;background:none}
+/* spacing on the 8px grid */
+.brand{padding:16px 24px}
+.readout{padding:12px 16px}
+.film .card{padding:24px}
+.about-scroll{padding:24px 24px calc(32px + env(safe-area-inset-bottom,0px))}
+.preview .pv-body{padding:12px 16px 16px}
+.about-contact li{padding:8px 8px 8px 16px}
+@media (max-width:520px){
+  .brand{padding:16px!important}
+  .readout{padding:12px 16px!important}
+  .film .card{padding:24px 16px!important}
+  .about-scroll{padding:24px 16px 32px!important}
+  .chip{padding:0 12px!important}
+}
+/* the close button explains itself on hover and keyboard focus */
+.about-close::after{content:attr(data-tip);position:absolute;right:0;top:calc(100% + 8px);white-space:nowrap;padding:8px;border-radius:8px;
+  background:var(--paper);color:var(--ink);font:500 12px/1 var(--f-body);opacity:0;transform:translateY(-4px);pointer-events:none;
+  transition:opacity var(--t-fast) var(--ease-out),transform var(--t-fast) var(--ease-out)}
+.about-close:hover::after,.about-close:focus-visible::after{opacity:1;transform:none}
+/* browsers without blur get solid panels instead of see-through ones */
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
+  .brand,.preview,.readout,.film .card,.index,.about,.controls,.fullmap,.bar{background:var(--ink)}
+  .film{background:rgba(244,239,229,.95)}
+}
 @media (prefers-reduced-motion:reduce){
   .pin::before,.pin.is-hot::before,.grain,.screen .media.kb,.rec::before{animation:none}
   .preview,.preview.show{transform:none}
-  *:not(.preview):not(.film):not(.index){transition-duration:.01ms!important}
-  .preview,.film{transition:opacity .2s ease!important}
+  *:not(.preview):not(.film):not(.index):not(.about){transition-duration:.01ms!important}
+  .preview,.film,.about{transition:opacity 150ms linear!important}
+  .about,.screen,.film .rv,.title .w > span{transform:none!important}
+  .index{transition:none!important}
+  .brand-more.nudge{animation:none}
 }
 @media (prefers-reduced-transparency:reduce){
   .brand,.preview,.chip:not([aria-pressed="true"]),.readout,.film .card,.index,.bar,.film{-webkit-backdrop-filter:none;backdrop-filter:none;background:var(--ink-2)}
@@ -467,13 +551,13 @@ body.is-flying .fullmap,body.about-open .fullmap{opacity:0;pointer-events:none}
     <span class="eyebrow" id="ownerRole"></span>
     <span class="brand-name" id="ownerName"></span>
     <span class="brand-line" id="ownerLine"></span>
-    <span class="brand-more"><span>About &amp; contact</span><i aria-hidden="true">→</i></span>
+    <span class="brand-more"><span>See bio &amp; contact</span><i aria-hidden="true">→</i></span>
   </button>
   <div class="controls" role="group" aria-label="Filter projects">
     <button class="chip" data-filter="all" aria-pressed="true">All <small id="cAll"></small></button>
     <button class="chip" data-filter="film" aria-pressed="false"><i class="glyph"></i><span class="lbl-long">Moving image</span><span class="lbl-short">Film</span> <small id="cFilm"></small></button>
     <button class="chip" data-filter="photo" aria-pressed="false"><i class="glyph sq"></i>Stills <small id="cPhoto"></small></button>
-    <button class="chip" id="indexBtn" aria-expanded="false" aria-controls="index">Index</button>
+    <button class="chip" id="indexBtn" aria-expanded="false" aria-controls="index">View list</button>
   </div>
 </header>
 
@@ -499,7 +583,7 @@ body.is-flying .fullmap,body.about-open .fullmap{opacity:0;pointer-events:none}
 </aside>
 
 <aside class="about" id="about" role="dialog" aria-labelledby="aboutName" inert>
-  <button class="about-close" id="aboutClose" type="button" aria-label="Close about and contact">×</button>
+  <button class="about-close" id="aboutClose" type="button" aria-label="Close bio and contact" data-tip="Close (Esc)">×</button>
   <div class="about-scroll">
     <header class="about-head">
       <div class="monogram" id="aboutMono" aria-hidden="true"></div>
@@ -1149,6 +1233,7 @@ function flyTo(to,dur,opt,done){Object.keys(camV).forEach(k=>camV[k]=0);tween={f
    Zoom runs in log space so zooming in and out feel equally even. */
 const camV={x:0,y:0,ls:0,rx:0,ry:0};
 function stepCamera(t,trx,tryy,response,dt,holdXY){
+  if(RM){if(!holdXY){cam.x=t.x;cam.y=t.y}cam.s=t.s;cam.rx=trx;cam.ry=tryy;Object.keys(camV).forEach(k=>camV[k]=0);return}
   const n=Math.max(1,Math.ceil(dt*120)),h=dt/n,w=2*Math.PI/response,lt=Math.log(t.s);
   let ls=Math.log(cam.s);
   const ch=(cur,v,tg)=>{v+=(w*w*(tg-cur)-2*w*v)*h;return[cur+v*h,v]};
@@ -1193,26 +1278,26 @@ function frame(now){
   } else if(mode==='fly'||mode==='film'){
     // flying to a project on a spring: it starts from the camera's current speed, so there is no jolt
     if(goal){
-      stepCamera(goal,goal.rx,goal.ry,.95,dt/1000,false);
+      stepCamera(goal,goal.rx,goal.ry,1.25,dt/1000,false);
       cam.c+=(goal.c-cam.c)*(1-Math.pow(.9,dt/16.67));
       if(goal.done&&Math.hypot(goal.x-cam.x,goal.y-cam.y)*cam.s<10&&Math.abs(Math.log(goal.s/cam.s))<.03){const d=goal.done;goal.done=null;d()}
     }
   } else if(mode==='roam'||mode==='intro'){
     const t=roamTarget(),sec=dt/1000;
     const zoomingOut=!focus&&cam.s>t.s*1.03,closing=now-closedAt<1600;
-    const trx=RM||!mouse.has?0:focus?6:(.5-mouse.fy)*5, tryy=RM||!mouse.has||focus?0:(mouse.fx-.5)*7;
+    const trx=RM||!mouse.has?0:focus?4:(.5-mouse.fy)*4, tryy=RM||!mouse.has||focus?0:(mouse.fx-.5)*5;
     if(focus&&!drag){
       // zooming onto a project: the marker's on-screen offset from the centre and the zoom each
       // have their own spring, so the marker glides straight to the centre while the map zooms
       // around it (springing the map position instead makes the marker swing out, then back)
       if(!focus.v)focus.v={x:-camV.x*cam.s,y:-camV.y*cam.s};
-      let dx=(t.x-cam.x)*cam.s,dy=(t.y-cam.y)*cam.s;
-      [dx,focus.v.x]=springTo(dx,focus.v.x,0,.62,sec);[dy,focus.v.y]=springTo(dy,focus.v.y,0,.62,sec);
-      stepCamera(t,trx,tryy,.7,sec,true);
+      let dx=RM?0:(t.x-cam.x)*cam.s,dy=RM?0:(t.y-cam.y)*cam.s;
+      [dx,focus.v.x]=springTo(dx,focus.v.x,0,.95,sec);[dy,focus.v.y]=springTo(dy,focus.v.y,0,.95,sec);
+      stepCamera(t,trx,tryy,1.05,sec,true);
       cam.x=t.x-dx/cam.s;cam.y=t.y-dy/cam.s;camV.x=-focus.v.x/cam.s;camV.y=-focus.v.y/cam.s;
     } else {
       // response in seconds: snappy when letting go of a hover, slower after closing a project
-      stepCamera(t,trx,tryy,mode==='intro'?1.3:closing?.85:zoomingOut?.45:.75,sec,!!drag);
+      stepCamera(t,trx,tryy,mode==='intro'?1.5:closing?1.15:zoomingOut?.8:.95,sec,!!drag);
     }
     cam.c+=(0-cam.c)*(1-Math.pow(.9,dt/16.67));
     if(focus&&!focus.settled&&Math.hypot(t.x-cam.x,t.y-cam.y)*cam.s<8&&Math.abs(t.s-cam.s)<t.s*.02)focus.settled=true;
@@ -1408,6 +1493,16 @@ function toggleAbout(open){
 }
 aboutBtn.addEventListener('click',()=>{if(mode==='roam'||mode==='intro')toggleAbout(!about.classList.contains('open'))});
 $('#aboutClose').addEventListener('click',()=>toggleAbout(false));
+// keyboard focus stays inside an open side panel; Tab and Shift+Tab wrap around
+addEventListener('keydown',e=>{
+  if(e.key!=='Tab')return;
+  const panel=about.classList.contains('open')?about:indexEl.classList.contains('open')?indexEl:null;if(!panel)return;
+  const f=[...panel.querySelectorAll('button,a[href]')].filter(el=>el.offsetParent!==null);if(!f.length)return;
+  const first=f[0],last=f[f.length-1],at=document.activeElement;
+  if(!panel.contains(at)){e.preventDefault();first.focus()}
+  else if(e.shiftKey&&at===first){e.preventDefault();last.focus()}
+  else if(!e.shiftKey&&at===last){e.preventDefault();first.focus()}
+});
 // a press on the map outside the sheet closes it
 $('#stage').addEventListener('pointerdown',()=>{if(about.classList.contains('open'))toggleAbout(false)});
 // ---- Back to full map: shown whenever the map is zoomed in beyond the starting view
@@ -1438,21 +1533,30 @@ function openProject(p,fromFilm){
     // switching projects: the open view fades first (so nothing is re-blurred while the map
     // moves), then the camera arcs out and back in to the next location
     film.classList.remove('is-on');stopAnim();
-    setTimeout(()=>{goal=null;flyTo(at,RM?1:1800,{arc:.55},()=>{goal={...at};mode='film';showFilm(p)})},RM?0:420);
+    setTimeout(()=>{goal=null;flyTo(at,RM?1:2200,{arc:.45},()=>{goal={...at};mode='film';showFilm(p)})},RM?0:420);
   }else{
     // opening: spring from wherever the camera is; the view reveals once the camera has arrived
     goal={...at,done:()=>{mode='film';showFilm(p)}};
   }
 }
+// each open project has its own address (#project-id): it can be shared, and the browser's
+// or phone's back gesture closes it
+const projectFromHash=()=>PROJECTS.find(p=>p.id===decodeURIComponent(location.hash.slice(1)));
+addEventListener('popstate',()=>{const p=projectFromHash();
+  if(p&&mode==='roam')openProject(p);else if(!p&&(mode==='film'||mode==='fly'))closeFilm(true)});
 function showFilm(p){
+  if(location.hash!=='#'+p.id){try{history[history.state&&history.state.project?'replaceState':'pushState']({project:p.id},'','#'+p.id)}catch(err){}}
   populate(p);
   film.hidden=false;film.scrollTop=0;
   document.body.classList.add('film-open');
   requestAnimationFrame(()=>requestAnimationFrame(()=>film.classList.add('is-on')));
   $('#closeBtn').focus({preventScroll:true});
 }
-function closeFilm(){
+function closeFilm(fromHistory){
   if(mode!=='film'&&mode!=='fly')return;
+  // closing from a button steps history back, so the address and the back gesture stay in step
+  if(!fromHistory&&history.state&&history.state.project){history.back();return}
+  if(!fromHistory&&location.hash){try{history.replaceState(null,'',location.pathname+location.search)}catch(err){}}
   film.classList.add('closing');film.classList.remove('is-on');document.body.classList.remove('film-open');stopAnim();
   tween=null;if(goal)goal.done=null;
   // the view fades out over the still map first; only then does the camera pull back on its spring
@@ -1544,6 +1648,8 @@ Promise.all([reliefReady,Promise.race([document.fonts?document.fonts.ready:Promi
   try{placeCities();measureLabels();declutter();buildClusters()}catch(err){console.error('Labels failed',err)}
   setTimeout(()=>{introStart=performance.now()},RM?0:500);
   setTimeout(()=>{hudRects=null;declutter()},RM?50:2400); // panels have their final size once the intro ends
+  // a shared link to a project opens it once the map is ready
+  setTimeout(()=>{const p=projectFromHash();if(p&&(mode==='roam'||mode==='intro')){if(mode==='intro'){introP=0;mode='roam';$('#intro').classList.add('gone')}openProject(p)}},RM?60:2200);
   if(!RM)setTimeout(()=>document.querySelector('.brand-more').classList.add('nudge'),RM?0:2600);
   // preview stills are made a little later, one per frame, so they never hold up the first view
   PROJECTS.forEach((p,i)=>setTimeout(()=>renderStill(p,0,PHONE?320:500),1200+i*120));
