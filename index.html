@@ -51,9 +51,12 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 /* ---------- map ---------- */
 #stage{position:fixed;inset:0;overflow:hidden;perspective:2000px;touch-action:none;background:var(--ocean-deep)}
 #world{position:absolute;left:0;top:0;transform-origin:0 0}
+/* names and markers are moved in screen pixels with their own layer each, so zooming only
+   slides them; nothing is re-scaled or repainted */
+.city,.region,.pin{will-change:translate}
 #mapView{position:absolute;inset:0;width:100%;height:100%;display:block;transform-origin:50% 50%}
 #cities{position:absolute;inset:0;pointer-events:none}
-.city{position:absolute;width:0;height:0;transform:scale(var(--inv,1));transition:opacity .6s var(--ease-cine)}
+.city{position:absolute;left:0;top:0;width:0;height:0;transition:opacity .6s var(--ease-cine)}
 .city i{position:absolute;left:-3px;top:-3px;width:6px;height:6px;border-radius:50%;background:var(--paper)}
 .city.t3 i{left:-2px;top:-2px;width:4px;height:4px;background:var(--muted)}
 .city.cap i{left:-4px;top:-4px;width:5px;height:5px;background:var(--ink);border:1.5px solid var(--paper)}
@@ -69,7 +72,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .city.side-t span{left:0;top:calc(2px - var(--g,9px));transform:translate(-50%,-100%)}
 .city span,.city i{transition:opacity .45s var(--ease-cine)}
 .city.lbl-off span,.city.t3.lbl-off i{opacity:0}
-.region{position:absolute;white-space:nowrap;transform-origin:0 0;transform:scale(var(--inv,1)) translate(-50%,-50%);
+.region{position:absolute;left:0;top:0;white-space:nowrap;transform:translate(-50%,-50%);
   font:700 15px/1 var(--f-display);letter-spacing:.22em;text-transform:uppercase;color:var(--label-region);transition:opacity .45s var(--ease-cine)}
 .region.sm{font-size:12px;letter-spacing:.16em}
 .region.foreign{color:var(--label-foreign)}
@@ -80,7 +83,7 @@ body.is-flying .city{opacity:.25}
 .vignette{position:fixed;inset:0;pointer-events:none;z-index:2;
   background:radial-gradient(ellipse 75% 70% at 50% 50%,transparent 45%,rgba(120,104,78,.16) 100%)}
 
-.pin{position:absolute;width:30px;height:30px;margin:-15px 0 0 -15px;transform:scale(var(--inv,1));transform-origin:15px 15px;
+.pin{position:absolute;left:0;top:0;width:30px;height:30px;margin:-15px 0 0 -15px;
   transition:opacity .6s var(--ease-cine);z-index:2}
 .pin:hover,.pin.is-hot,.pin:focus-visible{z-index:3}
 /* project markers are solid amber badges with a white rim and a glyph for the medium (play for
@@ -1013,7 +1016,6 @@ function placeCities(){
   CITIES.forEach(([name,lat,lon,tier,cap,side])=>{
     const[x,y]=P(lat,lon),el=document.createElement('span');
     el.className=`city t${tier}${cap===2?' nat':cap?' cap':''} side-r`;
-    el.style.left=x+'px';el.style.top=y+'px';
     el.innerHTML='<i></i><span></span>';el.lastChild.textContent=name;
     layer.append(el);
     const sides=[...new Set([side||'r','r','l','b','t'])];
@@ -1022,13 +1024,13 @@ function placeCities(){
   REGION_LABELS.forEach(([name,lat,lon,size,foreign])=>{
     const[x,y]=P(lat,lon),el=document.createElement('span');
     el.className='region'+(size<14?' sm':'')+(foreign?' foreign':'');el.textContent=name;
-    el.style.left=x+'px';el.style.top=y+'px';layer.append(el);
+    layer.append(el);
     LABELS.push({kind:'region',el,text:el,x,y,sides:['c'],prio:size<14||foreign?6:3});
   });
   WATER_LABELS.forEach(([name,lat,lon,size])=>{
     const[x,y]=P(lat,lon),el=document.createElement('span');
     el.className='region water'+(size<14?' sm':'');el.textContent=name;
-    el.style.left=x+'px';el.style.top=y+'px';layer.append(el);
+    layer.append(el);
     LABELS.push({kind:'region',el,text:el,x,y,sides:['c'],prio:size<14?6:4});
   });
   PROJECTS.forEach(p=>{p.labelRect=()=>{const l=LABELS.find(q=>q.p===p),[x,y]=screenOf(p),w=l.w,h=l.h;
@@ -1221,7 +1223,7 @@ $('#cPhoto').textContent=PROJECTS.filter(p=>p.medium==='photo').length;
 const pinsEl=$('#pins');
 PROJECTS.forEach((p,i)=>{
   const b=document.createElement('button');
-  b.className='pin'+(p.labelSide==='l'?' label-l':'');b.dataset.medium=p.medium;b.style.left=p.x+'px';b.style.top=p.y+'px';
+  b.className='pin'+(p.labelSide==='l'?' label-l':'');b.dataset.medium=p.medium;
   b.setAttribute('aria-label',`${p.title}, ${p.kind}, ${p.year}`);
   b.innerHTML=`<span class="pin-mark"></span><span class="pin-label"><b>SC ${pad2(p.sc)}</b><span></span></span>`;
   b.querySelector('.pin-label span').textContent=p.title;
@@ -1434,13 +1436,25 @@ function cineBar(){return Math.max(54,Math.min((vh-vw/2.39)/2,vh*.1))}
 // restyles the whole document, and each restyle makes every frosted panel re-blur
 const applied={};
 function setIf(key,v,fn){if(applied[key]!==v){applied[key]=v;fn(v)}}
+let ITEMS=null;
+function placeItems(){
+  if(!ITEMS||ITEMS.n!==LABELS.length){ITEMS=[...LABELS.filter(l=>!l.p).map(l=>({el:l.el,x:l.x,y:l.y})),...PROJECTS.map(p=>({el:p.pin,x:p.x,y:p.y}))];ITEMS.n=LABELS.length}
+  const s=cam.s,mx=vw/2+320,my=vh/2+200;
+  for(const it of ITEMS){
+    const sx=(it.x-cam.x)*s,sy=(it.y-cam.y)*s;
+    // items well off screen are parked once, instead of being moved every frame
+    const v=Math.abs(sx)>mx||Math.abs(sy)>my?'-99999px 0':`${sx.toFixed(1)}px ${sy.toFixed(1)}px`;
+    if(v!==it.v){it.v=v;it.el.style.translate=v}
+  }
+}
 function apply(){
   drawMapView();
-  const x=-cam.x.toFixed(2),y=-cam.y.toFixed(2),sc=cam.s.toFixed(5);
+  // the layer itself only carries the screen centre and the camera tilt (the same tilt as the map
+  // picture); each name and marker is placed in screen pixels around that centre
   setIf('tf',cam.rx||cam.ry
-    ?`translate3d(${vw/2}px,${vh/2}px,0) rotateX(${cam.rx.toFixed(3)}deg) rotateY(${cam.ry.toFixed(3)}deg) scale(${sc}) translate(${x}px,${y}px)`
-    :`translate3d(${vw/2}px,${vh/2}px,0) scale(${sc}) translate(${x}px,${y}px)`,v=>world.style.transform=v);
-  setIf('inv',(1/cam.s).toFixed(4),v=>world.style.setProperty('--inv',v));
+    ?`translate3d(${vw/2}px,${vh/2}px,0) rotateX(${cam.rx.toFixed(3)}deg) rotateY(${cam.ry.toFixed(3)}deg)`
+    :`translate3d(${vw/2}px,${vh/2}px,0)`,v=>world.style.transform=v);
+  placeItems();
   setIf('bar',Math.round(Math.max(cam.c*cineBar(),introP*vh/2+(introP>0?2:0))*2)/2,v=>root.style.setProperty('--barH',v+'px'));
   setIf('filmH',Math.round(vh-2*cineBar()),v=>root.style.setProperty('--filmH',v+'px'));
   // re-place names after a real zoom or pan (a few times a second at most)
