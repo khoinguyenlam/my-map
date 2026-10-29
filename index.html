@@ -521,6 +521,67 @@ button.brand:hover{box-shadow:var(--glass-shadow)}
   .brand,.preview,.readout,.film .card,.index,.about,.controls,.fullmap,.bar{background:var(--ink)}
   .film{background:rgba(244,239,229,.95)}
 }
+/* ---------- project view: photo stage on the left, grouped details on the right ----------
+   The photo takes the largest size that leaves room for its caption, camera data and the
+   filmstrip below it; the details card scrolls on its own, so neither pushes the other off screen. */
+.film-inner{grid-template-columns:minmax(0,1fr) minmax(300px,360px);gap:24px;align-items:center;padding:16px 24px;
+  padding-left:max(24px,env(safe-area-inset-left,0px));padding-right:max(24px,env(safe-area-inset-right,0px))}
+.stage{display:grid;justify-items:center;min-width:0}
+.stage-inner{display:grid;gap:8px;width:min(100%,calc((var(--filmH) - 252px) * var(--ar,1.5)));min-width:min(100%,520px)}
+.stage .screen{width:100%;max-width:100%}
+.frame-bar{display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:44px}
+.frame-text{margin:0;display:flex;align-items:baseline;gap:12px;min-width:0;font:400 14px/1.4 var(--f-body)}
+.frame-text b{font-weight:500;color:var(--paper)}
+.frame-no{flex:none;font:500 12px/1 var(--f-mono);letter-spacing:.08em;color:var(--tungsten);font-variant-numeric:tabular-nums}
+.frame-nav{display:flex;gap:8px;flex:none}
+.icon-btn{position:relative;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font:400 22px/1 var(--f-body);color:var(--paper);
+  background:rgba(255,255,255,.75);box-shadow:inset 0 1px 0 #fff,0 0 0 1px rgba(43,40,34,.1);transition:transform var(--t-fast) var(--ease-out)}
+.icon-btn:hover{background:#fff}.icon-btn:active{transform:scale(.94)}
+.tip::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 8px);right:0;white-space:nowrap;padding:8px;border-radius:8px;
+  background:var(--paper);color:var(--ink);font:500 12px/1 var(--f-body);opacity:0;transform:translateY(4px);pointer-events:none;
+  transition:opacity var(--t-fast) var(--ease-out),transform var(--t-fast) var(--ease-out)}
+.tip:hover::after,.tip:focus-visible::after{opacity:1;transform:none}
+/* camera data: labelled values in an even row */
+.facts{margin:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(84px,1fr));gap:1px;border-radius:12px;overflow:hidden;
+  background:rgba(43,40,34,.08);box-shadow:0 0 0 1px rgba(43,40,34,.08)}
+.facts div{padding:8px 12px;background:rgba(255,253,248,.82);min-width:0}
+.facts .wide{grid-column:span 2}
+.facts dd{overflow-wrap:anywhere}
+.facts dt{font:500 12px/1.2 var(--f-mono);letter-spacing:.06em;color:var(--muted)}
+.facts dd{margin:4px 0 0;font:500 14px/1.3 var(--f-body);color:var(--paper);font-variant-numeric:tabular-nums}
+/* filmstrip: every photo in one scrolling row, the current one outlined */
+.filmstrip{position:relative;display:flex;gap:8px;overflow-x:auto;padding:4px 2px 6px;scroll-snap-type:x proximity;scrollbar-width:thin}
+.filmstrip .thumb{flex:none;width:auto;height:64px;max-height:none;aspect-ratio:var(--ar,1.5);scroll-snap-align:start;opacity:.6}
+.filmstrip .thumb[aria-current="true"]{opacity:1;box-shadow:0 0 0 2px var(--tungsten)}
+.filmstrip .thumb:hover{opacity:.9}
+/* details card: title, short intro, then three labelled groups */
+.film .card{align-self:center;align-content:start;gap:16px;padding:24px}
+.film .title{font-size:clamp(36px,3.6vw,56px);line-height:.9}
+.synopsis{font-size:14.5px;line-height:1.6}
+.info{display:grid;gap:16px}
+.info section{display:grid;gap:8px;padding-top:12px;border-top:1px solid rgba(43,40,34,.1)}
+.info h3{margin:0;font:500 12px/1 var(--f-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--tungsten)}
+.info dl{margin:0;display:grid;grid-template-columns:96px minmax(0,1fr);column-gap:12px;row-gap:6px}
+.info dt{font:400 13px/1.45 var(--f-body);color:var(--muted)}
+.info dd{margin:0;font:500 13px/1.45 var(--f-body);color:var(--paper)}
+@media (min-width:861px){.film .card{max-height:calc(var(--filmH) - 32px);overflow:auto}}
+@media (max-width:860px){
+  /* narrower screens: the bars use short words that always fit (the full title is in the card) */
+  .bar-ui .nb{display:none}
+  .bar-ui .pn{display:inline}
+  .film-inner{grid-template-columns:minmax(0,1fr);align-items:start;gap:16px;padding:12px 16px}
+  .stage-inner{width:100%;min-width:0}
+  .film .card{max-height:none;overflow:visible}
+}
+@media (max-width:520px){
+  .bar-ui button{white-space:nowrap}
+  .film .card{padding:20px 16px!important}
+  .facts{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .frame-text{flex-direction:column;gap:4px;align-items:flex-start}
+  .filmstrip .thumb{height:56px}
+  .info dl{grid-template-columns:88px minmax(0,1fr)}
+}
+@media (max-width:400px){.bar-ui .count{display:none}}
 @media (prefers-reduced-motion:reduce){
   .pin::before,.pin.is-hot::before,.grain,.screen .media.kb,.rec::before{animation:none}
   .preview,.preview.show{transform:none}
@@ -604,19 +665,28 @@ button.brand:hover{box-shadow:var(--glass-shadow)}
 
 <section class="film" id="film" role="dialog" aria-modal="true" aria-labelledby="fTitle" hidden>
   <div class="film-inner">
-    <div class="screen-col">
-      <div class="screen" id="screen">
-        <div class="vf"><i></i><i></i><i></i><i></i></div>
-        <div class="screen-hud"><span id="fTc"></span><span id="fAspect"></span></div>
+    <div class="stage">
+      <div class="stage-inner">
+        <div class="screen" id="screen">
+          <div class="vf"><i></i><i></i><i></i><i></i></div>
+          <div class="screen-hud"><span id="fTc"></span><span id="fAspect"></span></div>
+        </div>
+        <div class="frame-bar rv" style="--d:300">
+          <p class="frame-text"><span class="frame-no" id="fNo"></span><b id="fCaption"></b></p>
+          <div class="frame-nav">
+            <button class="icon-btn tip" id="framePrev" type="button" aria-label="Previous photo" data-tip="Previous photo (←)">‹</button>
+            <button class="icon-btn tip" id="frameNext" type="button" aria-label="Next photo" data-tip="Next photo (→)">›</button>
+          </div>
+        </div>
+        <dl class="facts rv" style="--d:400" id="fFacts"></dl>
+        <div class="filmstrip rv" style="--d:500" id="fThumbs" role="group" aria-label="Photos in this project"></div>
       </div>
-      <div class="caption rv" style="--d:500"><b id="fCaption"></b><span id="fExif"></span></div>
     </div>
     <div class="card">
       <div class="slate rv" style="--d:250"><span id="fSlate"></span><span id="fKind"></span><span id="fYear"></span></div>
       <h2 class="title" id="fTitle"></h2>
       <p class="synopsis rv" style="--d:550" id="fSynopsis"></p>
-      <dl class="meta rv" style="--d:650" id="fMeta"></dl>
-      <div class="thumbs rv" style="--d:750" id="fThumbs" role="group" aria-label="Frames"></div>
+      <div class="info rv" style="--d:650" id="fMeta"></div>
     </div>
   </div>
 </section>
@@ -627,9 +697,9 @@ button.brand:hover{box-shadow:var(--glass-shadow)}
   <div class="side r"><b id="bSlate"></b><span class="nb" id="bTitle"></span></div>
 </div>
 <div class="bar-ui bot">
-  <div class="side"><button class="pill" id="prevBtn" type="button" aria-label="Previous project"><span aria-hidden="true">←</span><span class="nb" id="prevLbl"></span><span class="pn">Prev</span></button></div>
+  <div class="side"><button class="pill" id="prevBtn" type="button" aria-label="Previous project"><span aria-hidden="true">←</span><span class="nb" id="prevLbl"></span><span class="pn">Prev project</span></button></div>
   <span class="count" id="bCount"></span>
-  <div class="side r"><button class="pill" id="nextBtn" type="button" aria-label="Next project"><span class="nb" id="nextLbl"></span><span class="pn">Next</span><span aria-hidden="true">→</span></button></div>
+  <div class="side r"><button class="pill" id="nextBtn" type="button" aria-label="Next project"><span class="nb" id="nextLbl"></span><span class="pn">Next project</span><span aria-hidden="true">→</span></button></div>
 </div>
 
 <button class="pill fullmap" id="fullMapBtn" type="button" hidden><span aria-hidden="true">⤢</span> Back to full map</button>
@@ -1597,13 +1667,19 @@ function populate(p){
   p.title.split(' ').forEach((w,k)=>{const o=document.createElement('span');o.className='w';const s=document.createElement('span');
     s.textContent=w;s.style.setProperty('--d',300+k*90);o.append(s);t.append(o,' ')});
   $('#fSynopsis').textContent=p.synopsis;
-  const rows=[['Role',p.role],['Client',p.client],['Camera',p.camera],['Lens',p.lens],['Format',p.format],
-    [p.medium==='film'?'Runtime':'Frames',p.length],['Shot',p.shot],['Location',p.place],['Coordinates',fmtLL(p.pos[0],p.pos[1])]];
-  const dl=$('#fMeta');dl.textContent='';
-  rows.forEach(([k,v])=>{if(!v)return;const dt=document.createElement('dt');dt.textContent=k;const dd=document.createElement('dd');dd.textContent=v;dl.append(dt,dd)});
+  // details sit in three labelled groups instead of one long list; empty rows and groups are left out
+  const groups=[
+    ['About the project',[['Role',p.role],['Client',p.client],['Shot',p.shot],[p.medium==='film'?'Runtime':'Photos',p.length]]],
+    ['Camera',[['Camera',p.camera],['Lens',p.lens],['Format',p.format]]],
+    ['Location',[['Place',p.place],['Coordinates',fmtLL(p.pos[0],p.pos[1])]]]];
+  const info=$('#fMeta');info.textContent='';
+  groups.forEach(([h,rows])=>{rows=rows.filter(r=>r[1]);if(!rows.length)return;
+    const sec=document.createElement('section'),h3=document.createElement('h3'),dl=document.createElement('dl');h3.textContent=h;
+    rows.forEach(([k,v])=>{const dt=document.createElement('dt');dt.textContent=k;const dd=document.createElement('dd');dd.textContent=v;dl.append(dt,dd)});
+    sec.append(h3,dl);info.append(sec)});
   const th=$('#fThumbs');th.textContent='';
   p.media.forEach((m,k)=>{
-    const b=document.createElement('button');b.className='thumb';b.setAttribute('aria-label',`Frame ${k+1}: ${m.caption||''}`);
+    const b=document.createElement('button');b.className='thumb';b.type='button';b.setAttribute('aria-label',`Photo ${k+1}: ${m.caption||''}`);
     const im=document.createElement('img');im.alt='';im.src=renderStill(p,k,240);b.append(im);
     if(m.type==='video'){const s=document.createElement('span');s.className='play';s.textContent='▶ MOV';b.append(s)}
     b.addEventListener('click',()=>showMedia(p,k));th.append(b);
@@ -1617,6 +1693,15 @@ function populate(p){
   screen.querySelectorAll('.layer').forEach(l=>l.remove());
   showMedia(p,0);
 }
+// splits a photo's camera line ("6 Sep 2026, 12:33 · f/5.6 · 1/2000 s · ISO 100 · 450 mm equiv.") into labelled values
+function frameFacts(m){
+  if(m.type==='video')return[['Type','Moving image']];
+  if(!m.exif)return[];
+  return m.exif.split('·').map(x=>x.trim()).filter(Boolean).map(x=>
+    /^(f\/|T\d)/i.test(x)?['Aperture',x]:/^1\/\d|\d\s*s$/.test(x)?['Shutter',x]:/ISO|EI/i.test(x)?['ISO',x.replace(/\s*ISO\s*/i,'')]
+    :/mm/.test(x)?['Focal (eq.)',x.replace(/\s*equiv\.?/,'')]:/\d{4}/.test(x)?['Taken',x]:['Note',x]);
+}
+function frameStep(d){if(mode!=='film'||!current)return;const n=current.media.length;if(n>1)showMedia(current,(mediaIndex+d+n)%n)}
 function showMedia(p,i){
   mediaIndex=i;stopAnim();
   const m=p.media[i],layer=document.createElement('div');layer.className='layer';
@@ -1631,9 +1716,14 @@ function showMedia(p,i){
   const layers=screen.querySelectorAll('.layer');
   layers.forEach((l,k)=>{if(k<layers.length-1){l.classList.remove('in');setTimeout(()=>l.remove(),1100)}});
   $('#fCaption').textContent=m.caption||'';
-  $('#fExif').textContent=m.type==='video'?'Moving image':(m.exif||'');
-  $('#fTc').innerHTML=m.type==='video'?'<span class="rec">TC 00:00:00:00</span>':`Frame ${pad2(i+1)} / ${pad2(p.media.length)}`;
-  $('#fThumbs').querySelectorAll('.thumb').forEach((b,k)=>b.setAttribute('aria-current',String(k===i)));
+  $('#fNo').textContent=`${i+1} / ${p.media.length}`;
+  $('#fTc').innerHTML=m.type==='video'?'<span class="rec">TC 00:00:00:00</span>':'';
+  // the camera data for this photo, as labelled values
+  const facts=$('#fFacts');facts.textContent='';
+  frameFacts(m).forEach(([k,v])=>{const d=document.createElement('div');if(k==='Taken'||k==='Note')d.className='wide';const dt=document.createElement('dt'),dd=document.createElement('dd');dt.textContent=k;dd.textContent=v;d.append(dt,dd);facts.append(d)});
+  facts.hidden=!facts.children.length;
+  const one=p.media.length<2;$('#framePrev').hidden=$('#frameNext').hidden=one;$('#fThumbs').hidden=one;
+  $('#fThumbs').querySelectorAll('.thumb').forEach((b,k)=>{b.setAttribute('aria-current',String(k===i));if(k===i){const st=b.parentElement;st.scrollTo({left:b.offsetLeft-st.clientWidth/2+b.offsetWidth/2,behavior:RM?'auto':'smooth'})}});
 }
 function drawAnim(now){
   const a=anim;if(!a)return;const t=(now-a.t0)/1000;
@@ -1643,13 +1733,19 @@ function drawAnim(now){
 }
 function stopAnim(){anim=null}
 
-$('#closeBtn').addEventListener('click',closeFilm);
+$('#closeBtn').addEventListener('click',()=>closeFilm());
+$('#framePrev').addEventListener('click',()=>frameStep(-1));$('#frameNext').addEventListener('click',()=>frameStep(1));
+// on touch, a sideways swipe across the photo moves to the next or previous one
+{let sw=null;screen.addEventListener('pointerdown',e=>{if(e.pointerType!=='mouse')sw={x:e.clientX,y:e.clientY}});
+  screen.addEventListener('pointerup',e=>{if(!sw)return;const dx=e.clientX-sw.x,dy=e.clientY-sw.y;sw=null;if(Math.abs(dx)>40&&Math.abs(dx)>Math.abs(dy)*1.3)frameStep(dx<0?1:-1)});
+  screen.style.touchAction='pan-y'}
 $('#prevBtn').addEventListener('click',()=>step(-1));
 $('#nextBtn').addEventListener('click',()=>step(1));
 addEventListener('keydown',e=>{
   if(e.key==='Escape'){if(about.classList.contains('open'))toggleAbout(false);else if(indexEl.classList.contains('open')){toggleIndex(false);$('#indexBtn').focus()}else if(mode==='film')closeFilm();else if(focus)releaseFocus()}
   if(mode==='film'&&!e.target.closest('input,textarea')){
-    if(e.key==='ArrowRight')step(1);if(e.key==='ArrowLeft')step(-1);
+    if(e.key==='ArrowRight')frameStep(1);if(e.key==='ArrowLeft')frameStep(-1);
+    if(e.key==='PageDown')step(1);if(e.key==='PageUp')step(-1);
   }
 });
 // keep focus inside the project view while it is open
