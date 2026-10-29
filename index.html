@@ -599,8 +599,10 @@ const WATER_LABELS=[
 // visible part of the tiles into a screen-sized canvas.
 let mapTiles=[];
 const TILE_PAD=3;
-function drawTerrain(){
-  const k=vw<800?1:Math.min(1.25,Math.max(1,devicePixelRatio||1));
+// Phones get smaller tiles: iOS Safari caps total canvas memory per page and simply refuses
+// a canvas past it. If a tile is refused anyway, the whole map is redrawn a size smaller.
+const PHONE=Math.min(innerWidth,innerHeight)<700||matchMedia('(pointer:coarse)').matches;
+function drawTerrain(k=PHONE?.7:Math.min(1.25,Math.max(1,devicePixelRatio||1))){
   const C={ocean:css('--ocean'),oceanDeep:css('--ocean-deep'),land:css('--land'),landN:css('--land-north'),foreign:css('--land-foreign'),
     water:css('--water-line'),paper:css('--paper'),border:css('--border'),road:css('--road')};
   const canLand=new Path2D();provPaths.forEach(p=>canLand.addPath(p.path));
@@ -652,10 +654,15 @@ function drawTerrain(){
   for(let ty=0;ty<2;ty++)for(let tx=0;tx<2;tx++){
     const x=tx*tw,y=ty*th,cv=document.createElement('canvas');
     cv.width=Math.ceil((tw+2*TILE_PAD)*k);cv.height=Math.ceil((th+2*TILE_PAD)*k);
-    const ctx=cv.getContext('2d');ctx.scale(k,k);ctx.translate(TILE_PAD-x,TILE_PAD-y);paint(ctx);
+    const ctx=cv.getContext('2d');
+    if(!ctx){mapTiles.forEach(t=>{t.cv.width=t.cv.height=0});mapTiles=[];cv.width=cv.height=0;
+      if(k>.35)return drawTerrain(k*.7);return}
+    ctx.scale(k,k);ctx.translate(TILE_PAD-x,TILE_PAD-y);paint(ctx);
     mapTiles.push({cv,x,y,w:tw,h:th});
   }
   mapK=k;mvKey='';
+  // the terrain image is baked into the tiles now; let the browser drop its decoded pixels
+  reliefImg.removeAttribute('src');
 }
 
 /* Labels keep a constant on-screen size, so whether two of them collide depends only on zoom.
@@ -1306,9 +1313,12 @@ addEventListener('focusin',e=>{if(document.body.classList.contains('film-open')&
 /* ---------- boot ---------- */
 requestAnimationFrame(frame);
 Promise.all([reliefReady,Promise.race([document.fonts?document.fonts.ready:Promise.resolve(),new Promise(r=>setTimeout(r,1500))])]).then(()=>{
-  drawTerrain();placeCities();measureLabels();declutter();buildClusters();
-  PROJECTS.forEach(p=>renderStill(p,0,500));
+  // whatever happens while drawing, the intro still opens so the page is never stuck on black
+  try{drawTerrain()}catch(err){console.error('Map drawing failed',err)}
+  try{placeCities();measureLabels();declutter();buildClusters()}catch(err){console.error('Labels failed',err)}
   setTimeout(()=>{introStart=performance.now()},RM?0:500);
+  // preview stills are made a little later, one per frame, so they never hold up the first view
+  PROJECTS.forEach((p,i)=>setTimeout(()=>renderStill(p,0,PHONE?320:500),1200+i*120));
 });
 </script>
 </body></html>
