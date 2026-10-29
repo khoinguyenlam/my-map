@@ -700,17 +700,26 @@ body.about-open button.brand{transition-delay:0ms}
 .pv-pic{position:relative}
 .pv-pic .wm{left:10px;top:9px;font-size:11px}
 @media (max-width:520px){.screen .wm{left:12px;top:10px;font-size:12px}}
-/* intro: the name sits on the same frosted card as the other panels, so it stays readable
-   while the map opens up behind it; the card eases out a touch smaller as it fades */
-.intro div{position:relative;gap:12px;padding:28px 40px 32px;border-radius:24px;max-width:calc(100vw - 32px);box-sizing:border-box;
+/* intro: the name rises in on the plain cream screen, then, as the letterbox opens, a frosted
+   card forms around it while it travels into the top-left and lands exactly on the name card,
+   which takes over in place. One name and one continuous move, instead of a large copy fading
+   in the middle while the small one already sits in the corner. */
+.intro{transition:opacity 420ms cubic-bezier(.45,0,.25,1) 60ms}
+.intro div{position:relative;isolation:isolate;justify-items:start;text-align:left;gap:10px;padding:24px 32px 28px;
+  max-width:calc(100vw - 32px);box-sizing:border-box;transform-origin:0 0;will-change:transform}
+.intro div::after{content:"";position:absolute;inset:0;z-index:-1;border-radius:24px;pointer-events:none;
   background:var(--glass-fill-strong);-webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);box-shadow:var(--glass-shadow);
-  transition:transform .8s var(--ease-cine)}
-.intro div::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1px;pointer-events:none;background:var(--glass-rim);
-  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0)}
-.intro strong{font-size:clamp(40px,7vw,88px)}
-.intro.gone div{transform:scale(.97)}
-@media (max-width:520px){.intro div{padding:20px 24px 24px;border-radius:18px}}
-@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){.intro div{background:rgba(255,253,248,.96)}}
+  opacity:0;transform:scale(.96);transition:opacity 600ms cubic-bezier(.22,.8,.12,1),transform 800ms cubic-bezier(.22,.8,.12,1)}
+.intro.flying div::after{opacity:1;transform:none}
+/* the small label hands off early: the name card shows its own once the name lands */
+.intro.flying .eyebrow{opacity:0;transition:opacity 300ms cubic-bezier(.45,0,.25,1)}
+.intro strong{font-size:clamp(44px,7vw,88px);letter-spacing:-.01em;animation:introRise 900ms cubic-bezier(.22,.8,.12,1) 120ms both}
+.intro .eyebrow{animation:introFade 700ms cubic-bezier(.22,.8,.12,1) 420ms both}
+@keyframes introRise{from{opacity:0;transform:translateY(22px)}}
+@keyframes introFade{from{opacity:0;transform:translateY(6px)}}
+body.intro-on button.brand{opacity:0;transition:none}
+@media (max-width:520px){.intro div{padding:18px 22px 22px}}
+@media (prefers-reduced-motion:reduce){.intro strong,.intro .eyebrow{animation:none}}
 @media (prefers-reduced-motion:reduce){
   .pin::before,.pin.is-hot::before,.grain,.screen .media.kb,.rec::before{animation:none}
   .preview,.preview.show{transform:none}
@@ -1346,7 +1355,7 @@ PROJECTS.forEach((p,i)=>{
   b.querySelector('.pin-label span').textContent=p.title;
   b.addEventListener('focus',()=>{if(mode==='roam'&&b.matches(':focus-visible'))setFocus(p,vw/2,vh/2,false)});
   b.addEventListener('blur',()=>{if(focus&&focus.p===p&&!focus.mouse)releaseFocus()});
-  b.addEventListener('click',()=>{if(mode==='intro'&&introStart){introP=0;mode='roam';$('#intro').classList.add('gone')}
+  b.addEventListener('click',()=>{if(mode==='intro'&&introStart){introP=0;mode='roam';endIntro()}
     if(mode!=='roam')return;
     // on touch one tap opens a project: where markers overlap, the one nearest the fingertip wins
     let t=p;
@@ -1440,7 +1449,7 @@ function distTo(t,x,y){return Math.min(...pinsOf(t).map(p=>{const[cx,cy]=pinCent
 // t is a project or a group of projects
 function setFocus(t,ex,ey,byMouse){
   if(mode!=='roam'&&mode!=='intro')return;
-  if(mode==='intro'&&introStart){introP=0;mode='roam';$('#intro').classList.add('gone')}
+  if(mode==='intro'&&introStart){introP=0;mode='roam';endIntro()}
   const group=!!t.members;
   focus={p:group?null:t,c:group?t:null,s:group?clusterScale(t):focusScale(),ex,ey,mouse:byMouse,armed:false,settled:false,minD:Infinity};
   lock=null;hover(group?null:t);
@@ -1453,6 +1462,19 @@ function releaseFocus(){
 function inRect(x,y,r,m){return x>r.left-m&&x<r.right+m&&y>r.top-m&&y<r.bottom+m}
 const mouse={fx:.5,fy:.5,has:false};
 let introP=1, introStart=0;
+document.body.classList.add('intro-on');
+function endIntro(){$('#intro').classList.add('gone');document.body.classList.remove('intro-on')}
+// the opening name travels into the top-left and lands on the name card (see .intro in the CSS)
+function flyIntro(){
+  const it=$('#intro'),card=it.firstElementChild,nm=$('#introName'),bn=$('.brand-name');
+  if(RM||!card.animate||it.classList.contains('gone')){return}
+  const cr=card.getBoundingClientRect(),nr=nm.getBoundingClientRect(),br=bn.getBoundingClientRect();
+  if(!nr.height||!br.height)return;
+  const k=br.height/nr.height,tx=br.left-(cr.left+(nr.left-cr.left)*k),ty=br.top-(cr.top+(nr.top-cr.top)*k);
+  it.classList.add('flying');
+  card.animate([{transform:'none'},{transform:`translate(${tx.toFixed(1)}px,${ty.toFixed(1)}px) scale(${k.toFixed(4)})`}],
+    {duration:1400,delay:220,easing:'cubic-bezier(.6,0,.2,1)',fill:'forwards'}).finished.then(()=>{if(mode==='intro'){introP=0;mode='roam'}endIntro()},()=>{});
+}
 
 function roamTarget(){
   const s=focus?focus.s:baseScale()*userZoom;
@@ -1507,7 +1529,7 @@ function frame(now){
   const dt=Math.min(60,now-last);last=now;
   if(mode==='intro'&&introStart){
     const p=clamp((now-introStart)/(RM?1:1700),0,1);introP=1-easeIO(p);
-    if(p>=1){mode='roam';$('#intro').classList.add('gone')}
+    if(p>=1){mode='roam';endIntro()}
   }
   if(tween){
     const tw=tween,p=clamp((now-tw.t0)/tw.dur,0,1),e=easeIO(p);
@@ -1950,10 +1972,10 @@ Promise.all([reliefReady,Promise.race([document.fonts?document.fonts.ready:Promi
   // whatever happens while drawing, the intro still opens so the page is never stuck on black
   try{drawTerrain()}catch(err){console.error('Map drawing failed',err)}
   try{placeCities();measureLabels();declutter();buildClusters()}catch(err){console.error('Labels failed',err)}
-  setTimeout(()=>{introStart=performance.now()},RM?0:500);
+  setTimeout(()=>{introStart=performance.now();flyIntro()},RM?0:900);
   setTimeout(()=>{hudRects=null;declutter()},RM?50:2400); // panels have their final size once the intro ends
   // a shared link to a project opens it once the map is ready
-  setTimeout(()=>{const p=projectFromHash();if(p&&(mode==='roam'||mode==='intro')){if(mode==='intro'){introP=0;mode='roam';$('#intro').classList.add('gone')}openProject(p)}},RM?60:2200);
+  setTimeout(()=>{const p=projectFromHash();if(p&&(mode==='roam'||mode==='intro')){if(mode==='intro'){introP=0;mode='roam';endIntro()}openProject(p)}},RM?60:2200);
   if(!RM)setTimeout(()=>document.querySelector('.brand-more').classList.add('nudge'),RM?0:2600);
   // preview stills are made a little later, one per frame, so they never hold up the first view
   PROJECTS.forEach((p,i)=>setTimeout(()=>renderStill(p,0,PHONE?320:500),1200+i*120));
