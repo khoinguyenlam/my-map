@@ -719,6 +719,20 @@ body.about-open button.brand{transition-delay:0ms}
 @keyframes introFade{from{opacity:0;transform:translateY(6px)}}
 body.intro-on button.brand{opacity:0;transition:none}
 @media (max-width:520px){.intro div{padding:18px 22px 22px}}
+/* the plate is its own element now, so it can grow into the name card's shape during the flight */
+.intro div::after{display:none}
+.intro-plate{position:fixed;z-index:-1;pointer-events:none;opacity:0;transition:opacity 600ms cubic-bezier(.22,.8,.12,1)}
+.intro.flying .intro-plate{opacity:1}
+.intro-plate::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1px;pointer-events:none;background:var(--glass-rim);
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0)}
+.intro{isolation:isolate}
+.intro.landed{transition:opacity 260ms cubic-bezier(.45,0,.25,1)}
+body.brand-in button.brand{transition:none}
+body.brand-in button.brand>:not(.brand-name){animation:brandIn 520ms cubic-bezier(.22,.8,.12,1) both}
+body.brand-in button.brand>.brand-line{animation-delay:70ms}
+body.brand-in button.brand>.brand-more{animation-delay:140ms}
+@keyframes brandIn{from{opacity:0;transform:translateY(4px)}}
+@media (prefers-reduced-motion:reduce){body.brand-in button.brand>*{animation:none}}
 @media (prefers-reduced-motion:reduce){.intro strong,.intro .eyebrow{animation:none}}
 /* ---------- ball cursor ----------
    On the map a small ball replaces the arrow (mouse and trackpad only; touch screens keep their
@@ -890,7 +904,7 @@ body.intro-on button.brand{opacity:0;transition:none}
 
 <button class="pill fullmap" id="fullMapBtn" type="button" hidden><span aria-hidden="true">⤢</span> Back to full map</button>
 
-<div class="intro" id="intro"><div><strong id="introName"></strong></div></div>
+<div class="intro" id="intro"><span class="intro-plate" aria-hidden="true"></span><div><strong id="introName"></strong></div></div>
 <div class="grain" id="grain"></div>
 <div class="ball" id="ball" aria-hidden="true"><i></i><span>Open</span></div>
 
@@ -1470,16 +1484,32 @@ document.body.classList.add('intro-on');
 function endIntro(){$('#intro').classList.add('gone');document.body.classList.remove('intro-on')}
 // the opening name travels into the top-left and lands on the name card (see .intro in the CSS)
 function flyIntro(){
-  const it=$('#intro'),card=it.firstElementChild,nm=$('#introName'),bn=$('.brand-name');
+  const it=$('#intro'),card=it.querySelector('div'),nm=$('#introName'),bn=$('.brand-name');
   if(RM||!card.animate||it.classList.contains('gone')){return}
   // the name's resting place in its card (offset*, which ignore its rise-in animation), so the
   // landing is exact even if the flight starts before that animation has finished
   const cr=card.getBoundingClientRect(),br=bn.getBoundingClientRect(),nl=nm.offsetLeft,nt=nm.offsetTop,nh=nm.offsetHeight;
   if(!nh||!br.height)return;
   const k=br.height/nh,tx=br.left-(cr.left+nl*k),ty=br.top-(cr.top+nt*k);
+  // the frosted plate starts around the name and grows, on the same curve, into the exact size,
+  // corners and glass of the full name card, so by the landing the two backgrounds are identical
+  const plate=it.querySelector('.intro-plate'),brand=$('.brand'),bc=brand.getBoundingClientRect(),bs=getComputedStyle(brand);
+  plate.style.backgroundColor=bs.backgroundColor;plate.style.backgroundImage=bs.backgroundImage;plate.style.boxShadow=bs.boxShadow;
+  plate.style.backdropFilter=plate.style.webkitBackdropFilter=bs.backdropFilter||bs.webkitBackdropFilter||'none';
+  const box=r=>({left:r.left+'px',top:r.top+'px',width:r.width+'px',height:r.height+'px'});
+  Object.assign(plate.style,box(cr),{borderRadius:'24px'});
   it.classList.add('flying');
-  card.animate([{transform:'none'},{transform:`translate(${tx.toFixed(1)}px,${ty.toFixed(1)}px) scale(${k.toFixed(4)})`}],
-    {duration:1400,delay:220,easing:'cubic-bezier(.6,0,.2,1)',fill:'forwards'}).finished.then(()=>{if(mode==='intro'){introP=0;mode='roam'}endIntro()},()=>{});
+  const opt={duration:1400,delay:220,easing:'cubic-bezier(.6,0,.2,1)',fill:'forwards'};
+  plate.animate([{...box(cr),borderRadius:'24px'},{...box(bc),borderRadius:bs.borderRadius}],opt);
+  card.animate([{transform:'none'},{transform:`translate(${tx.toFixed(1)}px,${ty.toFixed(1)}px) scale(${k.toFixed(4)})`}],opt)
+    .finished.then(()=>{if(mode==='intro'){introP=0;mode='roam'}landIntro()},()=>{});
+}
+// the landing: the real name card appears underneath the identical plate and name in the same
+// frame, the plate and name then fade off it, and the card's other lines settle in one by one
+function landIntro(){
+  document.body.classList.add('brand-in');document.body.classList.remove('intro-on');
+  $('#intro').classList.add('gone','landed');
+  setTimeout(()=>document.body.classList.remove('brand-in'),1200);
 }
 
 function roamTarget(){
