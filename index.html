@@ -691,6 +691,15 @@ body.about-open button.brand{transition-delay:0ms}
 .preview.show{opacity:1;transform:none;transition:opacity 280ms cubic-bezier(.22,.8,.12,1),transform 440ms cubic-bezier(.2,.9,.3,1)}
 .preview img{background:rgba(43,40,34,.06)}
 @media (prefers-reduced-motion:reduce){.about-scroll>*{transform:none!important;transition-delay:0ms!important}}
+/* watermark: small white type in the photo's top-left corner, with a soft shadow so it reads
+   on bright skies and dark frames alike; the video timecode moves to the right to make room */
+.wm{position:absolute;left:16px;top:14px;z-index:4;pointer-events:none;user-select:none;
+  font:500 13px/1 var(--f-body);letter-spacing:.02em;color:rgba(255,255,255,.88);
+  text-shadow:0 1px 2px rgba(0,0,0,.45),0 0 12px rgba(0,0,0,.25)}
+.screen-hud{justify-content:flex-end}
+.pv-pic{position:relative}
+.pv-pic .wm{left:10px;top:9px;font-size:11px}
+@media (max-width:520px){.screen .wm{left:12px;top:10px;font-size:12px}}
 @media (prefers-reduced-motion:reduce){
   .pin::before,.pin.is-hot::before,.grain,.screen .media.kb,.rec::before{animation:none}
   .preview,.preview.show{transform:none}
@@ -745,7 +754,7 @@ body.about-open button.brand{transition-delay:0ms}
 </footer>
 
 <div class="preview" id="preview" aria-hidden="true">
-  <img id="pvImg" alt="">
+  <div class="pv-pic"><img id="pvImg" alt=""><span class="wm" aria-hidden="true"></span></div>
   <div class="pv-body"><span class="pv-meta" id="pvMeta"></span><strong class="pv-title" id="pvTitle"></strong><span class="pv-cta">Click to open</span></div>
 </div>
 
@@ -785,6 +794,7 @@ body.about-open button.brand{transition-delay:0ms}
         <div class="screen" id="screen">
           <div class="vf"><i></i><i></i><i></i><i></i></div>
           <div class="screen-hud"><span id="fTc"></span><span id="fAspect"></span></div>
+          <span class="wm" aria-hidden="true"></span>
         </div>
         <div class="frame-bar rv" style="--d:300">
           <p class="frame-text"><span class="frame-no" id="fNo"></span><span class="frame-cap"><b id="fCaption"></b><span class="frame-when" id="fWhen"></span></span></p>
@@ -839,6 +849,8 @@ const OWNER = {
   name: "Your Name",
   role: "Photography & Video",
   line: "Photo and video for events, brands and artists across Canada.",
+  // shown in the top-left corner of every photo (leave empty for none)
+  watermark: "Shot by Nguyen",
   // the About & contact panel (opened from the name card)
   based: "Working across Canada",
   available: "Available for projects from January 2027",
@@ -1306,6 +1318,7 @@ function renderStill(p,i,wpx){
 PROJECTS.forEach((p,i)=>{p.sc=i+1;[p.x,p.y]=P(p.pos[0],p.pos[1])});
 const world=$('#world');world.style.width=W+'px';world.style.height=H+'px';
 $('#ownerName').textContent=OWNER.name;$('#ownerRole').textContent=OWNER.role;$('#ownerLine').textContent=OWNER.line;
+document.querySelectorAll('.wm').forEach(w=>{w.textContent=OWNER.watermark||'';w.hidden=!OWNER.watermark});
 $('#introName').textContent=OWNER.name;$('#introRole').textContent=OWNER.role;
 document.title=`${OWNER.name} · ${OWNER.role}`;
 $('#indexSub').textContent=`${PROJECTS.length} projects across Canada`;
