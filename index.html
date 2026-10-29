@@ -279,7 +279,7 @@ kbd{font:inherit;border:1px solid var(--line);padding:2px 5px;color:var(--muted)
   .screen{width:100%}
   .readout .hint,.legend{display:none}
   .brand-line{display:none}
-  .bar-ui .nb{max-width:28vw}
+  .bar-ui .nb{max-width:24vw}
 }
 .lbl-short{display:none}
 /* touch: bigger hit area around each marker */
@@ -407,6 +407,37 @@ body.about-open button.brand{opacity:0;pointer-events:none}
   background:var(--paper);color:var(--ink);text-decoration:none;white-space:nowrap;transition:transform .15s}
 .about-contact .act:active{transform:scale(.95)}
 @media (max-width:520px){.about{left:8px;right:8px;top:8px;bottom:8px;width:auto}.about-scroll{padding:22px 20px 24px}.about h2{font-size:28px}}
+/* ---------- friendlier controls: pill buttons with real tap targets ---------- */
+.bar-ui .pill,.fullmap{display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:0 16px;border-radius:999px;
+  background:rgba(255,255,255,.78);color:var(--paper);box-shadow:inset 0 1px 0 #fff,0 0 0 1px rgba(43,40,34,.08),0 6px 16px -10px rgba(70,58,38,.55);
+  transition:transform .15s,background .2s}
+.bar-ui .pill:hover,.fullmap:hover{background:#fff;color:var(--paper)}
+.bar-ui .pill:active,.fullmap:active{transform:scale(.96)}
+.bar-ui .back{font-weight:500;color:var(--paper)}
+.bar-ui .pn{display:none}
+.bar-ui .side.r b{white-space:nowrap}
+.fullmap{position:fixed;z-index:12;right:max(16px,env(safe-area-inset-right,0px));bottom:calc(18px + env(safe-area-inset-bottom,0px));
+  font:500 11px/1 var(--f-mono);letter-spacing:.1em;text-transform:uppercase;
+  -webkit-backdrop-filter:var(--glass-blur-sm);backdrop-filter:var(--glass-blur-sm);background:var(--glass-fill-strong);
+  opacity:0;transform:translateY(8px);transition:opacity .3s var(--ease-cine),transform .4s var(--ease-cine)}
+.fullmap.show{opacity:1;transform:none}
+body.is-flying .fullmap,body.about-open .fullmap{opacity:0;pointer-events:none}
+/* touch screens: no Esc key, and the readout shows how to use the map instead of cursor coordinates */
+@media (pointer:coarse){
+  .bar-ui kbd{display:none}
+  .readout .row:first-child{display:none}
+  .readout .hint{display:block!important;opacity:1}
+}
+@media (max-width:520px){
+  /* phones: the bars keep to short words that always fit, never cut-off titles */
+  .bar-ui{font-size:10px;gap:8px}
+  .bar-ui .nb{display:none}
+  .bar-ui .pn{display:inline}
+  .bar-ui .pill{padding:0 14px}
+  .readout{max-width:calc(100vw - 32px);box-sizing:border-box}
+  .readout .hint{white-space:normal;line-height:1.5}
+  .fullmap{bottom:calc(84px + env(safe-area-inset-bottom,0px))}
+}
 @media (prefers-reduced-motion:reduce){
   .pin::before,.pin.is-hot::before,.grain,.screen .media.kb,.rec::before{animation:none}
   .preview,.preview.show{transform:none}
@@ -506,14 +537,16 @@ body.about-open button.brand{opacity:0;pointer-events:none}
 
 <div class="bar top"></div><div class="bar bot"></div>
 <div class="bar-ui top">
-  <div class="side"><b id="bSlate"></b><span class="nb" id="bTitle"></span></div>
-  <div class="side r"><button id="closeBtn">Back to map <kbd>Esc</kbd></button></div>
+  <div class="side"><button class="pill back" id="closeBtn" type="button"><span aria-hidden="true">←</span> Back to map <kbd>Esc</kbd></button></div>
+  <div class="side r"><b id="bSlate"></b><span class="nb" id="bTitle"></span></div>
 </div>
 <div class="bar-ui bot">
-  <div class="side"><button id="prevBtn"><span aria-hidden="true">←</span><span class="nb" id="prevLbl"></span></button></div>
+  <div class="side"><button class="pill" id="prevBtn" type="button" aria-label="Previous project"><span aria-hidden="true">←</span><span class="nb" id="prevLbl"></span><span class="pn">Prev</span></button></div>
   <span class="count" id="bCount"></span>
-  <div class="side r"><button id="nextBtn"><span class="nb" id="nextLbl"></span><span aria-hidden="true">→</span></button></div>
+  <div class="side r"><button class="pill" id="nextBtn" type="button" aria-label="Next project"><span class="nb" id="nextLbl"></span><span class="pn">Next</span><span aria-hidden="true">→</span></button></div>
 </div>
+
+<button class="pill fullmap" id="fullMapBtn" type="button" hidden><span aria-hidden="true">⤢</span> Back to full map</button>
 
 <div class="intro" id="intro"><div><span class="eyebrow">Field Reel · Canada</span><strong id="introName"></strong></div></div>
 <div class="grain" id="grain"></div>
@@ -807,10 +840,22 @@ function placeCities(){
 }
 function measureLabels(){LABELS.forEach(l=>{l.w=l.text.offsetWidth;l.h=l.text.offsetHeight})}
 let declutterS=0;
+// The floating panels (name card, filter bar, readout) count as obstacles too, and every name
+// must sit fully inside the screen. Their screen boxes are measured when the layout changes.
+let hudRects=null;
+function measureHud(){hudRects=['.brand','.controls','.readout'].map(q=>document.querySelector(q)).filter(e=>e&&e.offsetParent!==null)
+  .map(e=>e.getBoundingClientRect()).filter(r=>r.width>0)}
+addEventListener('resize',()=>{hudRects=null});
+const declutterAt={x:0,y:0,t:0};
 function declutter(){
-  const s=cam.s;declutterS=s;
+  const s=cam.s;declutterS=s;declutterAt.x=cam.x;declutterAt.y=cam.y;declutterAt.t=performance.now();
+  if(!hudRects)measureHud();
   const placed=[];
-  const overlaps=b=>placed.some(o=>b[0]<o[2]&&b[2]>o[0]&&b[1]<o[3]&&b[3]>o[1]);
+  // screen edges, in the same space as the label boxes (world position x zoom)
+  const ox=cam.x*s-vw/2,oy=cam.y*s-vh/2,M=8;
+  const onScreen=b=>b[0]>=ox+M&&b[2]<=ox+vw-M&&b[1]>=oy+M&&b[3]<=oy+vh-M;
+  const overlaps=b=>!onScreen(b)||placed.some(o=>b[0]<o[2]&&b[2]>o[0]&&b[1]<o[3]&&b[3]>o[1]);
+  hudRects.forEach(r=>placed.push([r.left+ox-6,r.top+oy-6,r.right+ox+6,r.bottom+oy+6]));
   const add=(b,m=0)=>placed.push([b[0]-m,b[1]-m,b[2]+m,b[3]+m]);
   // markers and city dots are obstacles every label must avoid
   PROJECTS.forEach(p=>{if(!p.pin.classList.contains('is-dim'))add([p.x*s-17,p.y*s-17,p.x*s+17,p.y*s+17])});
@@ -1190,8 +1235,10 @@ function apply(){
   setIf('inv',(1/cam.s).toFixed(4),v=>world.style.setProperty('--inv',v));
   setIf('bar',Math.round(Math.max(cam.c*cineBar(),introP*vh/2+(introP>0?2:0))*2)/2,v=>root.style.setProperty('--barH',v+'px'));
   setIf('filmH',Math.round(vh-2*cineBar()),v=>root.style.setProperty('--filmH',v+'px'));
-  if((mode==='roam'||mode==='intro')&&Math.abs(Math.log(cam.s/declutterS))>.04)declutter();
+  // re-place names after a real zoom or pan (a few times a second at most)
+  if((mode==='roam'||mode==='intro')&&performance.now()-declutterAt.t>110&&(Math.abs(Math.log(cam.s/declutterS))>.03||Math.hypot(cam.x-declutterAt.x,cam.y-declutterAt.y)*cam.s>24))declutter();
   if(hot)placePreview();
+  updateFullMap();
 }
 
 /* ---------- pointer ---------- */
@@ -1256,7 +1303,7 @@ addEventListener('pointerdown',e=>{lastPointer=e.pointerType},true);
 $('#stage').addEventListener('pointerdown',e=>{
   if(e.pointerType==='mouse')return;
   touches.set(e.pointerId,{x:e.clientX,y:e.clientY});mouse.has=false;lastTap={x:e.clientX,y:e.clientY};
-  $('#hint').textContent='Drag to travel · pinch to zoom · tap a marker to open';
+  
   if(touches.size===2){const[a,b]=[...touches.values()];pinch={d0:Math.max(20,Math.hypot(a.x-b.x,a.y-b.y)),z0:userZoom};drag=null;if(focus)releaseFocus()}
   else if(touches.size===1)drag={x:e.clientX,y:e.clientY,sx:e.clientX,sy:e.clientY,moved:false,hist:[{t:performance.now(),x:e.clientX,y:e.clientY}]};
 });
@@ -1363,6 +1410,11 @@ aboutBtn.addEventListener('click',()=>{if(mode==='roam'||mode==='intro')toggleAb
 $('#aboutClose').addEventListener('click',()=>toggleAbout(false));
 // a press on the map outside the sheet closes it
 $('#stage').addEventListener('pointerdown',()=>{if(about.classList.contains('open'))toggleAbout(false)});
+// ---- Back to full map: shown whenever the map is zoomed in beyond the starting view
+const fullMapBtn=$('#fullMapBtn');fullMapBtn.hidden=false;
+fullMapBtn.addEventListener('click',()=>{releaseFocus();userZoom=1;lock=null;buildClusters()});
+function updateFullMap(){setIf('fullmap',mode==='roam'&&(userZoom>1.05||(focus&&!focus.mouse)),v=>fullMapBtn.classList.toggle('show',v))}
+if(PHONE)$('#hint').textContent='Tap a marker to open a project · drag to move · pinch to zoom';
 const indexEl=$('#index');
 function toggleIndex(open){
   indexEl.classList.toggle('open',open);indexEl.inert=!open;$('#indexBtn').setAttribute('aria-expanded',String(open));
@@ -1491,6 +1543,7 @@ Promise.all([reliefReady,Promise.race([document.fonts?document.fonts.ready:Promi
   try{drawTerrain()}catch(err){console.error('Map drawing failed',err)}
   try{placeCities();measureLabels();declutter();buildClusters()}catch(err){console.error('Labels failed',err)}
   setTimeout(()=>{introStart=performance.now()},RM?0:500);
+  setTimeout(()=>{hudRects=null;declutter()},RM?50:2400); // panels have their final size once the intro ends
   if(!RM)setTimeout(()=>document.querySelector('.brand-more').classList.add('nudge'),RM?0:2600);
   // preview stills are made a little later, one per frame, so they never hold up the first view
   PROJECTS.forEach((p,i)=>setTimeout(()=>renderStill(p,0,PHONE?320:500),1200+i*120));
