@@ -890,7 +890,7 @@ body.intro-on button.brand{opacity:0;transition:none}
 
 <button class="pill fullmap" id="fullMapBtn" type="button" hidden><span aria-hidden="true">⤢</span> Back to full map</button>
 
-<div class="intro" id="intro"><div><span class="eyebrow" id="introRole"></span><strong id="introName"></strong></div></div>
+<div class="intro" id="intro"><div><strong id="introName"></strong></div></div>
 <div class="grain" id="grain"></div>
 <div class="ball" id="ball" aria-hidden="true"><i></i><span>Open</span></div>
 
@@ -1338,7 +1338,7 @@ PROJECTS.forEach((p,i)=>{p.sc=i+1;[p.x,p.y]=P(p.pos[0],p.pos[1])});
 const world=$('#world');world.style.width=W+'px';world.style.height=H+'px';
 $('#ownerName').textContent=OWNER.name;$('#ownerRole').textContent=OWNER.role;$('#ownerLine').textContent=OWNER.line;
 document.querySelectorAll('.wm').forEach(w=>{w.textContent=OWNER.watermark||'';w.hidden=!OWNER.watermark});
-$('#introName').textContent=OWNER.name;$('#introRole').textContent=OWNER.role;
+$('#introName').textContent=OWNER.name;
 document.title=`${OWNER.name} · ${OWNER.role}`;
 $('#indexSub').textContent=`${PROJECTS.length} project${PROJECTS.length===1?'':'s'} across Canada`;
 $('#cAll').textContent=PROJECTS.length;
@@ -1472,9 +1472,11 @@ function endIntro(){$('#intro').classList.add('gone');document.body.classList.re
 function flyIntro(){
   const it=$('#intro'),card=it.firstElementChild,nm=$('#introName'),bn=$('.brand-name');
   if(RM||!card.animate||it.classList.contains('gone')){return}
-  const cr=card.getBoundingClientRect(),nr=nm.getBoundingClientRect(),br=bn.getBoundingClientRect();
-  if(!nr.height||!br.height)return;
-  const k=br.height/nr.height,tx=br.left-(cr.left+(nr.left-cr.left)*k),ty=br.top-(cr.top+(nr.top-cr.top)*k);
+  // the name's resting place in its card (offset*, which ignore its rise-in animation), so the
+  // landing is exact even if the flight starts before that animation has finished
+  const cr=card.getBoundingClientRect(),br=bn.getBoundingClientRect(),nl=nm.offsetLeft,nt=nm.offsetTop,nh=nm.offsetHeight;
+  if(!nh||!br.height)return;
+  const k=br.height/nh,tx=br.left-(cr.left+nl*k),ty=br.top-(cr.top+nt*k);
   it.classList.add('flying');
   card.animate([{transform:'none'},{transform:`translate(${tx.toFixed(1)}px,${ty.toFixed(1)}px) scale(${k.toFixed(4)})`}],
     {duration:1400,delay:220,easing:'cubic-bezier(.6,0,.2,1)',fill:'forwards'}).finished.then(()=>{if(mode==='intro'){introP=0;mode='roam'}endIntro()},()=>{});
