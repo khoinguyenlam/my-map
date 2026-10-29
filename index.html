@@ -652,6 +652,28 @@ button.brand:hover{box-shadow:var(--glass-shadow)}
   .book{grid-column:2;grid-row:1;padding:0 16px}
   .hud-top .controls{grid-column:1/-1;grid-row:2;justify-self:start}
 }
+/* ---------- info cards: opening and closing ----------
+   Neither card blurs the map behind it any more (re-blurring a moving or scaling card every frame
+   is what made them stutter); both use a near-solid cream fill instead. They open on one long,
+   gentle curve with fade and scale finishing together, and close a little faster on a soft
+   ease-in-out rather than snapping away. */
+.about{-webkit-backdrop-filter:none;backdrop-filter:none;background:linear-gradient(160deg,rgba(255,254,250,.97),rgba(250,246,238,.96));
+  transform-origin:40px 40px;opacity:0;transform:translateY(-6px) scale(.96);will-change:transform,opacity;
+  transition:opacity 380ms cubic-bezier(.22,.8,.12,1),transform 560ms cubic-bezier(.22,.8,.12,1)}
+.about.open{opacity:1;transform:none}
+.about:not(.open){transition:opacity 260ms cubic-bezier(.45,0,.25,1),transform 300ms cubic-bezier(.45,0,.25,1)}
+/* the panel's contents settle in a step behind the panel itself */
+.about-scroll>*{opacity:0;transform:translateY(8px);transition:opacity 160ms ease-out,transform 160ms ease-out}
+.about.open .about-scroll>*{opacity:1;transform:none;transition:opacity 420ms cubic-bezier(.22,.8,.12,1),transform 520ms cubic-bezier(.22,.8,.12,1);
+  transition-delay:calc(80ms + var(--i,0) * 30ms)}
+/* the name card hands over to the panel: it fades out as the panel opens and back in after it closes */
+button.brand{transition:opacity 260ms cubic-bezier(.45,0,.25,1) 120ms,transform var(--t-med) var(--ease-out)}
+body.about-open button.brand{transition-delay:0ms}
+.preview{-webkit-backdrop-filter:none;backdrop-filter:none;background:rgba(255,253,248,.96);will-change:transform,opacity,translate;
+  opacity:0;transform:scale(.94);transition:opacity 180ms cubic-bezier(.45,0,.25,1),transform 220ms cubic-bezier(.45,0,.25,1)}
+.preview.show{opacity:1;transform:none;transition:opacity 280ms cubic-bezier(.22,.8,.12,1),transform 440ms cubic-bezier(.2,.9,.3,1)}
+.preview img{background:rgba(43,40,34,.06)}
+@media (prefers-reduced-motion:reduce){.about-scroll>*{transform:none!important;transition-delay:0ms!important}}
 @media (prefers-reduced-motion:reduce){
   .pin::before,.pin.is-hot::before,.grain,.screen .media.kb,.rec::before{animation:none}
   .preview,.preview.show{transform:none}
@@ -1639,7 +1661,7 @@ function placePreview(){
   }
   x=clamp(x,16,vw-pw-16);y=clamp(y,16,vh-ph-16);
   pvBox={left:x,right:x+pw,top:y,bottom:y+ph};
-  setIf('pvl',x.toFixed(1),v=>pv.style.left=v+'px');setIf('pvt',y.toFixed(1),v=>pv.style.top=v+'px');
+  setIf('pvxy',`${x.toFixed(1)}px ${y.toFixed(1)}px`,v=>pv.style.translate=v);
   setIf('pvo',`${(cx-x).toFixed(1)}px ${(cy-y).toFixed(1)}px`,v=>pv.style.transformOrigin=v); // the card grows out of its marker
 }
 
@@ -1664,6 +1686,7 @@ const about=$('#about'),aboutBtn=$('#aboutBtn');
   const mail=(OWNER.contact||[]).find(c=>/@/.test(c[1])&&!/^@/.test(c[1]));
   if(mail){$('#aboutEmail').href=`mailto:${mail[1]}?subject=${encodeURIComponent('Booking enquiry')}`}else $('#aboutEmail').closest('.about-cta').hidden=true;
   $('#aboutReply').textContent=OWNER.reply||'';
+  [...$('.about-scroll').children].forEach((c,i)=>c.style.setProperty('--i',i));
   const cl=$('#aboutClients');(OWNER.clients||[]).forEach(c=>{const li=document.createElement('li');li.textContent=c;cl.append(li)});
   const ct=$('#aboutContact');(OWNER.contact||[]).forEach(([k,v,link])=>{
     const li=document.createElement('li'),kk=document.createElement('span'),vv=document.createElement('span');
