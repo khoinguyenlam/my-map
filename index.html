@@ -289,7 +289,7 @@ kbd{font:inherit;border:1px solid var(--line);padding:2px 5px;color:var(--muted)
 :root{
   --glass-fill:linear-gradient(140deg,rgba(255,255,255,.64),rgba(255,251,244,.36));
   --glass-fill-strong:linear-gradient(140deg,rgba(255,255,255,.84),rgba(255,251,244,.66));
-  --glass-blur:blur(22px) saturate(170%);
+  --glass-blur:blur(18px) saturate(170%);
   --glass-blur-sm:blur(14px) saturate(160%);
   --glass-rim:linear-gradient(140deg,rgba(255,255,255,.98),rgba(255,255,255,.2) 42%,rgba(196,116,28,.28));
   --glass-shadow:inset 0 1px 0 rgba(255,255,255,.65),0 24px 56px -28px rgba(70,58,38,.38),0 2px 8px -3px rgba(70,58,38,.14);
@@ -324,6 +324,15 @@ kbd{font:inherit;border:1px solid var(--line);padding:2px 5px;color:var(--muted)
 .slate span{border-radius:999px;padding:6px 10px;border-color:rgba(43,40,34,.14);background:rgba(255,255,255,.45)}
 .slate span:first-child{background:var(--paper);border-color:var(--paper)}
 .meta{border-top-color:rgba(43,40,34,.1)}
+/* the filter and index buttons share one frosted bar (one blur instead of four) */
+.controls{position:relative;gap:2px;padding:4px;border-radius:999px;background:var(--glass-fill);
+  -webkit-backdrop-filter:var(--glass-blur-sm);backdrop-filter:var(--glass-blur-sm);box-shadow:var(--glass-shadow-sm)}
+.controls::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1px;pointer-events:none;background:var(--glass-rim);
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0)}
+.controls .chip{-webkit-backdrop-filter:none;backdrop-filter:none;box-shadow:none;background:transparent}
+.controls .chip::before{display:none}
+.controls .chip:hover:not([aria-pressed="true"]){background:rgba(255,255,255,.6)}
+.controls .chip[aria-pressed="true"]{background:var(--paper);box-shadow:0 2px 6px -2px rgba(43,40,34,.4)}
 /* letterbox bars become frosted strips over the scene */
 .bar{background:rgba(247,243,235,.62);-webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur)}
 .bar.top{box-shadow:inset 0 -1px 0 rgba(255,255,255,.7)}
@@ -497,7 +506,7 @@ const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).
 const pad2 = n => String(n).padStart(2,'0');
 const lerp = (a,b,t) => a+(b-a)*t;
 const clamp = (v,a,b) => Math.max(a,Math.min(b,v));
-const easeIO = p => p<.5 ? 4*p*p*p : 1-Math.pow(-2*p+2,3)/2;
+const easeIO = p => p*p*p*(p*(6*p-15)+10); // smootherstep: speed and acceleration both ease in and out
 
 /* ---------- noise ---------- */
 function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
@@ -676,6 +685,8 @@ function placeCities(){
     el.style.left=x+'px';el.style.top=y+'px';layer.append(el);
     LABELS.push({kind:'region',el,text:el,x,y,sides:['c'],prio:size<14?6:4});
   });
+  PROJECTS.forEach(p=>{p.labelRect=()=>{const l=LABELS.find(q=>q.p===p),[x,y]=screenOf(p),left=p.pin.classList.contains('label-l');
+    return left?{left:x-19-l.w,right:x-19,top:y-l.h/2,bottom:y+l.h/2}:{left:x+19,right:x+19+l.w,top:y-l.h/2,bottom:y+l.h/2}}});
   PROJECTS.forEach(p=>LABELS.push({kind:'pin',el:p.pin,text:p.pin.querySelector('.pin-label'),x:p.x,y:p.y,p,
     sides:p.labelSide==='l'?['l','r']:['r','l'],prio:0}));
   LABELS.sort((a,b)=>a.prio-b.prio);
@@ -854,9 +865,10 @@ PROJECTS.forEach((p,i)=>{
   b.addEventListener('blur',()=>{if(focus&&focus.p===p&&!focus.mouse)releaseFocus()});
   b.addEventListener('click',()=>{if(mode==='intro'&&introStart){introP=0;mode='roam';$('#intro').classList.add('gone')}
     if(mode!=='roam')return;
-    // on touch there's no hover: a marker crowded by others first zooms in on them; once it stands clear, a tap opens it
-    if(lastPointer!=='mouse'){const g=groupAt(p,cam.s);if(g&&!(focus&&focus.c&&focus.c.key===g.key)){setFocus(g,vw/2,vh/2,false);return}}
-    openProject(p)});
+    // on touch one tap opens a project: where markers overlap, the one nearest the fingertip wins
+    let t=p;
+    if(lastPointer!=='mouse'&&lastTap){let bd=1e9;for(const q of visible()){const[x,y]=screenOf(q),d=Math.hypot(x-lastTap.x,y-lastTap.y);if(d<bd){bd=d;t=q}}}
+    openProject(t)});
   p.pin=b;pinsEl.append(b);
 });
 $('#stage').addEventListener('scroll',e=>{e.target.scrollTop=0;e.target.scrollLeft=0});
@@ -882,14 +894,15 @@ const mapView=$('#mapView'),mvCtx=mapView.getContext('2d');
 let mapK=1,mvKey='',mvTilt='';
 function drawMapView(){
   if(!mapTiles.length)return;
-  const dpr=Math.min(2,devicePixelRatio||1),cw=Math.round(vw*dpr),ch=Math.round(vh*dpr);
+  // 1.5x is as sharp as the map tiles themselves are; going to 2x only adds pixels to push every frame
+  const dpr=Math.min(1.5,devicePixelRatio||1),cw=Math.round(vw*dpr),ch=Math.round(vh*dpr);
   if(mapView.width!==cw||mapView.height!==ch){mapView.width=cw;mapView.height=ch;mvKey=''}
   const key=`${cam.x.toFixed(2)},${cam.y.toFixed(2)},${cam.s.toFixed(4)}`;
   if(key!==mvKey){
     mvKey=key;
     mvCtx.fillStyle=css('--ocean-deep');mvCtx.fillRect(0,0,cw,ch);
     const s=cam.s,x0=cam.x-vw/2/s,y0=cam.y-vh/2/s,x1=x0+vw/s,y1=y0+vh/s;
-    const f=s*dpr;mvCtx.imageSmoothingQuality='high';
+    const f=s*dpr;mvCtx.imageSmoothingQuality='medium';
     for(const t of mapTiles){
       const ix0=Math.max(t.x,x0),iy0=Math.max(t.y,y0),ix1=Math.min(t.x+t.w,W,x1),iy1=Math.min(t.y+t.h,H,y1);
       if(ix1<=ix0||iy1<=iy0)continue;
@@ -935,17 +948,11 @@ function clusterScale(c){
   const want=Math.max(baseScale()*FOCUS_ZOOM,CLUSTER_GAP/Math.max(minD,1));
   return Math.max(baseScale()*userZoom*1.25,Math.min(fit,want));
 }
-// on touch: the markers within a fingertip of each other at the current zoom, as a group (or null)
-function groupAt(p,s){
-  const list=visible(),g=[p];
-  for(let i=0;i<g.length;i++)for(const q of list)if(!g.includes(q)&&Math.hypot(q.x-g[i].x,q.y-g[i].y)*s<CLUSTER_PX*.8)g.push(q);
-  if(g.length<2)return null;
-  return{members:g,x:g.reduce((a,m)=>a+m.x,0)/g.length,y:g.reduce((a,m)=>a+m.y,0)/g.length,key:g.map(m=>m.id).sort().join()};
-}
 const pinsOf=t=>t.members||[t];
-function pinCenter(p){const r=p.pin.getBoundingClientRect();return[r.left+r.width/2,r.top+r.height/2]}
-function groupRect(c){const rs=c.members.map(m=>m.pin.getBoundingClientRect());
-  return{left:Math.min(...rs.map(r=>r.left)),right:Math.max(...rs.map(r=>r.right)),top:Math.min(...rs.map(r=>r.top)),bottom:Math.max(...rs.map(r=>r.bottom))}}
+// marker positions come from the camera maths, never from layout, so pointer moves never force a reflow
+function pinCenter(p){return screenOf(p)}
+function groupRect(c){const pts=c.members.map(screenOf);
+  return{left:Math.min(...pts.map(q=>q[0]))-13,right:Math.max(...pts.map(q=>q[0]))+13,top:Math.min(...pts.map(q=>q[1]))-13,bottom:Math.max(...pts.map(q=>q[1]))+13}}
 function distTo(t,x,y){return Math.min(...pinsOf(t).map(p=>{const[cx,cy]=pinCenter(p);return Math.hypot(x-cx,y-cy)}))}
 // t is a project or a group of projects
 function setFocus(t,ex,ey,byMouse){
@@ -992,6 +999,12 @@ function stepCamera(t,trx,tryy,response,dt,holdXY){
     [ls,camV.ls]=ch(ls,camV.ls,lt);
     [cam.rx,camV.rx]=ch(cam.rx,camV.rx,trx);[cam.ry,camV.ry]=ch(cam.ry,camV.ry,tryy);
   }
+  // come fully to rest once the remaining motion is invisible, so a still camera costs nothing
+  const rest=(d,v,e)=>Math.abs(d)<e&&Math.abs(v)<e*4;
+  if(!holdXY&&rest(t.x-cam.x,camV.x,.03/cam.s)&&rest(t.y-cam.y,camV.y,.03/cam.s)){cam.x=t.x;cam.y=t.y;camV.x=camV.y=0}
+  if(rest(lt-ls,camV.ls,2e-5)){ls=lt;camV.ls=0}
+  if(rest(trx-cam.rx,camV.rx,.003)){cam.rx=trx;camV.rx=0}
+  if(rest(tryy-cam.ry,camV.ry,.003)){cam.ry=tryy;camV.ry=0}
   cam.s=Math.exp(ls);
 }
 // Apple's momentum projection: where a flick at this speed (px/s) would coast to
@@ -1019,38 +1032,40 @@ function frame(now){
     stepCamera(t,trx,tryy,mode==='intro'?1.3:focus?.6:zoomingOut?.42:.75,dt/1000,!!drag);
     cam.c+=(0-cam.c)*(1-Math.pow(.9,dt/16.67));
     if(focus&&!focus.settled&&Math.hypot(t.x-cam.x,t.y-cam.y)*cam.s<8&&Math.abs(t.s-cam.s)<t.s*.02)focus.settled=true;
-  } else if(mode==='film'&&!RM){
-    const d=now/1000; cam.ry=-4+Math.sin(d*.18)*2.5; cam.rx=16+Math.sin(d*.13)*1.5;
   }
   apply();
   if(anim&&mode!=='roam'&&now-animLast>33){animLast=now;drawAnim(now)}
   requestAnimationFrame(frame);
 }
 function cineBar(){return Math.max(54,Math.min((vh-vw/2.39)/2,vh*.1))}
+// every per-frame write is skipped when its value hasn't changed: a write to the page root
+// restyles the whole document, and each restyle makes every frosted panel re-blur
+const applied={};
+function setIf(key,v,fn){if(applied[key]!==v){applied[key]=v;fn(v)}}
 function apply(){
   drawMapView();
-  world.style.transform=cam.rx||cam.ry
-    ?`translate3d(${vw/2}px,${vh/2}px,0) rotateX(${cam.rx}deg) rotateY(${cam.ry}deg) scale(${cam.s}) translate(${-cam.x}px,${-cam.y}px)`
-    :`translate(${vw/2}px,${vh/2}px) scale(${cam.s}) translate(${-cam.x}px,${-cam.y}px)`;
-  world.style.setProperty('--inv',(1/cam.s).toFixed(4));
-  const bar=Math.max(cam.c*cineBar(),introP*vh/2+(introP>0?2:0));
-  root.style.setProperty('--barH',bar+'px');
-  root.style.setProperty('--filmH',(vh-2*cineBar())+'px');
+  const x=-cam.x.toFixed(2),y=-cam.y.toFixed(2),sc=cam.s.toFixed(5);
+  setIf('tf',cam.rx||cam.ry
+    ?`translate3d(${vw/2}px,${vh/2}px,0) rotateX(${cam.rx.toFixed(3)}deg) rotateY(${cam.ry.toFixed(3)}deg) scale(${sc}) translate(${x}px,${y}px)`
+    :`translate3d(${vw/2}px,${vh/2}px,0) scale(${sc}) translate(${x}px,${y}px)`,v=>world.style.transform=v);
+  setIf('inv',(1/cam.s).toFixed(4),v=>world.style.setProperty('--inv',v));
+  setIf('bar',Math.round(Math.max(cam.c*cineBar(),introP*vh/2+(introP>0?2:0))*2)/2,v=>root.style.setProperty('--barH',v+'px'));
+  setIf('filmH',Math.round(vh-2*cineBar()),v=>root.style.setProperty('--filmH',v+'px'));
   if((mode==='roam'||mode==='intro')&&Math.abs(Math.log(cam.s/declutterS))>.04)declutter();
   if(hot)placePreview();
 }
 
 /* ---------- pointer ---------- */
-let drag=null;
+let drag=null,readoutT=0;
 addEventListener('pointermove',e=>{
   if(e.pointerType==='mouse'){
     lastMouse.x=e.clientX;lastMouse.y=e.clientY;
     const x=e.clientX,y=e.clientY;
     if(focus&&focus.mouse&&mode==='roam'){
       const d=distTo(focus.c||focus.p,x,y);
-      const inZone=(focus.c?inRect(x,y,groupRect(focus.c),70):inRect(x,y,focus.p.pin.getBoundingClientRect(),28)
-          ||inRect(x,y,focus.p.pin.querySelector('.pin-label').getBoundingClientRect(),10))
-        ||(pv.classList.contains('show')&&inRect(x,y,pv.getBoundingClientRect(),12));
+      const inZone=(focus.c?inRect(x,y,groupRect(focus.c),70):inRect(x,y,groupRect({members:[focus.p]}),28)
+          ||inRect(x,y,focus.p.labelRect(),10))
+        ||(pv.classList.contains('show')&&inRect(x,y,pvBox,12));
       if(!focus.settled){if(d>200&&Math.hypot(x-focus.ex,y-focus.ey)>200)releaseFocus()}
       else if(inZone)focus.armed=true;
       else if(focus.armed)releaseFocus();
@@ -1074,10 +1089,11 @@ addEventListener('pointermove',e=>{
     }
     mouse.fx=e.clientX/vw;mouse.fy=e.clientY/vh;mouse.has=true;lock=null;
     const wx=cam.x+(e.clientX-vw/2)/cam.s, wy=cam.y+(e.clientY-vh/2)/cam.s;
-    if(wx>=0&&wy>=0&&wx<=W&&wy<=H){
-      const{lat,lon}=unP(wx,wy);
-      $('#rCoord').textContent=fmtLL(lat,lon);
-      $('#rProv').textContent=provinceAt(wx,wy)||'Open water';
+    const now=performance.now();
+    if(now-readoutT>90&&wx>=0&&wy>=0&&wx<=W&&wy<=H){ // the coordinates readout refreshes ~10 times a second
+      readoutT=now;const{lat,lon}=unP(wx,wy);
+      setIf('coord',fmtLL(lat,lon),v=>$('#rCoord').textContent=v);
+      setIf('prov',provinceAt(wx,wy)||'Open water',v=>$('#rProv').textContent=v);
     }
   } else if(mode==='roam'&&touches.has(e.pointerId)){
     touches.set(e.pointerId,{x:e.clientX,y:e.clientY});
@@ -1096,11 +1112,11 @@ addEventListener('pointermove',e=>{
     drag.x=e.clientX;drag.y=e.clientY;
   }
 });
-const touches=new Map();let pinch=null,lastPointer='mouse';
+const touches=new Map();let pinch=null,lastPointer='mouse',lastTap=null;
 addEventListener('pointerdown',e=>{lastPointer=e.pointerType},true);
 $('#stage').addEventListener('pointerdown',e=>{
   if(e.pointerType==='mouse')return;
-  touches.set(e.pointerId,{x:e.clientX,y:e.clientY});mouse.has=false;
+  touches.set(e.pointerId,{x:e.clientX,y:e.clientY});mouse.has=false;lastTap={x:e.clientX,y:e.clientY};
   $('#hint').textContent='Drag to travel · pinch to zoom · tap a marker to open';
   if(touches.size===2){const[a,b]=[...touches.values()];pinch={d0:Math.max(20,Math.hypot(a.x-b.x,a.y-b.y)),z0:userZoom};drag=null;if(focus)releaseFocus()}
   else if(touches.size===1)drag={x:e.clientX,y:e.clientY,sx:e.clientX,sy:e.clientY,moved:false,hist:[{t:performance.now(),x:e.clientX,y:e.clientY}]};
@@ -1141,14 +1157,17 @@ function hover(p){
   $('#pvImg').src=renderStill(hot,0,500);
   $('#pvMeta').textContent=`SC ${pad2(hot.sc)} · ${hot.kind} · ${hot.year}`;
   $('#pvTitle').textContent=hot.title;
-  placePreview();pv.classList.add('show');
+  pv.classList.add('show');pvH=pv.offsetHeight||230;pvW=pv.offsetWidth||250;placePreview();
 }
+// where a project's marker sits on screen, from the camera alone (no layout reads)
+function screenOf(p){return[vw/2+(p.x-cam.x)*cam.s,vh/2+(p.y-cam.y)*cam.s]}
+let pvH=230,pvW=250,pvBox={left:0,right:0,top:0,bottom:0};
 function placePreview(){
-  const r=hot.pin.getBoundingClientRect(),pw=250,ph=pv.offsetHeight||230,cx=r.left+r.width/2,cy=r.top+r.height/2;
+  const[cx,cy]=screenOf(hot),r={left:cx-13,right:cx+13,top:cy-13,bottom:cy+13},pw=pvW,ph=pvH;
   let x,y;
   if(focus&&focus.c&&focus.c.members.includes(hot)){
     // in a zoomed group the card sits beside the whole group so it never covers another marker
-    const g=groupRect(focus.c);
+    const pts=focus.c.members.map(screenOf),g={left:Math.min(...pts.map(q=>q[0]))-13,right:Math.max(...pts.map(q=>q[0]))+13};
     x=g.right+60;if(x+pw>vw-16)x=g.left-60-pw;
     y=cy-ph/2;
   }else{
@@ -1157,8 +1176,9 @@ function placePreview(){
     if(y<16)y=r.bottom+12;
   }
   x=clamp(x,16,vw-pw-16);y=clamp(y,16,vh-ph-16);
-  pv.style.left=x+'px';pv.style.top=y+'px';
-  pv.style.transformOrigin=`${cx-x}px ${cy-y}px`; // the card grows out of its marker
+  pvBox={left:x,right:x+pw,top:y,bottom:y+ph};
+  setIf('pvl',x.toFixed(1),v=>pv.style.left=v+'px');setIf('pvt',y.toFixed(1),v=>pv.style.top=v+'px');
+  setIf('pvo',`${(cx-x).toFixed(1)}px ${(cy-y).toFixed(1)}px`,v=>pv.style.transformOrigin=v); // the card grows out of its marker
 }
 
 /* ---------- filter + index ---------- */
