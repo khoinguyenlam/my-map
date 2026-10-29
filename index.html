@@ -582,6 +582,10 @@ button.brand:hover{box-shadow:var(--glass-shadow)}
   .info dl{grid-template-columns:88px minmax(0,1fr)}
 }
 @media (max-width:400px){.bar-ui .count{display:none}}
+/* the details card scrolls, and a drawn-on rim layer would scroll with its content and show up
+   as a stray line part-way down; a real border stays on the card's edge */
+.film .card::before{display:none}
+.film .card{border:1px solid rgba(255,255,255,.85)}
 .frame-cap{display:grid;gap:2px;min-width:0}
 .frame-when{font:400 12px/1.3 var(--f-mono);letter-spacing:.04em;color:var(--muted);font-variant-numeric:tabular-nums}
 .facts{grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr)}
@@ -696,8 +700,8 @@ button.brand:hover{box-shadow:var(--glass-shadow)}
         <div class="frame-bar rv" style="--d:300">
           <p class="frame-text"><span class="frame-no" id="fNo"></span><span class="frame-cap"><b id="fCaption"></b><span class="frame-when" id="fWhen"></span></span></p>
           <div class="frame-nav">
-            <button class="icon-btn tip" id="framePrev" type="button" aria-label="Previous photo" data-tip="Previous photo (←)">‹</button>
-            <button class="icon-btn tip" id="frameNext" type="button" aria-label="Next photo" data-tip="Next photo (→)">›</button>
+            <button class="icon-btn" id="framePrev" type="button" aria-label="Previous photo">‹</button>
+            <button class="icon-btn" id="frameNext" type="button" aria-label="Next photo">›</button>
           </div>
         </div>
         <dl class="facts rv" style="--d:400" id="fFacts"></dl>
