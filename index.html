@@ -1015,9 +1015,9 @@ const PROJECTS = [
     synopsis:"Sunrise on the longest day of 2026, from the shore at Marie Curtis Park. The sun came up behind downtown Toronto across Lake Ontario, and for about twenty minutes the skyline, the CN Tower and the water turned gold. Four stills on a long-zoom compact, and two short clips of the light moving.",
     media:[
       {src:"media/solstice-2026/01.jpg",thumb:"media/solstice-2026/01-thumb.jpg",caption:"The sun rising between the towers",exif:"21 Jun 2026, 05:56 · f/7.7 · 1/2000 s · ISO 100 · 250 mm equiv."},
-      {type:"video",src:"media/solstice-2026/v1.mp4",poster:"media/solstice-2026/v1-poster.jpg",fit:"contain",caption:"The sun clears the skyline, a gull crossing the light",exif:"21 Jun 2026, 05:55 · 0:28 · 1080p"},
+      {type:"video",src:"media/solstice-2026/v1-original.mp4",codecs:"hvc1",fallback:["media/solstice-2026/v1-1080.mp4","media/solstice-2026/v1.mp4"],poster:"media/solstice-2026/v1-poster.jpg",fit:"contain",caption:"The sun clears the skyline, a gull crossing the light",exif:"21 Jun 2026, 05:55 · 0:28 · 1080p"},
       {src:"media/solstice-2026/02.jpg",thumb:"media/solstice-2026/02-thumb.jpg",caption:"The skyline under broken cloud",exif:"21 Jun 2026, 06:02 · f/8.2 · 1/2500 s · ISO 100 · 170 mm equiv."},
-      {type:"video",src:"media/solstice-2026/v2.mp4",poster:"media/solstice-2026/v2-poster.jpg",fit:"contain",caption:"Light breaking through the cloud above the CN Tower",exif:"21 Jun 2026, 06:04 · 0:34 · 1080p"},
+      {type:"video",src:"media/solstice-2026/v2-original.mp4",fallback:"media/solstice-2026/v2.mp4",poster:"media/solstice-2026/v2-poster.jpg",fit:"contain",caption:"Light breaking through the cloud above the CN Tower",exif:"21 Jun 2026, 06:04 · 0:34 · 1080p"},
       {src:"media/solstice-2026/03.jpg",thumb:"media/solstice-2026/03-thumb.jpg",caption:"The sun on the tip of the CN Tower",exif:"21 Jun 2026, 06:08 · f/7.7 · 1/1600 s · ISO 100 · 330 mm equiv."},
       {src:"media/solstice-2026/04.jpg",thumb:"media/solstice-2026/04-thumb.jpg",caption:"A paddleboarder crossing the gold water",exif:"21 Jun 2026, 06:12 · f/8.2 · 1/2500 s · ISO 100 · 1440 mm equiv."}
     ]}
@@ -2063,7 +2063,10 @@ function showMedia(p,i){
   mediaIndex=i;stopAnim();
   const m=p.media[i],layer=document.createElement('div');layer.className='layer';
   let el;
-  if(m.src&&m.type==='video'){el=document.createElement('video');Object.assign(el,{src:m.src,muted:true,loop:true,autoplay:true,playsInline:true,controls:true,preload:'metadata'});if(m.poster)el.poster=m.poster}
+  if(m.src&&m.type==='video'){el=document.createElement('video');Object.assign(el,{muted:true,loop:true,autoplay:true,playsInline:true,controls:true,preload:'metadata'});if(m.poster)el.poster=m.poster;
+    // the original-quality file first; a browser that can't play it (or a copy without it) uses the lighter fallback
+    const add=(u,t)=>{const so=document.createElement('source');so.src=u;so.type=t;el.append(so)};
+    add(m.src,m.codecs?`video/mp4; codecs="${m.codecs}"`:'video/mp4');[].concat(m.fallback||[]).forEach(u=>add(u,'video/mp4'))}
   else if(m.src){el=document.createElement('img');el.src=m.src;el.alt=m.caption||p.title}
   else if(m.type==='video'){el=document.createElement('canvas');el.width=960;el.height=Math.round(960/p.aspect);anim={cv:el,ctx:el.getContext('2d'),sc:sceneFor(p,i),t0:performance.now()};drawAnim(performance.now())}
   else{el=document.createElement('img');el.src=renderStill(p,i,1600);el.alt=m.caption||p.title}
