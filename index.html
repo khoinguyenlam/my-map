@@ -983,6 +983,20 @@ const PROJECTS = [
       {src:"media/airshow-2026/08.jpg",thumb:"media/airshow-2026/08-thumb.jpg",caption:"Hornet, vapour off the wingtips",exif:"7 Sep 2026, 12:00 · f/7.1 · 1/1250 s · ISO 100 · 500 mm equiv."},
       {src:"media/airshow-2026/09.jpg",thumb:"media/airshow-2026/09-thumb.jpg",caption:"Heritage flight: Spitfire, Hurricane, Tutor and Hornet",exif:"7 Sep 2026, 12:18 · f/5 · 1/1250 s · ISO 100 · 135 mm equiv."},
       {src:"media/airshow-2026/10.jpg",thumb:"media/airshow-2026/10-thumb.jpg",caption:"Two RCAF Tutors in a mirror pass",exif:"7 Sep 2026, 15:17 · f/5.6 · 1/1600 s · ISO 100 · 400 mm equiv."}
+    ]},
+  { id:"summer-solstice-2026", title:"Summer Solstice", medium:"photo", kind:"Photo & video", year:2026,
+    role:"Photographer and videographer", client:"Personal work", place:"Marie Curtis Park, Etobicoke, Toronto, ON · looking east across Lake Ontario", pos:[43.587,-79.543],
+    shot:"21 June 2026, sunrise (5:55–6:12 am)",
+    camera:"Nikon COOLPIX P600", lens:"4.3–258 mm zoom (24–1440 mm equiv.), used at 170–1440 mm",
+    format:"Digital · 4:3 stills and 1080p video", length:"4 photos, 2 videos", aspect:4/3,
+    synopsis:"Sunrise on the longest day of 2026, from the shore at Marie Curtis Park. The sun came up behind downtown Toronto across Lake Ontario, and for about twenty minutes the skyline, the CN Tower and the water turned gold. Four stills on a long-zoom compact, and two short clips of the light moving.",
+    media:[
+      {src:"media/solstice-2026/01.jpg",thumb:"media/solstice-2026/01-thumb.jpg",caption:"The sun rising between the towers",exif:"21 Jun 2026, 05:56 · f/7.7 · 1/2000 s · ISO 100 · 250 mm equiv."},
+      {type:"video",src:"media/solstice-2026/v1.mp4",poster:"media/solstice-2026/v1-poster.jpg",fit:"contain",caption:"The sun clears the skyline, a gull crossing the light",exif:"21 Jun 2026, 05:55 · 0:28 · 1080p"},
+      {src:"media/solstice-2026/02.jpg",thumb:"media/solstice-2026/02-thumb.jpg",caption:"The skyline under broken cloud",exif:"21 Jun 2026, 06:02 · f/8.2 · 1/2500 s · ISO 100 · 170 mm equiv."},
+      {type:"video",src:"media/solstice-2026/v2.mp4",poster:"media/solstice-2026/v2-poster.jpg",fit:"contain",caption:"Light breaking through the cloud above the CN Tower",exif:"21 Jun 2026, 06:04 · 0:34 · 1080p"},
+      {src:"media/solstice-2026/03.jpg",thumb:"media/solstice-2026/03-thumb.jpg",caption:"The sun on the tip of the CN Tower",exif:"21 Jun 2026, 06:08 · f/7.7 · 1/1600 s · ISO 100 · 330 mm equiv."},
+      {src:"media/solstice-2026/04.jpg",thumb:"media/solstice-2026/04-thumb.jpg",caption:"A paddleboarder crossing the gold water",exif:"21 Jun 2026, 06:12 · f/8.2 · 1/2500 s · ISO 100 · 1440 mm equiv."}
     ]}
 ];
 
@@ -1921,7 +1935,7 @@ function populate(p){
   p.media.forEach((m,k)=>{
     const b=document.createElement('button');b.className='thumb';b.type='button';b.setAttribute('aria-label',`Photo ${k+1}: ${m.caption||''}`);
     const im=document.createElement('img');im.alt='';im.src=renderStill(p,k,240);b.append(im);
-    if(m.type==='video'){const s=document.createElement('span');s.className='play';s.textContent='▶ MOV';b.append(s)}
+    if(m.type==='video'){const s=document.createElement('span');s.className='play';s.textContent='▶ Video';b.append(s)}
     b.addEventListener('click',()=>showMedia(p,k));th.append(b);
   });
   $('#fAspect').textContent=(p.aspect===2.39?'2.39':p.aspect===16/9?'16:9':p.aspect===4/5?'4:5':p.aspect===3/2?'3:2':p.aspect===4/3?'4:3':p.aspect.toFixed(2))+(p.aspect>1.6?' : 1':'');
@@ -1937,7 +1951,9 @@ function populate(p){
 }
 // splits a photo's camera line ("6 Sep 2026, 12:33 · f/5.6 · 1/2000 s · ISO 100 · 450 mm equiv.") into labelled values
 function frameFacts(m){
-  if(m.type==='video')return[['Type','Video']];
+  // a clip's line ("21 Jun 2026, 05:55 · 0:28 · 1080p") gives when, how long and how it was recorded
+  if(m.type==='video')return[['Type','Video'],...(m.exif||'').split('·').map(x=>x.trim()).filter(Boolean).map(x=>
+    /^\d{3,4}p$/.test(x)?['Recorded',x]:/^\d+:\d\d$/.test(x)?['Length',x]:/\d{4}/.test(x)?['Taken',x]:['Note',x])];
   if(!m.exif)return[];
   return m.exif.split('·').map(x=>x.trim()).filter(Boolean).map(x=>
     /^(f\/|T\d)/i.test(x)?['Aperture',x]:/^1\/\d|\d\s*s$/.test(x)?['Shutter',x]:/ISO|EI/i.test(x)?['ISO',x.replace(/\s*ISO\s*/i,'')]
@@ -1948,11 +1964,12 @@ function showMedia(p,i){
   mediaIndex=i;stopAnim();
   const m=p.media[i],layer=document.createElement('div');layer.className='layer';
   let el;
-  if(m.src&&m.type==='video'){el=document.createElement('video');Object.assign(el,{src:m.src,muted:true,loop:true,autoplay:true,playsInline:true});if(m.poster)el.poster=m.poster}
+  if(m.src&&m.type==='video'){el=document.createElement('video');Object.assign(el,{src:m.src,muted:true,loop:true,autoplay:true,playsInline:true,controls:true,preload:'metadata'});if(m.poster)el.poster=m.poster}
   else if(m.src){el=document.createElement('img');el.src=m.src;el.alt=m.caption||p.title}
   else if(m.type==='video'){el=document.createElement('canvas');el.width=960;el.height=Math.round(960/p.aspect);anim={cv:el,ctx:el.getContext('2d'),sc:sceneFor(p,i),t0:performance.now()};drawAnim(performance.now())}
   else{el=document.createElement('img');el.src=renderStill(p,i,1600);el.alt=m.caption||p.title}
   el.classList.add('media');if(m.type!=='video'&&!RM)el.classList.add('kb');
+  if(m.fit)el.style.objectFit=m.fit; // a clip in a different shape from the stills keeps its whole frame
   layer.append(el);screen.insertBefore(layer,screen.querySelector('.vf'));
   // fade the photo in once it has loaded and decoded, so it never appears blank and then pops in
   const reveal=()=>requestAnimationFrame(()=>requestAnimationFrame(()=>layer.classList.add('in')));
@@ -1961,7 +1978,7 @@ function showMedia(p,i){
   layers.forEach((l,k)=>{if(k<layers.length-1){l.classList.remove('in');setTimeout(()=>l.remove(),1100)}});
   $('#fCaption').textContent=m.caption||'';
   $('#fNo').textContent=`${i+1} / ${p.media.length}`;
-  $('#fTc').innerHTML=m.type==='video'?'<span class="rec">TC 00:00:00:00</span>':'';
+  $('#fTc').innerHTML=m.type==='video'&&!m.src?'<span class="rec">TC 00:00:00:00</span>':''; // real clips show their own player time
   // the camera data for this photo, as labelled values
   // when it was taken sits under the caption; the camera settings stay on one row below the photo
   const all=frameFacts(m),when=all.filter(([k])=>k==='Taken'||k==='Note').map(x=>x[1]).join(' · ');
