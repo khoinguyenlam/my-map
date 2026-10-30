@@ -794,6 +794,18 @@ body.detail-on .city,body.detail-on .region{opacity:0!important;transition:opaci
 body.detail-on .map-credit{opacity:1;pointer-events:auto}
 body.film-open .map-credit,body.about-open .map-credit{opacity:0;pointer-events:none}
 @media (max-width:520px){.map-credit{font-size:12px;padding:1px 6px}}
+/* photo-and-video projects: the photo frame (rounded square) with the video play mark */
+.pin[data-medium="mixed"] .pin-mark{border-radius:7px;inset:3px}
+.pin[data-medium="mixed"] .pin-mark::after{margin-left:-3.5px}
+.pin[data-medium="mixed"]::before{border-radius:9px}
+/* legend: small copies of the real markers, so the key reads exactly like the map */
+.legend{gap:16px;flex-wrap:wrap;row-gap:8px}
+.legend .mk{position:relative;flex:none;width:16px;height:16px;box-sizing:border-box;border-radius:50%;background:var(--tungsten);
+  border:1.5px solid #fffdf8;box-shadow:0 0 0 1px rgba(196,116,28,.35)}
+.legend .mk[data-medium="photo"],.legend .mk[data-medium="mixed"]{border-radius:4px}
+.legend .mk::after{content:"";position:absolute;left:50%;top:50%;width:5px;height:6px;margin:-3px 0 0 -2px;background:#fffdf8;clip-path:polygon(0 0,100% 50%,0 100%)}
+.legend .mk[data-medium="photo"]::after{width:4px;height:4px;margin:-3.5px 0 0 -3.5px;clip-path:none;background:transparent;border:1.5px solid #fffdf8;border-radius:50%}
+.legend span{gap:8px}
 @media (prefers-reduced-motion:reduce){
   .pin::before,.pin.is-hot::before,.grain,.screen .media.kb,.rec::before{animation:none}
   .preview,.preview.show{transform:none}
@@ -842,7 +854,7 @@ body.film-open .map-credit,body.about-open .map-credit{opacity:0;pointer-events:
 <footer class="hud hud-bottom">
   <div class="readout">
     <div class="row coords" hidden><b id="rCoord"></b><span id="rProv"></span></div>
-    <div class="row legend"><span data-medium="film"><i class="glyph"></i>Video</span><span data-medium="photo"><i class="glyph sq"></i>Photo</span></div>
+    <div class="row legend"><span data-medium="photo"><i class="mk" data-medium="photo"></i>Photo</span><span data-medium="film"><i class="mk" data-medium="film"></i>Video</span><span data-medium="mixed"><i class="mk" data-medium="mixed"></i>Photo &amp; video</span></div>
     <div class="hint" id="hint">Hover a marker to preview a project, click to open it</div>
   </div>
 </footer>
@@ -1351,7 +1363,14 @@ function renderStill(p,i,wpx){
 }
 
 /* ---------- setup ---------- */
-PROJECTS.forEach((p,i)=>{p.sc=i+1;[p.x,p.y]=P(p.pos[0],p.pos[1])});
+PROJECTS.forEach((p,i)=>{p.sc=i+1;[p.x,p.y]=P(p.pos[0],p.pos[1]);
+  // photos first, then videos (a stable sort keeps each group in its own order)
+  p.media.sort((a,b)=>(a.type==='video')-(b.type==='video'));
+  // the kind of work comes from the files themselves: photo, video ("film") or both ("mixed")
+  const hasV=p.media.some(m=>m.type==='video'),hasP=p.media.some(m=>m.type!=='video');
+  p.medium=hasV&&hasP?'mixed':hasV?'film':'photo'});
+// a project with both photos and video shows under either filter
+const inFilter=(p,f)=>f==='all'||p.medium===f||(p.medium==='mixed'&&(f==='film'||f==='photo'));
 const world=$('#world');world.style.width=W+'px';world.style.height=H+'px';
 $('#ownerName').textContent=OWNER.name;$('#ownerRole').textContent=OWNER.role;$('#ownerLine').textContent=OWNER.line;
 document.querySelectorAll('.wm').forEach(w=>{w.textContent=OWNER.watermark||'';w.hidden=!OWNER.watermark});
@@ -1359,13 +1378,13 @@ $('#introName').textContent=OWNER.name;
 document.title=`${OWNER.name} · ${OWNER.role}`;
 $('#indexSub').textContent=`${PROJECTS.length} project${PROJECTS.length===1?'':'s'} across Canada`;
 $('#cAll').textContent=PROJECTS.length;
-$('#cFilm').textContent=PROJECTS.filter(p=>p.medium==='film').length;
-$('#cPhoto').textContent=PROJECTS.filter(p=>p.medium==='photo').length;
-// filters and legend only show the kinds of work that are on the map; with a single kind there's
-// nothing to filter, so only the list button stays
+const nIn=f=>PROJECTS.filter(p=>inFilter(p,f)).length;
+$('#cFilm').textContent=nIn('film');$('#cPhoto').textContent=nIn('photo');
+// filters and legend only show the kinds of work that are on the map; when every project is the
+// same kind there's nothing to filter, so only the list button stays
 {const kinds=new Set(PROJECTS.map(p=>p.medium));
-  document.querySelectorAll('.controls .chip[data-filter]').forEach(c=>{const f=c.dataset.filter;c.hidden=kinds.size<2||(f!=='all'&&!kinds.has(f))});
-  document.querySelectorAll('.legend [data-medium]').forEach(l=>l.hidden=!kinds.has(l.dataset.medium))}
+  document.querySelectorAll('.controls .chip[data-filter]').forEach(c=>{const f=c.dataset.filter;c.hidden=kinds.size<2||(f!=='all'&&!nIn(f))});
+  document.querySelectorAll('.legend > [data-medium]').forEach(l=>l.hidden=!kinds.has(l.dataset.medium))}
 
 const pinsEl=$('#pins');
 PROJECTS.forEach((p,i)=>{
@@ -1859,10 +1878,10 @@ function placePreview(){
 document.querySelectorAll('[data-filter]').forEach(b=>b.addEventListener('click',()=>{
   filter=b.dataset.filter;
   document.querySelectorAll('[data-filter]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));
-  PROJECTS.forEach(p=>{const off=filter!=='all'&&p.medium!==filter;p.pin.classList.toggle('is-dim',off);p.pin.tabIndex=off?-1:0;p.li.classList.toggle('is-dim',off)});
+  PROJECTS.forEach(p=>{const off=!inFilter(p,filter);p.pin.classList.toggle('is-dim',off);p.pin.tabIndex=off?-1:0;p.li.classList.toggle('is-dim',off)});
   releaseFocus();buildClusters();declutter();
 }));
-const visible=()=>PROJECTS.filter(p=>filter==='all'||p.medium===filter);
+const visible=()=>PROJECTS.filter(p=>inFilter(p,filter));
 // ---- About & contact
 const about=$('#about'),aboutBtn=$('#aboutBtn');
 (function fillAbout(){
@@ -2003,7 +2022,7 @@ function populate(p){
   $('#fSynopsis').textContent=p.synopsis;
   // details sit in three labelled groups instead of one long list; empty rows and groups are left out
   const groups=[
-    ['About the project',[['Role',p.role],['Client',p.client],['Shot',p.shot],[p.medium==='film'?'Runtime':'Photos',p.length]]],
+    ['About the project',[['Role',p.role],['Client',p.client],['Shot',p.shot],[p.medium==='film'?'Runtime':p.medium==='mixed'?'Contents':'Photos',p.length]]],
     ['Camera',[['Camera',p.camera],['Lens',p.lens],['Format',p.format]]],
     ['Location',[['Place',p.place],['Coordinates',fmtLL(p.pos[0],p.pos[1])]]]];
   const info=$('#fMeta');info.textContent='';
