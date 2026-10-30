@@ -625,7 +625,10 @@ button.brand:hover{box-shadow:var(--glass-shadow)}
   /* the photo column is exactly as wide as the photo, so the details card sits right beside it
      and the pair is centred, instead of the photo floating in the middle of a wide column */
   .film-inner{grid-template-columns:auto minmax(300px,400px);justify-content:center}
-  .stage-inner{width:min(calc((var(--filmH) - 240px) * var(--ar,1.5)),calc(100vw - 472px));min-width:0}
+  .stage-inner{width:min(max(400px,calc((var(--filmH) - 260px) * var(--ar,1.5))),calc(100vw - 472px));min-width:0}
+  /* the photo is sized by the height left for it; a tall one sits centred above details that keep
+     a readable width, instead of narrowing them until they wrap */
+  .stage .screen{width:min(100%,calc((var(--filmH) - 260px) * var(--ar,1.5)));justify-self:center}
 }
 /* opening: one continuous move. The backdrop settles in, the photo rises into place, then the
    title, details and filmstrip follow a step behind each other */
@@ -807,6 +810,9 @@ body.film-open .map-credit,body.about-open .map-credit{opacity:0;pointer-events:
 .legend .mk::after{content:"";position:absolute;left:50%;top:50%;width:5px;height:6px;margin:-3px 0 0 -2px;background:#fffdf8;clip-path:polygon(0 0,100% 50%,0 100%)}
 .legend .mk[data-medium="photo"]::after{width:4px;height:4px;margin:-3.5px 0 0 -3.5px;clip-path:none;background:transparent;border:1.5px solid #fffdf8;border-radius:50%}
 .legend span{gap:8px}
+.strip-label{flex:none;align-self:stretch;display:grid;place-items:center;padding:0 2px;writing-mode:vertical-rl;transform:rotate(180deg);
+  font:500 12px/1 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--tungsten);white-space:nowrap}
+.strip-label:not(:first-child){margin-left:8px;padding-left:10px;border-right:1px solid rgba(43,40,34,.15)}
 @media (prefers-reduced-motion:reduce){
   .pin::before,.pin.is-hot::before,.grain,.screen .media.kb,.rec::before{animation:none}
   .preview,.preview.show{transform:none}
@@ -1021,6 +1027,29 @@ const PROJECTS = [
       {type:"video",src:"media/solstice-2026/v2-original.mp4",fallback:"media/solstice-2026/v2.mp4",poster:"media/solstice-2026/v2-poster.jpg",caption:"Light breaking through the cloud above the CN Tower",exif:"21 Jun 2026, 06:04 · 0:34 · 1080p"},
       {src:"media/solstice-2026/03.jpg",thumb:"media/solstice-2026/03-thumb.jpg",caption:"The sun on the tip of the CN Tower",exif:"21 Jun 2026, 06:08 · f/7.7 · 1/1600 s · ISO 100 · 330 mm equiv."},
       {src:"media/solstice-2026/04.jpg",thumb:"media/solstice-2026/04-thumb.jpg",caption:"A paddleboarder crossing the gold water",exif:"21 Jun 2026, 06:12 · f/8.2 · 1/2500 s · ISO 100 · 1440 mm equiv."}
+    ]},
+  { id:"jackalope", title:"Jackalope", medium:"photo", kind:"Photo series", year:2026,
+    role:"Photographer", client:"Personal work", place:"Mississauga Celebration Square, Mississauga, ON", pos:[43.5893,-79.6441],
+    shot:"12 July 2025 and 12 July 2026 (dates from the camera)",
+    camera:"Nikon COOLPIX P600", lens:"4.3–258 mm zoom (24–1440 mm equiv.), used at 85–1440 mm",
+    format:"Digital · black and white, and colour", length:"15 photos (6 black and white, 9 colour)", aspect:3/4,
+    synopsis:"Jackalope, the action sports and music festival, on Celebration Square in Mississauga. Skaters on the vert ramp under the string lights, the crowd and crews around it, and freestyle motocross riders flying over the square. The set is split into black and white, then colour.",
+    media:[
+      {src:"media/jackalope/01.jpg",thumb:"media/jackalope/01-thumb.jpg",tone:"bw",caption:"Upside down above the ramp, between the towers",exif:"12 Jul 2025, 18:38 · f/5.3 · 1/400 s · ISO 100 · 180 mm equiv."},
+      {src:"media/jackalope/02.jpg",thumb:"media/jackalope/02-thumb.jpg",tone:"bw",caption:"A rider points to the crowd from the deck",exif:"12 Jul 2025, 19:04 · f/5.3 · 1/500 s · ISO 100 · 220 mm equiv."},
+      {src:"media/jackalope/03.jpg",thumb:"media/jackalope/03-thumb.jpg",tone:"bw",caption:"A straw hat in the crowd below the ramp",exif:"12 Jul 2025, 19:05 · f/5.5 · 1/400 s · ISO 100 · 270 mm equiv."},
+      {src:"media/jackalope/04.jpg",thumb:"media/jackalope/04-thumb.jpg",tone:"bw",caption:"The broadcast camera operator on the deck",exif:"12 Jul 2025, 19:06 · f/6.5 · 1/320 s · ISO 100 · 1440 mm equiv."},
+      {src:"media/jackalope/05.jpg",thumb:"media/jackalope/05-thumb.jpg",tone:"bw",caption:"A flip in silhouette, a phone raised to catch it",exif:"12 Jul 2025, 19:07 · f/5.5 · 1/800 s · ISO 100 · 270 mm equiv."},
+      {src:"media/jackalope/06.jpg",thumb:"media/jackalope/06-thumb.jpg",tone:"bw",caption:"Upside down over the camera operator",exif:"12 Jul 2025, 19:09 · f/5.5 · 1/400 s · ISO 100 · 250 mm equiv."},
+      {src:"media/jackalope/07.jpg",thumb:"media/jackalope/07-thumb.jpg",tone:"colour",caption:"Waiting at the foot of the vert ramp",exif:"12 Jul 2025, 18:44 · f/5 · 1/640 s · ISO 100 · 135 mm equiv."},
+      {src:"media/jackalope/08.jpg",thumb:"media/jackalope/08-thumb.jpg",tone:"colour",caption:"Between runs on the deck",exif:"12 Jul 2025, 18:46 · f/5.6 · 1/250 s · ISO 100 · 700 mm equiv."},
+      {src:"media/jackalope/09.jpg",thumb:"media/jackalope/09-thumb.jpg",tone:"colour",caption:"An arm up after a run",exif:"12 Jul 2025, 18:49 · f/5.6 · 1/400 s · ISO 100 · 800 mm equiv."},
+      {src:"media/jackalope/10.jpg",thumb:"media/jackalope/10-thumb.jpg",tone:"colour",caption:"A frontside air under the string lights",exif:"12 Jul 2025, 19:03 · f/5.3 · 1/320 s · ISO 100 · 220 mm equiv."},
+      {src:"media/jackalope/11.jpg",thumb:"media/jackalope/11-thumb.jpg",tone:"colour",caption:"Air above the vert ramp, a condo tower behind",exif:"12 Jul 2026, 15:24 · f/5 · 1/800 s · ISO 100 · 125 mm equiv."},
+      {src:"media/jackalope/12.jpg",thumb:"media/jackalope/12-thumb.jpg",tone:"colour",caption:"Freestyle motocross, stretched out in mid-air",exif:"12 Jul 2026, 15:32 · f/5 · 1/500 s · ISO 100 · 135 mm equiv."},
+      {src:"media/jackalope/13.jpg",thumb:"media/jackalope/13-thumb.jpg",tone:"colour",caption:"Looking back over the bike mid-jump",exif:"12 Jul 2026, 15:37 · f/4.8 · 1/500 s · ISO 100 · 95 mm equiv."},
+      {src:"media/jackalope/14.jpg",thumb:"media/jackalope/14-thumb.jpg",tone:"colour",caption:"A jump from behind, a plane far below",exif:"12 Jul 2026, 15:39 · f/5.2 · 1/500 s · ISO 100 · 170 mm equiv."},
+      {src:"media/jackalope/15.jpg",thumb:"media/jackalope/15-thumb.jpg",tone:"colour",caption:"Three riders in the air over the crowd",exif:"12 Jul 2026, 15:40 · f/4.5 · 1/640 s · ISO 100 · 85 mm equiv."}
     ]}
 ];
 
@@ -2032,7 +2061,10 @@ function populate(p){
     rows.forEach(([k,v])=>{const dt=document.createElement('dt');dt.textContent=k;const dd=document.createElement('dd');dd.textContent=v;dl.append(dt,dd)});
     sec.append(h3,dl);info.append(sec)});
   const th=$('#fThumbs');th.textContent='';
+  const tones=new Set(p.media.map(m=>m.tone).filter(Boolean));let lastTone=null;
   p.media.forEach((m,k)=>{
+    // a project with both black-and-white and colour photos shows each set under its own label
+    if(tones.size>1&&m.tone!==lastTone){lastTone=m.tone;const l=document.createElement('span');l.className='strip-label';l.textContent=m.tone==='bw'?'B&W':'Colour';l.title=l.ariaLabel=m.tone==='bw'?'Black and white':'Colour';th.append(l)}
     const b=document.createElement('button');b.className='thumb';b.type='button';b.setAttribute('aria-label',`Photo ${k+1}: ${m.caption||''}`);
     const im=document.createElement('img');im.alt='';
     // each preview takes its own item's shape; the first decoded preview also tells the frame
