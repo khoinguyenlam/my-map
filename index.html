@@ -629,8 +629,9 @@ button.brand:hover{box-shadow:var(--glass-shadow)}
 }
 /* opening: one continuous move. The backdrop settles in, the photo rises into place, then the
    title, details and filmstrip follow a step behind each other */
-.film{transition:opacity 700ms var(--ease-cine)}
-.film.closing{transition:opacity var(--t-slow) var(--ease-in)}
+.film{transition:opacity 700ms var(--ease-cine),--ar 560ms cubic-bezier(.22,.8,.12,1)}
+@property --ar{syntax:'<number>';inherits:true;initial-value:1.5}
+.film.closing{transition:opacity var(--t-slow) var(--ease-in),--ar 560ms cubic-bezier(.22,.8,.12,1)}
 .screen{opacity:0;transform:translateY(12px) scale(.97);transform-origin:50% 60%;
   transition:opacity 800ms var(--ease-cine) 80ms,transform 1000ms var(--ease-cine) 80ms}
 .film.is-on .screen{opacity:1;transform:none}
@@ -1015,9 +1016,9 @@ const PROJECTS = [
     synopsis:"Sunrise on the longest day of 2026, from the shore at Marie Curtis Park. The sun came up behind downtown Toronto across Lake Ontario, and for about twenty minutes the skyline, the CN Tower and the water turned gold. Four stills on a long-zoom compact, and two short clips of the light moving.",
     media:[
       {src:"media/solstice-2026/01.jpg",thumb:"media/solstice-2026/01-thumb.jpg",caption:"The sun rising between the towers",exif:"21 Jun 2026, 05:56 · f/7.7 · 1/2000 s · ISO 100 · 250 mm equiv."},
-      {type:"video",src:"media/solstice-2026/v1-original.mp4",codecs:"hvc1",fallback:["media/solstice-2026/v1-1080.mp4","media/solstice-2026/v1.mp4"],poster:"media/solstice-2026/v1-poster.jpg",fit:"contain",caption:"The sun clears the skyline, a gull crossing the light",exif:"21 Jun 2026, 05:55 · 0:28 · 1080p"},
+      {type:"video",src:"media/solstice-2026/v1-original.mp4",codecs:"hvc1",fallback:["media/solstice-2026/v1-1080.mp4","media/solstice-2026/v1.mp4"],poster:"media/solstice-2026/v1-poster.jpg",caption:"The sun clears the skyline, a gull crossing the light",exif:"21 Jun 2026, 05:55 · 0:28 · 1080p"},
       {src:"media/solstice-2026/02.jpg",thumb:"media/solstice-2026/02-thumb.jpg",caption:"The skyline under broken cloud",exif:"21 Jun 2026, 06:02 · f/8.2 · 1/2500 s · ISO 100 · 170 mm equiv."},
-      {type:"video",src:"media/solstice-2026/v2-original.mp4",fallback:"media/solstice-2026/v2.mp4",poster:"media/solstice-2026/v2-poster.jpg",fit:"contain",caption:"Light breaking through the cloud above the CN Tower",exif:"21 Jun 2026, 06:04 · 0:34 · 1080p"},
+      {type:"video",src:"media/solstice-2026/v2-original.mp4",fallback:"media/solstice-2026/v2.mp4",poster:"media/solstice-2026/v2-poster.jpg",caption:"Light breaking through the cloud above the CN Tower",exif:"21 Jun 2026, 06:04 · 0:34 · 1080p"},
       {src:"media/solstice-2026/03.jpg",thumb:"media/solstice-2026/03-thumb.jpg",caption:"The sun on the tip of the CN Tower",exif:"21 Jun 2026, 06:08 · f/7.7 · 1/1600 s · ISO 100 · 330 mm equiv."},
       {src:"media/solstice-2026/04.jpg",thumb:"media/solstice-2026/04-thumb.jpg",caption:"A paddleboarder crossing the gold water",exif:"21 Jun 2026, 06:12 · f/8.2 · 1/2500 s · ISO 100 · 1440 mm equiv."}
     ]}
@@ -2033,7 +2034,11 @@ function populate(p){
   const th=$('#fThumbs');th.textContent='';
   p.media.forEach((m,k)=>{
     const b=document.createElement('button');b.className='thumb';b.type='button';b.setAttribute('aria-label',`Photo ${k+1}: ${m.caption||''}`);
-    const im=document.createElement('img');im.alt='';im.src=renderStill(p,k,240);b.append(im);
+    const im=document.createElement('img');im.alt='';
+    // each preview takes its own item's shape; the first decoded preview also tells the frame
+    if(m.ar)b.style.setProperty('--ar',m.ar);
+    im.addEventListener('load',()=>{if(!m.ar)setMediaAr(p,m,im.naturalWidth/im.naturalHeight);b.style.setProperty('--ar',m.ar)},{once:true});
+    im.src=renderStill(p,k,240);b.append(im);
     if(m.type==='video'){const s=document.createElement('span');s.className='play';s.textContent='▶ Video';b.append(s)}
     b.addEventListener('click',()=>showMedia(p,k));th.append(b);
   });
@@ -2058,6 +2063,8 @@ function frameFacts(m){
     /^(f\/|T\d)/i.test(x)?['Aperture',x]:/^1\/\d|\d\s*s$/.test(x)?['Shutter',x]:/ISO|EI/i.test(x)?['ISO',x.replace(/\s*ISO\s*/i,'')]
     :/mm/.test(x)?['Focal (eq.)',x.replace(/\s*equiv\.?/,'')]:/\d{4}/.test(x)?['Taken',x]:['Note',x]);
 }
+// remember an item's true ratio, and reshape the frame if that item is the one showing
+function setMediaAr(p,m,r){if(!(r>0))return;m.ar=r;if(current===p&&p.media[mediaIndex]===m)film.style.setProperty('--ar',r)}
 function frameStep(d){if(mode!=='film'||!current)return;const n=current.media.length;if(n>1)showMedia(current,(mediaIndex+d+n)%n)}
 function showMedia(p,i){
   mediaIndex=i;stopAnim();
@@ -2071,7 +2078,10 @@ function showMedia(p,i){
   else if(m.type==='video'){el=document.createElement('canvas');el.width=960;el.height=Math.round(960/p.aspect);anim={cv:el,ctx:el.getContext('2d'),sc:sceneFor(p,i),t0:performance.now()};drawAnim(performance.now())}
   else{el=document.createElement('img');el.src=renderStill(p,i,1600);el.alt=m.caption||p.title}
   el.classList.add('media');if(m.type!=='video'&&!RM)el.classList.add('kb');
-  if(m.fit)el.style.objectFit=m.fit; // a clip in a different shape from the stills keeps its whole frame
+  // the frame takes this item's own shape (known from its preview, confirmed once the file loads)
+  film.style.setProperty('--ar',m.ar||p.aspect);
+  if(el.tagName==='VIDEO')el.addEventListener('loadedmetadata',()=>el.videoWidth&&setMediaAr(p,m,el.videoWidth/el.videoHeight),{once:true});
+  else if(el.tagName==='IMG')el.addEventListener('load',()=>el.naturalWidth&&setMediaAr(p,m,el.naturalWidth/el.naturalHeight),{once:true});
   layer.append(el);screen.insertBefore(layer,screen.querySelector('.vf'));
   // fade the photo in once it has loaded and decoded, so it never appears blank and then pops in
   const reveal=()=>requestAnimationFrame(()=>requestAnimationFrame(()=>layer.classList.add('in')));
