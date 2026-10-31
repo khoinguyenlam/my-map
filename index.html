@@ -1565,8 +1565,8 @@ const lat2ty=(lat,z)=>(1-Math.log(Math.tan(lat*D2R)+1/Math.cos(lat*D2R))/Math.PI
 const tx2lon=(x,z)=>x/2**z*360-180;
 const ty2lat=(y,z)=>Math.atan(Math.sinh(Math.PI-2*Math.PI*y/2**z))/D2R;
 // the web-map zoom whose pixels match the screen's at the view centre
-function detailZoom(){
-  const c=unP(cam.x,cam.y),e=unP(cam.x+1/cam.s,cam.y),k=Math.cos(c.lat*D2R);
+function detailZoom(x=cam.x,y=cam.y,s=cam.s){
+  const c=unP(x,y),e=unP(x+1/s,y),k=Math.cos(c.lat*D2R);
   const degPerPx=Math.hypot(e.lat-c.lat,(e.lon-c.lon)*k)/k||1e-9;
   return Math.log2(360/(256*degPerPx));
 }
@@ -1577,11 +1577,32 @@ function detailState(){
   const z=clamp(Math.round(zf+.5),3,19); // each 256 px image shows at 128–256 px, so it stays sharp
   return{zf,z,fade:DETAIL.fade,want:zf>7,key:`${DETAIL.fade.toFixed(3)},${z},${DETAIL.ver}`};
 }
+// the street map for where the camera is going, requested as soon as a zoom starts, so the
+// images are arriving while the camera is still on its way (a coarser level comes too, as a stand-in)
+function prefetchView(x,y,s){
+  const zf=detailZoom(x,y,s);if(zf<7.2)return[];
+  const out=[],z0=clamp(Math.round(zf+.5),3,19);
+  for(const z of[z0-2,z0]){let lo=[Infinity,Infinity],hi=[-Infinity,-Infinity];
+    for(const[u,v]of[[-.5,-.5],[.5,-.5],[-.5,.5],[.5,.5],[0,-.5],[0,.5],[-.5,0],[.5,0]]){
+      const g=unP(x+u*vw/s,y+v*vh/s),tx=lon2tx(g.lon,z),ty=lat2ty(g.lat,z);
+      lo=[Math.min(lo[0],tx),Math.min(lo[1],ty)];hi=[Math.max(hi[0],tx),Math.max(hi[1],ty)]}
+    for(let ty=Math.floor(lo[1]);ty<=Math.floor(hi[1]);ty++)for(let tx=Math.floor(lo[0]);tx<=Math.floor(hi[0]);tx++)
+      if(out.length<(PHONE?40:70))out.push(detailImg(z,tx,ty))}
+  return out;
+}
+// how fast a zoom may run: nearly held while the street map for its destination is still
+// loading (never for more than 1.6 s), then at full speed, so the map never arrives late
+function mapWait(m){
+  if(!m.pre){const t=m===goal?m:roamTarget();m.pre=prefetchView(t.x,t.y,t.s);m.t0=performance.now()}
+  if(!m.pre.length||m.ready)return 1;
+  if(m.pre.every(i=>i.ok||i.bad)||performance.now()-m.t0>1600){m.ready=true;return 1}
+  return .22;
+}
 function detailImg(z,x,y){
   const n=2**z;x=((x%n)+n)%n;const k=`${z}/${x}/${y}`;let im=DETAIL.imgs.get(k);
   if(im){DETAIL.imgs.delete(k);DETAIL.imgs.set(k,im);return im} // most recently used goes last
   im=new Image();im.decoding='async';
-  im.onload=()=>{im.ok=true;DETAIL.ver++};im.onerror=()=>{im.bad=true};
+  im.onload=()=>{im.ok=true;im.t=performance.now();DETAIL.ver++};im.onerror=()=>{im.bad=true};
   im.src=`https://tile.openstreetmap.org/${k}.png`;
   DETAIL.imgs.set(k,im);
   while(DETAIL.imgs.size>DETAIL_MAX){const old=DETAIL.imgs.keys().next().value;DETAIL.imgs.get(old).src='';DETAIL.imgs.delete(old)}
@@ -1603,7 +1624,7 @@ function drawDetail(det,x0,y0,f){
   // the map is turned against the web map, so many images in that box fall off screen: skip those
   const cw=mapView.width,ch=mapView.height,mg=60;let drawn=0;
   const scr=(lat,lon)=>{const[mx,my]=P(lat,lon);return[(mx-x0)*f,(my-y0)*f]};
-  const ctx=mvCtx,cover=new Path2D();
+  const ctx=mvCtx,cover=new Path2D(),now=performance.now();let fading=false;
   ctx.save();ctx.globalAlpha=det.fade;ctx.imageSmoothingQuality='high';
   if(CANVAS_FILTER)ctx.filter='grayscale(1) contrast(.9) brightness(1.13)'; // the colourful street map in the site's quiet tones
   for(let ty=ys[0];ty<=ys[1];ty++)for(let tx=xs[0];tx<=xs[1];tx++){
@@ -1611,15 +1632,24 @@ function drawDetail(det,x0,y0,f){
     const A=scr(latT,lonL),B=scr(latT,lonR),C=scr(latB,lonL),D=scr(latB,lonR);
     if(Math.max(A[0],B[0],C[0],D[0])<-mg||Math.min(A[0],B[0],C[0],D[0])>cw+mg||Math.max(A[1],B[1],C[1],D[1])<-mg||Math.min(A[1],B[1],C[1],D[1])>ch+mg)continue;
     if(++drawn>140)break;
-    const im=detailImg(z,tx,ty);if(!im.ok)continue;const iw=im.naturalWidth,ih=im.naturalHeight;
+    const im=detailImg(z,tx,ty),a=im.ok?clamp((now-im.t)/260,0,1):0;
     // a hair of overlap so neighbouring images meet without a seam
-    ctx.setTransform((B[0]-A[0])/iw,(B[1]-A[1])/iw,(C[0]-A[0])/ih,(C[1]-A[1])/ih,A[0],A[1]);
-    ctx.drawImage(im,-.6,-.6,iw+1.2,ih+1.2);
-    ctx.setTransform(1,0,0,1,0,0);
+    const quad=(img,sx,sy,sw,alpha)=>{ctx.globalAlpha=det.fade*alpha;
+      ctx.setTransform((B[0]-A[0])/256,(B[1]-A[1])/256,(C[0]-A[0])/256,(C[1]-A[1])/256,A[0],A[1]);
+      ctx.drawImage(img,sx,sy,sw,sw,-.6,-.6,257.2,257.2);ctx.setTransform(1,0,0,1,0,0)};
+    let any=false;
+    if(a<1){ // not here yet (or still fading in): a coarser image already loaded stands in, a little soft
+      for(let d=1;d<=4;d++){const k=2**d,px=Math.floor(tx/k),py=Math.floor(ty/k),n=2**(z-d);
+        const pim=DETAIL.imgs.get(`${z-d}/${((px%n)+n)%n}/${py}`);
+        if(pim&&pim.ok){const sz=pim.naturalWidth/k;quad(pim,(tx-px*k)*sz,(ty-py*k)*sz,sz,1);any=true;break}}
+    }
+    if(a>0){quad(im,0,0,im.naturalWidth,a);any=true;if(a<1)fading=true}
+    if(!any)continue;
     cover.moveTo(...A);cover.lineTo(...B);cover.lineTo(...D);cover.lineTo(...C);cover.closePath();
   }
   // warm the grey street map to the site's cream, once over everything drawn (no doubled seams)
   ctx.filter='none';
+  if(fading)requestAnimationFrame(()=>DETAIL.ver++); // keep redrawing until the new images have faded in
   if(!CANVAS_FILTER){ // the same grey without filters: drain the colour, then lift the darks a little
     ctx.globalAlpha=det.fade;ctx.globalCompositeOperation='saturation';ctx.fillStyle='#808080';ctx.fill(cover,'nonzero');
     ctx.globalCompositeOperation='screen';ctx.fillStyle='#262626';ctx.fill(cover,'nonzero');
@@ -1783,7 +1813,7 @@ function frame(now){
   } else if(mode==='fly'||mode==='film'){
     // flying to a project on a spring: it starts from the camera's current speed, so there is no jolt
     if(goal){
-      stepCamera(goal,goal.rx,goal.ry,1.25,dt/1000,false);
+      stepCamera(goal,goal.rx,goal.ry,1.6,dt/1000*mapWait(goal),false);
       cam.c+=(goal.c-cam.c)*(1-Math.pow(.9,dt/16.67));
       // the project view starts to appear during the camera's last easing, so the two read as one move
       if(goal.done&&Math.hypot(goal.x-cam.x,goal.y-cam.y)*cam.s<36&&Math.abs(Math.log(goal.s/cam.s))<.07){const d=goal.done;goal.done=null;d()}
@@ -1798,13 +1828,14 @@ function frame(now){
       // around it (springing the map position instead makes the marker swing out, then back)
       if(!focus.v)focus.v={x:-camV.x*cam.s,y:-camV.y*cam.s};
       let dx=RM?0:(t.x-cam.x)*cam.s,dy=RM?0:(t.y-cam.y)*cam.s;
-      [dx,focus.v.x]=springTo(dx,focus.v.x,0,.95,sec);[dy,focus.v.y]=springTo(dy,focus.v.y,0,.95,sec);
-      stepCamera(t,trx,tryy,1.05,sec,true);
+      const fs=sec*mapWait(focus);
+      [dx,focus.v.x]=springTo(dx,focus.v.x,0,1.25,fs);[dy,focus.v.y]=springTo(dy,focus.v.y,0,1.25,fs);
+      stepCamera(t,trx,tryy,1.4,fs,true);
       cam.x=t.x-dx/cam.s;cam.y=t.y-dy/cam.s;camV.x=-focus.v.x/cam.s;camV.y=-focus.v.y/cam.s;
       if(focus.c&&!focus.cardIn&&(RM||Math.abs(Math.log(t.s/cam.s))<.3)){focus.cardIn=true;revealGroup()}
     } else {
       // response in seconds: snappy when letting go of a hover, slower after closing a project
-      const resp=mode==='intro'?1.5:closing?1.15:zoomingOut?.8:.95;
+      const resp=mode==='intro'?1.5:closing?1.4:zoomingOut?1.1:.95;
       // a big change of zoom: the pan follows the zoom (by how much of the map is in view) rather
       // than running on its own clock, so the place being left never slides off screen mid-zoom
       if(!drag&&!RM&&Math.abs(Math.log(t.s/cam.s))>.05){
