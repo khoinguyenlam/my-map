@@ -8,7 +8,7 @@
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700&family=JetBrains+Mono:wght@400;500&family=Manrope:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700&family=JetBrains+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap">
 <style>
 /* Layout: a full-bleed map of Canada steered by the cursor; each project opens as a letterboxed screening card. */
 :root{
@@ -832,6 +832,25 @@ body.brand-in button.brand>.brand-more{animation-delay:140ms}
   #stage,#stage *{cursor:none!important}
 }
 @media (prefers-reduced-motion:reduce){.ball i,.ball span{transition-duration:120ms}}
+/* friendlier type for the name and the project cards: Manrope, the rounded sans the text is set
+   in, bold and in normal case, instead of the condensed all-caps display face and spaced-out
+   monospace labels, which read slowly. One family keeps the cards calm and easy to scan. */
+.brand-name{font:800 clamp(24px,2.4vw,32px)/1.05 var(--f-body);text-transform:none;letter-spacing:-.025em}
+.intro strong{font:800 clamp(34px,6vw,68px)/1.05 var(--f-body);text-transform:none;letter-spacing:-.03em}
+.film .title{font:800 clamp(28px,2.7vw,40px)/1.1 var(--f-body);text-transform:none;letter-spacing:-.025em}
+.slate{font:600 13px/1.2 var(--f-body);letter-spacing:0;text-transform:none}
+.info h3{font:700 13px/1.2 var(--f-body);letter-spacing:0;text-transform:none;color:var(--tungsten)}
+.info dt,.info dd{font-size:13.5px}
+.synopsis{font-size:15px;line-height:1.6}
+.card-cta p{font-weight:600}
+.preview .pv-title{font:800 20px/1.15 var(--f-body);text-transform:none;letter-spacing:-.02em}
+.preview .pv-meta,.gcard .gc-meta,.index .ix-meta{font:600 12px/1.2 var(--f-body);letter-spacing:0;text-transform:none}
+.gcard .gc-title{font:800 15px/1.2 var(--f-body);text-transform:none;letter-spacing:-.01em}
+.gcard .pv-meta{font:700 13px/1.2 var(--f-body);letter-spacing:0;text-transform:none}
+.gcard .gc-hint{font:500 12px/1.2 var(--f-body);letter-spacing:0}
+.index .ix-title{font:800 17px/1.15 var(--f-body);text-transform:none;letter-spacing:-.015em}
+.about h2{font:800 30px/1.1 var(--f-body);text-transform:none;letter-spacing:-.025em}
+@media (max-width:520px){.brand-name{font-size:22px}.about h2{font-size:26px}}
 /* street detail: the street map carries its own place names, so the drawn ones step aside, and
    its credit shows while it is visible */
 body.detail-on .city,body.detail-on .region{opacity:0!important;transition:opacity 300ms ease}
