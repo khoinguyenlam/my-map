@@ -2216,7 +2216,7 @@ function frameFacts(m){
     :/mm/.test(x)?['Focal (eq.)',x.replace(/\s*equiv\.?/,'')]:/\d{4}/.test(x)?['Taken',x]:['Note',x]);
 }
 // remember an item's true ratio, and reshape the frame if that item is the one showing
-// sound is one choice for the whole visit: turned on, the next clip plays with sound too
+// every clip starts muted; the button turns sound on for the clip that's showing only
 let soundOn=false;const sndBtn=$('#sndBtn');
 function setSnd(){sndBtn.setAttribute('aria-pressed',String(soundOn));sndBtn.setAttribute('aria-label',soundOn?'Mute':'Turn sound on')}
 sndBtn.addEventListener('click',()=>{soundOn=!soundOn;setSnd();
@@ -2224,10 +2224,10 @@ sndBtn.addEventListener('click',()=>{soundOn=!soundOn;setSnd();
 function setMediaAr(p,m,r){if(!(r>0))return;m.ar=r;if(current===p&&p.media[mediaIndex]===m)film.style.setProperty('--ar',r)}
 function frameStep(d){if(mode!=='film'||!current)return;const n=current.media.length;if(n>1)showMedia(current,(mediaIndex+d+n)%n)}
 function showMedia(p,i){
-  mediaIndex=i;stopAnim();
+  mediaIndex=i;stopAnim();soundOn=false;
   const m=p.media[i],layer=document.createElement('div');layer.className='layer';
   let el;
-  if(m.src&&m.type==='video'){el=document.createElement('video');Object.assign(el,{muted:!soundOn,loop:true,autoplay:true,playsInline:true,controls:false,preload:'metadata',disablePictureInPicture:true,disableRemotePlayback:true});if(m.poster)el.poster=m.poster;
+  if(m.src&&m.type==='video'){el=document.createElement('video');el.setAttribute('muted','');Object.assign(el,{defaultMuted:true,muted:true,loop:true,autoplay:true,playsInline:true,controls:false,preload:'metadata',disablePictureInPicture:true,disableRemotePlayback:true});if(m.poster)el.poster=m.poster;
     // the original-quality file first; a browser that can't play it (or a copy without it) uses the lighter fallback
     const add=(u,t)=>{const so=document.createElement('source');so.src=u;so.type=t;el.append(so)};
     add(m.src,m.codecs?`video/mp4; codecs="${m.codecs}"`:'video/mp4');[].concat(m.fallback||[]).forEach(u=>add(u,'video/mp4'))}
@@ -2241,8 +2241,6 @@ function showMedia(p,i){
   else if(el.tagName==='IMG')el.addEventListener('load',()=>el.naturalWidth&&setMediaAr(p,m,el.naturalWidth/el.naturalHeight),{once:true});
   layer.append(el);screen.insertBefore(layer,screen.querySelector('.vf'));
   sndBtn.hidden=el.tagName!=='VIDEO';setSnd();
-  // a browser that won't start a clip with sound starts it muted instead, so it always plays
-  if(el.tagName==='VIDEO'&&soundOn)el.play().catch(()=>{if(el.isConnected){el.muted=true;el.play().catch(()=>{});soundOn=false;setSnd()}});
   // fade the photo in once it has loaded and decoded, so it never appears blank and then pops in
   const reveal=()=>requestAnimationFrame(()=>requestAnimationFrame(()=>layer.classList.add('in')));
   if(el.tagName==='IMG'&&el.decode)Promise.race([el.decode().catch(()=>{}),new Promise(r=>setTimeout(r,900))]).then(reveal);else reveal();
