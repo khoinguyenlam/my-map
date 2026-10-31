@@ -1050,6 +1050,17 @@ const PROJECTS = [
       {src:"media/jackalope/13.jpg",thumb:"media/jackalope/13-thumb.jpg",tone:"colour",caption:"Looking back over the bike mid-jump",exif:"12 Jul 2026, 15:37 · f/4.8 · 1/500 s · ISO 100 · 95 mm equiv."},
       {src:"media/jackalope/14.jpg",thumb:"media/jackalope/14-thumb.jpg",tone:"colour",caption:"A jump from behind, a plane far below",exif:"12 Jul 2026, 15:39 · f/5.2 · 1/500 s · ISO 100 · 170 mm equiv."},
       {src:"media/jackalope/15.jpg",thumb:"media/jackalope/15-thumb.jpg",tone:"colour",caption:"Three riders in the air over the crowd",exif:"12 Jul 2026, 15:40 · f/4.5 · 1/640 s · ISO 100 · 85 mm equiv."}
+    ]},
+  { id:"in-action-2026", title:"In Action", medium:"film", kind:"Short film", year:2026,
+    role:"Rider, director and editor", client:"Personal work", place:"Trillium Park, Ontario Place, Toronto, ON", pos:[43.6286,-79.4126],
+    shot:"30 May 2026, at sunset",
+    camera:"DJI Osmo Action 4", lens:"Fixed ultra-wide, f/2.8, 155° field of view",
+    format:"Digital video · 4:3 · H.264, 30 fps, edited and exported in DJI Mimo", length:"3 clips, 0:34 in all", aspect:4/3,
+    synopsis:"An evening ride to Trillium Park on an action camera. Down through the downtown towers with the camera under the handlebars, then out to the park at sunset: a low angle from the grass as the bike is wheeled past, and the bike at rest on the hill with the sun going down behind the trees.",
+    media:[
+      {type:"video",src:"media/in-action-2026/v1-original.mp4",fallback:"media/in-action-2026/v1-1080.mp4",poster:"media/in-action-2026/v1-poster.jpg",caption:"Through the towers from under the handlebars",exif:"30 May 2026 · 0:16 · 2160 × 1620 · 30 fps"},
+      {type:"video",src:"media/in-action-2026/v2-original.mp4",fallback:"media/in-action-2026/v2-1080.mp4",poster:"media/in-action-2026/v2-poster.jpg",caption:"From the grass as the bike is wheeled past",exif:"30 May 2026 · 0:12 · 2880 × 2160 · 30 fps"},
+      {type:"video",src:"media/in-action-2026/v3-original.mp4",fallback:"media/in-action-2026/v3-1080.mp4",poster:"media/in-action-2026/v3-poster.jpg",caption:"The bike at rest as the sun goes down",exif:"30 May 2026 · 0:05 · 2160 × 1620 · 30 fps"}
     ]}
 ];
 
@@ -1683,7 +1694,9 @@ const project=(v,d=.998)=>(v/1000)*d/(1-d);
 
 let last=performance.now(), animLast=0;
 function frame(now){
-  const dt=Math.min(60,now-last);last=now;
+  // a frame stamped earlier than the last one (throttled or backgrounded tabs) counts as no time,
+  // never negative time, which would blow the springs up
+  const dt=clamp(now-last,0,60);last=Math.max(last,now);
   if(mode==='intro'&&introStart){
     const p=clamp((now-introStart)/(RM?1:1700),0,1);introP=1-easeIO(p);
     if(p>=1){mode='roam';endIntro()}
