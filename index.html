@@ -694,6 +694,26 @@ body.about-open button.brand{transition-delay:0ms}
   opacity:0;transform:scale(.94);transition:opacity 180ms cubic-bezier(.45,0,.25,1),transform 220ms cubic-bezier(.45,0,.25,1)}
 .preview.show{opacity:1;transform:none;transition:opacity 280ms cubic-bezier(.22,.8,.12,1),transform 440ms cubic-bezier(.2,.9,.3,1)}
 .preview img{background:rgba(43,40,34,.06)}
+/* where markers sit close together, one steady card lists them all instead of a card that hops
+   from marker to marker: it grows out of the group, stays put, and a row and its marker light together */
+.preview.gcard{width:288px;cursor:default}
+.preview.gcard.show:active{transform:none}
+.gcard .gc-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:14px 16px 8px;white-space:nowrap}
+/* phones: a full-width sheet along the bottom; the legend and full-map button step aside under it */
+@media (max-width:639px){
+  .preview.gcard{width:calc(100vw - 32px);max-width:420px}
+  body.group-open .hud-bottom,body.group-open .fullmap{opacity:0;pointer-events:none}
+}
+.gcard .gc-hint{font:400 11px/1 var(--f-mono);letter-spacing:.06em;color:var(--muted)}
+.gcard ul{list-style:none;margin:0;padding:0 6px 6px;display:grid;gap:2px}
+.gcard button{all:unset;box-sizing:border-box;display:grid;grid-template-columns:60px 1fr;gap:12px;align-items:center;width:100%;
+  padding:6px;border-radius:11px;cursor:pointer;transition:background-color 160ms cubic-bezier(.22,.8,.12,1)}
+.gcard button.on{background:rgba(43,40,34,.075)}
+.gcard button:active{background:rgba(43,40,34,.12);transform:scale(.98);transition-duration:100ms}
+.gcard button:focus-visible{outline:2px solid var(--tungsten);outline-offset:-2px}
+.preview.gcard img{width:60px;height:45px;margin:0;border-radius:7px;object-fit:cover}
+.gcard .gc-title{display:block;font:700 17px/1 var(--f-display);text-transform:uppercase;letter-spacing:.02em}
+.gcard .gc-meta{display:block;margin-top:5px;font:400 11px/1.2 var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--tungsten)}
 @media (prefers-reduced-motion:reduce){.about-scroll>*{transform:none!important;transition-delay:0ms!important}}
 /* watermark: small white type in the photo's top-left corner, with a soft shadow so it reads
    on bright skies and dark frames alike; the video timecode moves to the right to make room */
@@ -869,6 +889,10 @@ body.film-open .map-credit,body.about-open .map-credit{opacity:0;pointer-events:
 <div class="preview" id="preview" aria-hidden="true">
   <div class="pv-pic"><img id="pvImg" alt=""><span class="wm" aria-hidden="true"></span></div>
   <div class="pv-body"><span class="pv-meta" id="pvMeta"></span><strong class="pv-title" id="pvTitle"></strong><span class="pv-cta">Click to open</span></div>
+</div>
+<div class="preview gcard" id="gcard" aria-label="Projects in this area">
+  <div class="gc-head"><span class="pv-meta" id="gcMeta"></span><span class="gc-hint">Choose one to open</span></div>
+  <ul id="gcList"></ul>
 </div>
 
 <aside class="index" id="index" aria-label="Project index" inert>
@@ -1061,6 +1085,22 @@ const PROJECTS = [
       {type:"video",src:"media/in-action-2026/v1-original.mp4",fallback:"media/in-action-2026/v1-1080.mp4",poster:"media/in-action-2026/v1-poster.jpg",caption:"Through the towers from under the handlebars",exif:"30 May 2026 · 0:16 · 2160 × 1620 · 30 fps"},
       {type:"video",src:"media/in-action-2026/v2-original.mp4",fallback:"media/in-action-2026/v2-1080.mp4",poster:"media/in-action-2026/v2-poster.jpg",caption:"From the grass as the bike is wheeled past",exif:"30 May 2026 · 0:12 · 2880 × 2160 · 30 fps"},
       {type:"video",src:"media/in-action-2026/v3-original.mp4",fallback:"media/in-action-2026/v3-1080.mp4",poster:"media/in-action-2026/v3-poster.jpg",caption:"The bike at rest as the sun goes down",exif:"30 May 2026 · 0:05 · 2160 × 1620 · 30 fps"}
+    ]},
+  { id:"island-2026", title:"Island", medium:"film", kind:"Short film", year:2026,
+    role:"Rider, director and editor", client:"Personal work", place:"Toronto Island Park, Toronto, ON · the city across the harbour", pos:[43.6205,-79.378],
+    shot:"31 May 2026, in the afternoon sun",
+    camera:"DJI Osmo Action 4", lens:"Fixed ultra-wide, f/2.8, 155° field of view",
+    format:"Digital video · 4:3 · 2880 × 2160, H.264, 30 fps, edited and exported in DJI Mimo", length:"8 clips, 1:12 in all", aspect:4/3,
+    synopsis:"A ride out to Toronto Island the day after In Action, and an afternoon lying low in the grass. The action camera stays at ground level: walking the bike in against the sun, the bike dropped in an open field, along the frame and the chain, and the skyline just showing across the harbour behind the trees.",
+    media:[
+      {type:"video",src:"media/island-2026/v1-original.mp4",fallback:"media/island-2026/v1-1080.mp4",poster:"media/island-2026/v1-poster.jpg",caption:"Walking the bike in, into the sun",exif:"31 May 2026 · 0:13 · 2880 × 2160 · 30 fps"},
+      {type:"video",src:"media/island-2026/v2-original.mp4",fallback:"media/island-2026/v2-1080.mp4",poster:"media/island-2026/v2-poster.jpg",caption:"The bike down in an open field",exif:"31 May 2026 · 0:09 · 2880 × 2160 · 30 fps"},
+      {type:"video",src:"media/island-2026/v3-original.mp4",fallback:"media/island-2026/v3-1080.mp4",poster:"media/island-2026/v3-poster.jpg",caption:"Eye level with the grass, the wheel against the sky",exif:"31 May 2026 · 0:09 · 2880 × 2160 · 30 fps"},
+      {type:"video",src:"media/island-2026/v4-original.mp4",fallback:"media/island-2026/v4-1080.mp4",poster:"media/island-2026/v4-poster.jpg",caption:"Alone in the meadow under the sun",exif:"31 May 2026 · 0:05 · 2880 × 2160 · 30 fps"},
+      {type:"video",src:"media/island-2026/v5-original.mp4",fallback:"media/island-2026/v5-1080.mp4",poster:"media/island-2026/v5-poster.jpg",caption:"Resting beside the bike, the city behind the trees",exif:"31 May 2026 · 0:07 · 2880 × 2160 · 30 fps"},
+      {type:"video",src:"media/island-2026/v6-original.mp4",fallback:"media/island-2026/v6-1080.mp4",poster:"media/island-2026/v6-poster.jpg",caption:"Up close along the frame and the chain",exif:"31 May 2026 · 0:10 · 2880 × 2160 · 30 fps"},
+      {type:"video",src:"media/island-2026/v7-original.mp4",fallback:"media/island-2026/v7-1080.mp4",poster:"media/island-2026/v7-poster.jpg",caption:"Lifting the bike back up to ride",exif:"31 May 2026 · 0:13 · 2880 × 2160 · 30 fps"},
+      {type:"video",src:"media/island-2026/v8-original.mp4",fallback:"media/island-2026/v8-1080.mp4",poster:"media/island-2026/v8-poster.jpg",caption:"The back wheel from down in the grass",exif:"31 May 2026 · 0:07 · 2880 × 2160 · 30 fps"}
     ]}
 ];
 
@@ -1250,6 +1290,7 @@ function declutter(){
   const onScreen=b=>b[0]>=ox+M&&b[2]<=ox+vw-M&&b[1]>=oy+M&&b[3]<=oy+vh-M;
   const overlaps=b=>!onScreen(b)||placed.some(o=>b[0]<o[2]&&b[2]>o[0]&&b[1]<o[3]&&b[3]>o[1]);
   hudRects.forEach(r=>placed.push([r.left+ox-6,r.top+oy-6,r.right+ox+6,r.bottom+oy+6]));
+  if(gc.classList.contains('show'))placed.push([gcBox.left+ox-6,gcBox.top+oy-6,gcBox.right+ox+6,gcBox.bottom+oy+6]); // labels steer clear of the group card
   const add=(b,m=0)=>placed.push([b[0]-m,b[1]-m,b[2]+m,b[3]+m]);
   // markers and city dots are obstacles every label must avoid
   PROJECTS.forEach(p=>{if(!p.pin.classList.contains('is-dim'))add([p.x*s-17,p.y*s-17,p.x*s+17,p.y*s+17])});
@@ -1440,7 +1481,11 @@ PROJECTS.forEach((p,i)=>{
     if(mode!=='roam')return;
     // on touch one tap opens a project: where markers overlap, the one nearest the fingertip wins
     let t=p;
-    if(lastPointer!=='mouse'&&lastTap){let bd=1e9;for(const q of visible()){const[x,y]=screenOf(q),d=Math.hypot(x-lastTap.x,y-lastTap.y);if(d<bd){bd=d;t=q}}}
+    if(lastPointer!=='mouse'&&lastTap){
+      // a tap that lands on several markers at once lists them instead of guessing
+      const near=visible().filter(q=>{const[x,y]=screenOf(q);return Math.hypot(x-lastTap.x,y-lastTap.y)<30});
+      if(near.length>1&&p.cluster){if(!(focus&&focus.c===p.cluster))setFocus(p.cluster,lastTap.x,lastTap.y,false);return}
+      let bd=1e9;for(const q of visible()){const[x,y]=screenOf(q),d=Math.hypot(x-lastTap.x,y-lastTap.y);if(d<bd){bd=d;t=q}}}
     openProject(t)});
   p.pin=b;pinsEl.append(b);
 });
@@ -1603,11 +1648,12 @@ function setFocus(t,ex,ey,byMouse){
   const group=!!t.members;
   focus={p:group?null:t,c:group?t:null,s:group?clusterScale(t):focusScale(),ex,ey,mouse:byMouse,armed:false,settled:false,minD:Infinity};
   lock=null;hover(group?null:t);
+  if(group)showGroup(t);else hideGroup();
 }
 function releaseFocus(){
   clearTimeout(dwell);dwellT=null;if(!focus)return;
   if(focus.mouse)block=focus.c||focus.p; // don't re-zoom the same target until the cursor moves off it
-  focus=null;hover(null);
+  focus=null;hover(null);hideGroup();
 }
 function inRect(x,y,r,m){return x>r.left-m&&x<r.right+m&&y>r.top-m&&y<r.bottom+m}
 const mouse={fx:.5,fy:.5,has:false};
@@ -1649,7 +1695,7 @@ function roamTarget(){
   // the margin keeps the tilted map from ever showing its edge
   const m=56/s,hw=vw/(2*s)+m,hh=vh/(2*s)+m;
   let tx=cam.x,ty=cam.y;
-  if(focus){const t=focus.c||focus.p;tx=t.x;ty=t.y}
+  if(focus){const t=focus.c||focus.p;tx=t.x+(focus.dx||0);ty=t.y+(focus.dy||0)}
   else if(lock){tx=lock.x;ty=lock.y}
   else if(mouse.has){tx=hw+(W-2*hw)*mouse.fx;ty=hh+(H-2*hh)*mouse.fy}
   tx=W-2*hw>0?clamp(tx,hw,W-hw):W/2; ty=H-2*hh>0?clamp(ty,hh,H-hh):H/2;
@@ -1801,7 +1847,7 @@ addEventListener('pointermove',e=>{
       const d=distTo(focus.c||focus.p,x,y);
       const inZone=(focus.c?inRect(x,y,groupRect(focus.c),70):inRect(x,y,groupRect({members:[focus.p]}),28)
           ||inRect(x,y,focus.p.labelRect(),10))
-        ||(pv.classList.contains('show')&&inRect(x,y,pvBox,12));
+        ||(pv.classList.contains('show')&&inRect(x,y,pvBox,12))||(gc.classList.contains('show')&&inRect(x,y,gcBox,12));
       if(!focus.settled){if(d>200&&Math.hypot(x-focus.ex,y-focus.ey)>200)releaseFocus()}
       else if(inZone)focus.armed=true;
       else if(focus.armed)releaseFocus();
@@ -1809,10 +1855,13 @@ addEventListener('pointermove',e=>{
     }
     if(e.target.closest('.hud,.index,.film,.bar-ui,.preview,.about'))return;
     if(block&&distTo(block,x,y)>70)block=null;
-    if(focus&&focus.c&&mode==='roam'){ // inside a zoomed group the nearest marker shows its card
+    if(focus&&focus.c&&mode==='roam'){ // inside a zoomed group the nearest marker lights its row in the group card
       let best=null,bd=55;
       for(const q of focus.c.members){const[cx,cy]=pinCenter(q),d=Math.hypot(x-cx,y-cy);if(d<bd){bd=d;best=q}}
-      if(best&&best!==hot)hover(best);
+      // hysteresis: the lit marker only hands over once another is clearly nearer, so the pointer
+      // resting between two close markers never makes the highlight flicker
+      if(best&&hot&&best!==hot&&focus.c.members.includes(hot)){const[hx,hy]=pinCenter(hot);if(Math.hypot(x-hx,y-hy)<55&&Math.hypot(x-hx,y-hy)-bd<12)best=hot}
+      if(best!==hot)hover(best);
     }
     if(mode==='roam'||mode==='intro'){ // getting near a marker (or group) is enough; it zooms after a short dwell
       let best=null,bd=focus?40:60;
@@ -1888,8 +1937,10 @@ pv.addEventListener('click',()=>{if(hot&&mode==='roam')openProject(hot)});
 function hover(p){
   if(hot&&hot!==p)hot.pin.classList.remove('is-hot');
   hot=p&&mode==='roam'?p:null;
+  gc.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b._p===hot));
   if(!hot){pv.classList.remove('show');return}
   hot.pin.classList.add('is-hot');
+  if(focus&&focus.c&&focus.c.members.includes(hot)){pv.classList.remove('show');return} // the group card covers it
   $('#pvImg').src=renderStill(hot,0,500);
   $('#pvMeta').textContent=`${hot.kind} · ${hot.year}`;
   $('#pvTitle').textContent=hot.title;
@@ -1900,22 +1951,60 @@ function screenOf(p){return[vw/2+(p.x-cam.x)*cam.s,vh/2+(p.y-cam.y)*cam.s]}
 let pvH=230,pvW=250,pvBox={left:0,right:0,top:0,bottom:0};
 function placePreview(){
   const[cx,cy]=screenOf(hot),r={left:cx-13,right:cx+13,top:cy-13,bottom:cy+13},pw=pvW,ph=pvH;
-  let x,y;
-  if(focus&&focus.c&&focus.c.members.includes(hot)){
-    // in a zoomed group the card sits beside the whole group so it never covers another marker
-    const pts=focus.c.members.map(screenOf),g={left:Math.min(...pts.map(q=>q[0]))-13,right:Math.max(...pts.map(q=>q[0]))+13};
-    x=g.right+60;if(x+pw>vw-16)x=g.left-60-pw;
-    y=cy-ph/2;
-  }else{
-    x=r.right+18;y=r.top-ph-12;
-    if(x+pw>vw-16)x=r.left-pw-18;
-    if(y<16)y=r.bottom+12;
-  }
+  let x=r.right+18,y=r.top-ph-12;
+  if(x+pw>vw-16)x=r.left-pw-18;
+  if(y<16)y=r.bottom+12;
   x=clamp(x,16,vw-pw-16);y=clamp(y,16,vh-ph-16);
   pvBox={left:x,right:x+pw,top:y,bottom:y+ph};
   setIf('pvxy',`${x.toFixed(1)}px ${y.toFixed(1)}px`,v=>pv.style.translate=v);
   setIf('pvo',`${(cx-x).toFixed(1)}px ${(cy-y).toFixed(1)}px`,v=>pv.style.transformOrigin=v); // the card grows out of its marker
 }
+
+// the group card: placed once, from where the group will sit when the camera has finished zooming,
+// so it never moves while the map zooms in under it
+const gc=$('#gcard'),gcList=$('#gcList');let gcBox={left:0,right:0,top:0,bottom:0},gcFor=null;
+function showGroup(c){
+  if(gcFor!==c){gcFor=c;gcList.textContent='';
+    // west to east, the order they sit on the map
+    [...c.members].sort((a,b)=>a.x-b.x).forEach(p=>{
+      const li=document.createElement('li'),b=document.createElement('button');b._p=p;
+      b.innerHTML='<img alt=""><span><span class="gc-title"></span><span class="gc-meta"></span></span>';
+      b.querySelector('img').src=renderStill(p,0,320);
+      b.querySelector('.gc-title').textContent=p.title;b.querySelector('.gc-meta').textContent=`${p.kind} · ${p.year}`;
+      b.addEventListener('pointerenter',()=>{if(focus&&focus.c===c)hover(p)});
+      b.addEventListener('focus',()=>{if(focus&&focus.c===c)hover(p)});
+      b.addEventListener('click',()=>{if(mode==='roam')openProject(p)});
+      li.append(b);gcList.append(li)});
+    $('#gcMeta').textContent=`${c.members.length} projects here`;
+  }
+  // the group and its card are framed together: the zoom leaves room for the card, and the map
+  // slides aside so the card covers no marker (on phones the card is a sheet along the bottom)
+  if(focus&&focus.c===c&&focus.dx==null){
+    const w=gc.offsetWidth||288,h=gc.offsetHeight||300,xs=c.members.map(m=>m.x),ys=c.members.map(m=>m.y);
+    const sx=Math.max(1,Math.max(...xs)-Math.min(...xs)),sy=Math.max(1,Math.max(...ys)-Math.min(...ys));
+    // phones: the clear band between the top bar and the sheet
+    const top=vw<640?($('.hud-top')?$('.hud-top').getBoundingClientRect().bottom:120)+28:0,bot=vh-h-48;
+    if(vw<640)focus.s=Math.min(focus.s,(vw-64)/sx,Math.max(40,bot-top-24)/sy);
+    else focus.s=Math.min(focus.s,(vw-w-28-120)/sx,(vh-200)/sy);
+    focus.s=Math.max(focus.s,baseScale()*ZOOM_MIN);
+    // framed on the group's bounds, not the average of its markers, which a tight bunch drags aside
+    const bx=(Math.max(...xs)+Math.min(...xs))/2-c.x,by=(Math.max(...ys)+Math.min(...ys))/2-c.y;
+    if(vw<640){focus.dx=bx;focus.dy=by+(vh/2-(top+bot)/2)/focus.s}else{focus.dx=bx+(w+28)/2/focus.s;focus.dy=by}
+  }
+  const t=roamTarget(),pts=c.members.map(m=>[vw/2+(m.x-t.x)*t.s,vh/2+(m.y-t.y)*t.s]);
+  const L=Math.min(...pts.map(q=>q[0]))-16,R=Math.max(...pts.map(q=>q[0]))+16,T=Math.min(...pts.map(q=>q[1])),B=Math.max(...pts.map(q=>q[1]));
+  const w=gc.offsetWidth||288,h=gc.offsetHeight||300;
+  let x,y;
+  if(vw<640){x=(vw-w)/2;y=vh-h-24} // phones: a sheet along the bottom, clear of the markers
+  else{x=R+28;if(x+w>vw-16)x=L-28-w;y=(T+B)/2-h/2}
+  x=clamp(x,16,vw-w-16);y=clamp(y,16,vh-h-16);
+  gcBox={left:x,right:x+w,top:y,bottom:y+h};
+  gc.style.translate=`${x.toFixed(1)}px ${y.toFixed(1)}px`;
+  gc.style.transformOrigin=`${(clamp((L+R)/2,x,x+w)-x).toFixed(1)}px ${(clamp((T+B)/2,y,y+h)-y).toFixed(1)}px`; // it grows out of the group
+  gc.classList.add('show');gc.removeAttribute('inert');document.body.classList.add('group-open');declutter();
+}
+function hideGroup(){if(!gc.classList.contains('show'))return;gc.classList.remove('show');gc.setAttribute('inert','');document.body.classList.remove('group-open');declutter()}
+gc.setAttribute('inert','');
 
 /* ---------- filter + index ---------- */
 document.querySelectorAll('[data-filter]').forEach(b=>b.addEventListener('click',()=>{
@@ -2001,7 +2090,7 @@ let anim=null, mediaIndex=0, returnFocus=null;
 
 function openProject(p,fromFilm){
   if(!fromFilm)returnFocus=p.pin;
-  clearTimeout(dwell);focus=null;hover(null);current=p;mode='fly';
+  clearTimeout(dwell);focus=null;hover(null);hideGroup();current=p;mode='fly';
   document.body.classList.add('is-flying');
   PROJECTS.forEach(q=>q.pin.classList.toggle('is-active',q===p));
   const s1=Math.max(focusScale()*1.15,cam.s);
