@@ -1657,7 +1657,9 @@ function drawDetail(det,x0,y0,f){
   ctx.globalCompositeOperation='multiply';ctx.fillStyle='#f5ecdb';ctx.globalAlpha=det.fade*.9;ctx.fill(cover,'nonzero');
   ctx.restore();
 }
-const baseScale=()=>Math.max(vw/W,vh/H)*1.08;
+// a window can report no size at all (opened in the background, some in-app browsers): count it
+// as at least a pixel, so the zoom never comes out as zero
+const baseScale=()=>Math.max(Math.max(vw,1)/W,Math.max(vh,1)/H)*1.08;
 // pinch (touch) and the scroll wheel scale the resting zoom by userZoom
 let userZoom=1;const ZOOM_MIN=1,ZOOM_MAX=120; // far enough in for street-level detail // 1 = the starting view, which already fills the screen
 // zooming in on a project goes at least this close, however small the screen
@@ -1799,6 +1801,9 @@ function frame(now){
   // a frame stamped earlier than the last one (throttled or backgrounded tabs) counts as no time,
   // never negative time, which would blow the springs up
   const dt=clamp(now-last,0,60);last=Math.max(last,now);
+  // if the camera ever ends up invalid, start again from the full map rather than drawing nothing
+  if(!(cam.s>0&&isFinite(cam.s)&&isFinite(cam.x)&&isFinite(cam.y))){
+    cam.x=START[0];cam.y=START[1];cam.s=baseScale();Object.keys(camV).forEach(k=>camV[k]=0);zmove=null;mvKey=''}
   if(mode==='intro'&&introStart){
     const p=clamp((now-introStart)/(RM?1:1700),0,1);introP=1-easeIO(p);
     if(p>=1){mode='roam';endIntro()}
