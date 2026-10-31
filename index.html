@@ -717,6 +717,21 @@ body.about-open button.brand{transition-delay:0ms}
 @media (prefers-reduced-motion:reduce){.about-scroll>*{transform:none!important;transition-delay:0ms!important}}
 /* watermark: small white type in the photo's top-left corner, with a soft shadow so it reads
    on bright skies and dark frames alike; the video timecode moves to the right to make room */
+.screen video{pointer-events:none} /* clips just loop: no player, nothing to pause */
+/* the only control on a clip: sound on or off, a small glass button in the frame's corner */
+.snd{position:absolute;right:14px;bottom:14px;z-index:5;width:40px;height:40px;border:0;border-radius:50%;padding:0;cursor:pointer;
+  display:grid;place-items:center;color:#fff;background:rgba(20,18,14,.42);-webkit-backdrop-filter:blur(12px) saturate(140%);backdrop-filter:blur(12px) saturate(140%);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.18);transition:background-color 160ms cubic-bezier(.22,.8,.12,1),transform 160ms cubic-bezier(.22,.8,.12,1)}
+.snd[hidden]{display:none}
+.snd:hover{background:rgba(20,18,14,.6)}
+.snd:active{transform:scale(.92);transition-duration:100ms}
+.snd:focus-visible{outline:2px solid #fff;outline-offset:2px}
+.snd svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.snd .spk{fill:currentColor;stroke:none}
+.snd .on{display:none}
+.snd[aria-pressed="true"] .on{display:inline}
+.snd[aria-pressed="true"] .off{display:none}
+@media (max-width:520px){.snd{right:10px;bottom:10px;width:36px;height:36px}}
 .wm{position:absolute;left:16px;top:14px;z-index:4;pointer-events:none;user-select:none;
   font:500 13px/1 var(--f-body);letter-spacing:.02em;color:rgba(255,255,255,.88);
   text-shadow:0 1px 2px rgba(0,0,0,.45),0 0 12px rgba(0,0,0,.25)}
@@ -932,6 +947,9 @@ body.film-open .map-credit,body.about-open .map-credit{opacity:0;pointer-events:
           <div class="vf"><i></i><i></i><i></i><i></i></div>
           <div class="screen-hud"><span id="fTc"></span><span id="fAspect"></span></div>
           <span class="wm" aria-hidden="true"></span>
+          <button class="snd" id="sndBtn" type="button" aria-pressed="false" aria-label="Turn sound on" hidden>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path class="spk" d="M4 9.5h3.2L12 5.5v13l-4.8-4H4z"/><path class="on" d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/><path class="off" d="M16 9.5l5 5M21 9.5l-5 5"/></svg>
+          </button>
         </div>
         <div class="frame-bar rv" style="--d:300">
           <p class="frame-text"><span class="frame-no" id="fNo"></span><span class="frame-cap"><b id="fCaption"></b><span class="frame-when" id="fWhen"></span></span></p>
@@ -2198,13 +2216,18 @@ function frameFacts(m){
     :/mm/.test(x)?['Focal (eq.)',x.replace(/\s*equiv\.?/,'')]:/\d{4}/.test(x)?['Taken',x]:['Note',x]);
 }
 // remember an item's true ratio, and reshape the frame if that item is the one showing
+// sound is one choice for the whole visit: turned on, the next clip plays with sound too
+let soundOn=false;const sndBtn=$('#sndBtn');
+function setSnd(){sndBtn.setAttribute('aria-pressed',String(soundOn));sndBtn.setAttribute('aria-label',soundOn?'Mute':'Turn sound on')}
+sndBtn.addEventListener('click',()=>{soundOn=!soundOn;setSnd();
+  const vs=screen.querySelectorAll('.layer video'),v=vs[vs.length-1];if(v){v.muted=!soundOn;v.play().catch(()=>{})}});
 function setMediaAr(p,m,r){if(!(r>0))return;m.ar=r;if(current===p&&p.media[mediaIndex]===m)film.style.setProperty('--ar',r)}
 function frameStep(d){if(mode!=='film'||!current)return;const n=current.media.length;if(n>1)showMedia(current,(mediaIndex+d+n)%n)}
 function showMedia(p,i){
   mediaIndex=i;stopAnim();
   const m=p.media[i],layer=document.createElement('div');layer.className='layer';
   let el;
-  if(m.src&&m.type==='video'){el=document.createElement('video');Object.assign(el,{muted:true,loop:true,autoplay:true,playsInline:true,controls:true,preload:'metadata'});if(m.poster)el.poster=m.poster;
+  if(m.src&&m.type==='video'){el=document.createElement('video');Object.assign(el,{muted:!soundOn,loop:true,autoplay:true,playsInline:true,controls:false,preload:'metadata',disablePictureInPicture:true,disableRemotePlayback:true});if(m.poster)el.poster=m.poster;
     // the original-quality file first; a browser that can't play it (or a copy without it) uses the lighter fallback
     const add=(u,t)=>{const so=document.createElement('source');so.src=u;so.type=t;el.append(so)};
     add(m.src,m.codecs?`video/mp4; codecs="${m.codecs}"`:'video/mp4');[].concat(m.fallback||[]).forEach(u=>add(u,'video/mp4'))}
@@ -2217,6 +2240,9 @@ function showMedia(p,i){
   if(el.tagName==='VIDEO')el.addEventListener('loadedmetadata',()=>el.videoWidth&&setMediaAr(p,m,el.videoWidth/el.videoHeight),{once:true});
   else if(el.tagName==='IMG')el.addEventListener('load',()=>el.naturalWidth&&setMediaAr(p,m,el.naturalWidth/el.naturalHeight),{once:true});
   layer.append(el);screen.insertBefore(layer,screen.querySelector('.vf'));
+  sndBtn.hidden=el.tagName!=='VIDEO';setSnd();
+  // a browser that won't start a clip with sound starts it muted instead, so it always plays
+  if(el.tagName==='VIDEO'&&soundOn)el.play().catch(()=>{if(el.isConnected){el.muted=true;el.play().catch(()=>{});soundOn=false;setSnd()}});
   // fade the photo in once it has loaded and decoded, so it never appears blank and then pops in
   const reveal=()=>requestAnimationFrame(()=>requestAnimationFrame(()=>layer.classList.add('in')));
   if(el.tagName==='IMG'&&el.decode)Promise.race([el.decode().catch(()=>{}),new Promise(r=>setTimeout(r,900))]).then(reveal);else reveal();
@@ -2224,7 +2250,7 @@ function showMedia(p,i){
   layers.forEach((l,k)=>{if(k<layers.length-1){l.classList.remove('in');setTimeout(()=>l.remove(),1100)}});
   $('#fCaption').textContent=m.caption||'';
   $('#fNo').textContent=`${i+1} / ${p.media.length}`;
-  $('#fTc').innerHTML=m.type==='video'&&!m.src?'<span class="rec">TC 00:00:00:00</span>':''; // real clips show their own player time
+  $('#fTc').innerHTML=m.type==='video'&&!m.src?'<span class="rec">TC 00:00:00:00</span>':'';
   // the camera data for this photo, as labelled values
   // when it was taken sits under the caption; the camera settings stay on one row below the photo
   const all=frameFacts(m),when=all.filter(([k])=>k==='Taken'||k==='Note').map(x=>x[1]).join(' · ');
