@@ -1587,6 +1587,9 @@ function detailImg(z,x,y){
   while(DETAIL.imgs.size>DETAIL_MAX){const old=DETAIL.imgs.keys().next().value;DETAIL.imgs.get(old).src='';DETAIL.imgs.delete(old)}
   return im;
 }
+// Safari draws canvas images without CSS filters, so there the street map is greyed by blending instead
+const CANVAS_FILTER=(()=>{try{const c=document.createElement('canvas');c.width=c.height=1;const x=c.getContext('2d');
+  x.filter='grayscale(1)';x.fillStyle='#f00';x.fillRect(0,0,1,1);const d=x.getImageData(0,0,1,1).data;return Math.abs(d[0]-d[1])<12}catch(e){return false}})();
 function drawDetail(det,x0,y0,f){
   const z=det.z,pad=.08;
   // the web-map tiles under the screen (with a margin, since the tilt shows a little more)
@@ -1602,7 +1605,7 @@ function drawDetail(det,x0,y0,f){
   const scr=(lat,lon)=>{const[mx,my]=P(lat,lon);return[(mx-x0)*f,(my-y0)*f]};
   const ctx=mvCtx,cover=new Path2D();
   ctx.save();ctx.globalAlpha=det.fade;ctx.imageSmoothingQuality='high';
-  ctx.filter='grayscale(1) contrast(.9) brightness(1.13)'; // the colourful street map in the site's quiet tones
+  if(CANVAS_FILTER)ctx.filter='grayscale(1) contrast(.9) brightness(1.13)'; // the colourful street map in the site's quiet tones
   for(let ty=ys[0];ty<=ys[1];ty++)for(let tx=xs[0];tx<=xs[1];tx++){
     const lonL=tx2lon(tx,z),lonR=tx2lon(tx+1,z),latT=ty2lat(ty,z),latB=ty2lat(ty+1,z);
     const A=scr(latT,lonL),B=scr(latT,lonR),C=scr(latB,lonL),D=scr(latB,lonR);
@@ -1616,7 +1619,12 @@ function drawDetail(det,x0,y0,f){
     cover.moveTo(...A);cover.lineTo(...B);cover.lineTo(...D);cover.lineTo(...C);cover.closePath();
   }
   // warm the grey street map to the site's cream, once over everything drawn (no doubled seams)
-  ctx.filter='none';ctx.globalCompositeOperation='multiply';ctx.fillStyle='#f5ecdb';ctx.globalAlpha=det.fade*.9;ctx.fill(cover,'nonzero');
+  ctx.filter='none';
+  if(!CANVAS_FILTER){ // the same grey without filters: drain the colour, then lift the darks a little
+    ctx.globalAlpha=det.fade;ctx.globalCompositeOperation='saturation';ctx.fillStyle='#808080';ctx.fill(cover,'nonzero');
+    ctx.globalCompositeOperation='screen';ctx.fillStyle='#262626';ctx.fill(cover,'nonzero');
+  }
+  ctx.globalCompositeOperation='multiply';ctx.fillStyle='#f5ecdb';ctx.globalAlpha=det.fade*.9;ctx.fill(cover,'nonzero');
   ctx.restore();
 }
 const baseScale=()=>Math.max(vw/W,vh/H)*1.08;
@@ -1752,7 +1760,7 @@ function springTo(cur,v,target,response,dt){
   if(Math.abs(target-cur)<.05&&Math.abs(v)<.2){cur=target;v=0}
   return[cur,v];
 }
-let goal=null,closedAt=-1e9;
+let goal=null,closedAt=-1e9,zmove=null;
 // Apple's momentum projection: where a flick at this speed (px/s) would coast to
 const project=(v,d=.998)=>(v/1000)*d/(1-d);
 
@@ -1793,9 +1801,18 @@ function frame(now){
       [dx,focus.v.x]=springTo(dx,focus.v.x,0,.95,sec);[dy,focus.v.y]=springTo(dy,focus.v.y,0,.95,sec);
       stepCamera(t,trx,tryy,1.05,sec,true);
       cam.x=t.x-dx/cam.s;cam.y=t.y-dy/cam.s;camV.x=-focus.v.x/cam.s;camV.y=-focus.v.y/cam.s;
+      if(focus.c&&!focus.cardIn&&(RM||Math.abs(Math.log(t.s/cam.s))<.3)){focus.cardIn=true;revealGroup()}
     } else {
       // response in seconds: snappy when letting go of a hover, slower after closing a project
-      stepCamera(t,trx,tryy,mode==='intro'?1.5:closing?1.15:zoomingOut?.8:.95,sec,!!drag);
+      const resp=mode==='intro'?1.5:closing?1.15:zoomingOut?.8:.95;
+      // a big change of zoom: the pan follows the zoom (by how much of the map is in view) rather
+      // than running on its own clock, so the place being left never slides off screen mid-zoom
+      if(!drag&&!RM&&Math.abs(Math.log(t.s/cam.s))>.05){
+        if(!zmove||Math.abs(Math.log(zmove.s1/t.s))>.001)zmove={x:cam.x,y:cam.y,s0:cam.s,s1:t.s};
+        stepCamera(t,trx,tryy,resp,sec,true);
+        const g=clamp((1/zmove.s0-1/cam.s)/(1/zmove.s0-1/zmove.s1),0,1);
+        cam.x=zmove.x+(t.x-zmove.x)*g;cam.y=zmove.y+(t.y-zmove.y)*g;camV.x=camV.y=0;
+      }else{zmove=null;stepCamera(t,trx,tryy,resp,sec,!!drag)}
     }
     cam.c+=(0-cam.c)*(1-Math.pow(.9,dt/16.67));
     if(focus&&!focus.settled&&Math.hypot(t.x-cam.x,t.y-cam.y)*cam.s<8&&Math.abs(t.s-cam.s)<t.s*.02)focus.settled=true;
@@ -1861,7 +1878,9 @@ addEventListener('pointermove',e=>{
   if(e.pointerType==='mouse'){
     lastMouse.x=e.clientX;lastMouse.y=e.clientY;
     const x=e.clientX,y=e.clientY;
-    if(focus&&focus.mouse&&mode==='roam'){
+    // a group stays zoomed once its card is up (the card, Esc, a click on open map or Back to
+    // full map leave it); a single marker still lets go when the pointer moves away
+    if(focus&&focus.mouse&&mode==='roam'&&!(focus.c&&focus.cardIn)){
       const d=distTo(focus.c||focus.p,x,y);
       const inZone=(focus.c?inRect(x,y,groupRect(focus.c),70):inRect(x,y,groupRect({members:[focus.p]}),28)
           ||inRect(x,y,focus.p.labelRect(),10))
@@ -2015,12 +2034,16 @@ function showGroup(c){
   let x,y;
   if(vw<640){x=(vw-w)/2;y=vh-h-24} // phones: a sheet along the bottom, clear of the markers
   else{x=R+28;if(x+w>vw-16)x=L-28-w;y=(T+B)/2-h/2}
-  x=clamp(x,16,vw-w-16);y=clamp(y,16,vh-h-16);
+  x=clamp(x,16,vw-w-16);y=clamp(y,16,vh-h-(vw<640?16:80)); // clear of Back to full map
   gcBox={left:x,right:x+w,top:y,bottom:y+h};
   gc.style.translate=`${x.toFixed(1)}px ${y.toFixed(1)}px`;
   gc.style.transformOrigin=`${(clamp((L+R)/2,x,x+w)-x).toFixed(1)}px ${(clamp((T+B)/2,y,y+h)-y).toFixed(1)}px`; // it grows out of the group
-  gc.classList.add('show');gc.removeAttribute('inert');document.body.classList.add('group-open');declutter();
+  // the card comes in once the zoom has nearly landed: shown straight away, it would cover the
+  // markers while they are still on their way up the screen
+  if(focus&&focus.c===c&&!focus.cardIn)return;
+  revealGroup();
 }
+function revealGroup(){gc.classList.add('show');gc.removeAttribute('inert');document.body.classList.add('group-open');declutter()}
 function hideGroup(){if(!gc.classList.contains('show'))return;gc.classList.remove('show');gc.setAttribute('inert','');document.body.classList.remove('group-open');declutter()}
 gc.setAttribute('inert','');
 
@@ -2088,11 +2111,12 @@ addEventListener('keydown',e=>{
 $('#stage').addEventListener('pointerdown',()=>{if(about.classList.contains('open'))toggleAbout(false)});
 // ---- Back to full map: shown whenever the map is zoomed in beyond the starting view
 const fullMapBtn=$('#fullMapBtn');fullMapBtn.hidden=false;
+$('#stage').addEventListener('click',e=>{if(lastPointer==='mouse'&&focus&&focus.c&&focus.cardIn&&!e.target.closest('.pin,.preview'))releaseFocus()});
 fullMapBtn.addEventListener('click',()=>{releaseFocus();userZoom=1;lock=null;buildClusters()});
 // on phones the full-map button sits just above the legend box, however tall its text wraps
 {const ro=$('.readout');const setH=()=>root.style.setProperty('--readoutH',Math.ceil(ro.getBoundingClientRect().height)+'px');
   setH();if(window.ResizeObserver)new ResizeObserver(setH).observe(ro);else addEventListener('resize',setH)}
-function updateFullMap(){setIf('fullmap',mode==='roam'&&(userZoom>1.05||(focus&&!focus.mouse)),v=>fullMapBtn.classList.toggle('show',v))}
+function updateFullMap(){setIf('fullmap',mode==='roam'&&(userZoom>1.05||(focus&&(!focus.mouse||focus.c))),v=>fullMapBtn.classList.toggle('show',v))}
 if(PHONE)$('#hint').textContent='Tap a marker to open a project. Drag to move, pinch to zoom.';
 const indexEl=$('#index');
 function toggleIndex(open){
