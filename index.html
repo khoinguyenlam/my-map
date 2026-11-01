@@ -939,13 +939,6 @@ body.film-open .map-credit,body.about-open .map-credit{opacity:0;pointer-events:
 html .lg{-webkit-backdrop-filter:var(--lg-filter) blur(3px) saturate(180%) brightness(1.03);backdrop-filter:var(--lg-filter) blur(3px) saturate(180%) brightness(1.03)}
 .brand::before,.preview::before,.readout::before,.index::before,.chip::before,.controls::before,.about::before,.intro-plate::before{
   background:linear-gradient(var(--la,140deg),rgba(255,255,255,.98),rgba(255,255,255,.22) 42%,rgba(196,116,28,.3));transition:background 0s}
-/* liquid metal over the opening name: the letters turn clear while the metal shows, then come back */
-#introName{position:relative}
-#introName .metal{position:absolute;pointer-events:none;opacity:0;filter:drop-shadow(0 5px 9px rgba(43,40,34,.22));transition:opacity 420ms cubic-bezier(.22,.8,.12,1)}
-#introName.is-metal{color:transparent;transition:color 420ms cubic-bezier(.22,.8,.12,1)}
-#introName.is-metal .metal{opacity:1}
-#introName.is-metal.metal-out{color:var(--paper);transition:color 700ms cubic-bezier(.45,0,.25,1) 420ms}
-#introName.metal-out .metal{opacity:0;transition:opacity 700ms cubic-bezier(.45,0,.25,1) 420ms}
 .monogram{position:relative;overflow:hidden}
 .monogram .metal{position:absolute;inset:0;width:100%;height:100%;border-radius:50%}
 .monogram>span{position:relative}
@@ -1816,9 +1809,9 @@ function inRect(x,y,r,m){return x>r.left-m&&x<r.right+m&&y>r.top-m&&y<r.bottom+m
 const mouse={fx:.5,fy:.5,has:false};
 let introP=1, introStart=0;
 document.body.classList.add('intro-on');
-function endIntro(){$('#intro').classList.add('gone');document.body.classList.remove('intro-on');meltIntroMetal()}
+function endIntro(){$('#intro').classList.add('gone');document.body.classList.remove('intro-on')}
 /* ---------- liquid metal ----------
-   The name in the opening (and the monogram in the bio) is drawn as polished liquid metal: soft
+   The monogram in the bio is drawn as polished liquid metal: soft
    chrome bands drift across the letters, bend near the edges like a thick rounded surface, and
    split into faint colour fringes at the rim. The shape is a mask drawn from the real text, so the
    metal sits exactly where the type is. It only runs while it is on screen. */
@@ -1869,28 +1862,6 @@ function liquidMetal(cv,drawMask,opt={}){
     stop(){cancelAnimationFrame(raf);raf=0}
   };
 }
-// the opening name in liquid metal: a canvas laid exactly over the letters, which turn clear while
-// it shows; as the name starts its flight to the corner the metal melts back into the ink type
-let introMetal=null;
-function setupIntroMetal(){
-  const nm=$('#introName');if(!nm||nm.querySelector('canvas'))return;
-  const cs=getComputedStyle(nm),fsz=parseFloat(cs.fontSize),lh=parseFloat(cs.lineHeight)||fsz*1.05;
-  if(nm.offsetHeight>lh*1.6)return; // only when the name sits on one line
-  const pad=Math.round(fsz*.32),cv=document.createElement('canvas');cv.className='metal';cv.setAttribute('aria-hidden','true');
-  Object.assign(cv.style,{left:-pad+'px',top:-pad+'px',width:nm.offsetWidth+pad*2+'px',height:nm.offsetHeight+pad*2+'px'});
-  nm.append(cv);
-  const lm=liquidMetal(cv,(x,w,h)=>{
-    x.font=`${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;if('letterSpacing' in x)x.letterSpacing=cs.letterSpacing;
-    x.textBaseline='alphabetic';x.fillStyle='#000';
-    const m=x.measureText(nm.firstChild.textContent),asc=m.fontBoundingBoxAscent||fsz*.9,desc=m.fontBoundingBoxDescent||fsz*.25;
-    x.fillText(nm.firstChild.textContent,pad,pad+(lh-(asc+desc))/2+asc);
-  },{bevel:Math.max(2,fsz/22)});
-  if(!lm||!lm.ok){cv.remove();return}
-  // the letters only turn clear once the metal has drawn a frame, so the name is never blank
-  introMetal=lm;lm.start();requestAnimationFrame(()=>requestAnimationFrame(()=>{if(introMetal===lm&&!nm.classList.contains('metal-out'))nm.classList.add('is-metal')}));
-}
-function meltIntroMetal(){const nm=$('#introName');if(!introMetal)return;nm.classList.add('metal-out');
-  setTimeout(()=>{introMetal&&introMetal.stop();introMetal=null;const c=nm.querySelector('canvas.metal');c&&c.remove();nm.classList.remove('is-metal','metal-out')},1700)}
 // the monogram in the bio is a small liquid-metal coin with the initials set into it
 let monoMetal=null;
 function setupMonoMetal(){
@@ -1970,7 +1941,7 @@ function flyIntro(){
   plate.style.backdropFilter=plate.style.webkitBackdropFilter=(bs.backdropFilter||bs.webkitBackdropFilter||'none').replace(/url\([^)]*\)\s*/g,'')||'none';
   const box=r=>({left:r.left+'px',top:r.top+'px',width:r.width+'px',height:r.height+'px'});
   Object.assign(plate.style,box(cr),{borderRadius:'24px'});
-  it.classList.add('flying');meltIntroMetal();
+  it.classList.add('flying');
   const opt={duration:1400,delay:220,easing:'cubic-bezier(.6,0,.2,1)',fill:'forwards'};
   plate.animate([{...box(cr),borderRadius:'24px'},{...box(bc),borderRadius:bs.borderRadius}],opt);
   card.animate([{transform:'none'},{transform:`translate(${tx.toFixed(1)}px,${ty.toFixed(1)}px) scale(${k.toFixed(4)})`}],opt)
@@ -2593,7 +2564,6 @@ Promise.all([reliefReady,Promise.race([document.fonts?document.fonts.ready:Promi
   // whatever happens while drawing, the intro still opens so the page is never stuck on black
   try{drawTerrain()}catch(err){console.error('Map drawing failed',err)}
   try{placeCities();measureLabels();declutter();buildClusters()}catch(err){console.error('Labels failed',err)}
-  try{setupIntroMetal()}catch(err){console.error('Liquid metal failed',err)}
   setTimeout(()=>{introStart=performance.now();flyIntro()},RM?0:900);
   setTimeout(()=>{hudRects=null;declutter();try{liquidGlass.scan()}catch(err){console.error('Liquid glass failed',err)}},RM?50:2400); // panels have their final size once the intro ends
   // a shared link to a project opens it once the map is ready
