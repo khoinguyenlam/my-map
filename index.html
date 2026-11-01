@@ -933,6 +933,23 @@ body.film-open .map-credit,body.about-open .map-credit{opacity:0;pointer-events:
 .frame-bar{align-items:center}
 #fCaption[hidden]{display:none}
 .frame-sub{font-size:14px}.frame-no,.frame-when{font-size:14px}
+
+/* liquid glass: clearer glass whose rim bends the map behind it (Chromium; see liquidGlass), and a
+   rim light that turns toward the pointer on every glass panel */
+html .lg{-webkit-backdrop-filter:var(--lg-filter) blur(3px) saturate(180%) brightness(1.03);backdrop-filter:var(--lg-filter) blur(3px) saturate(180%) brightness(1.03)}
+.brand::before,.preview::before,.readout::before,.index::before,.chip::before,.controls::before,.about::before,.intro-plate::before{
+  background:linear-gradient(var(--la,140deg),rgba(255,255,255,.98),rgba(255,255,255,.22) 42%,rgba(196,116,28,.3));transition:background 0s}
+/* liquid metal over the opening name: the letters turn clear while the metal shows, then come back */
+#introName{position:relative}
+#introName .metal{position:absolute;pointer-events:none;opacity:0;filter:drop-shadow(0 5px 9px rgba(43,40,34,.22));transition:opacity 420ms cubic-bezier(.22,.8,.12,1)}
+#introName.is-metal{color:transparent;transition:color 420ms cubic-bezier(.22,.8,.12,1)}
+#introName.is-metal .metal{opacity:1}
+#introName.is-metal.metal-out{color:var(--paper);transition:color 700ms cubic-bezier(.45,0,.25,1) 420ms}
+#introName.metal-out .metal{opacity:0;transition:opacity 700ms cubic-bezier(.45,0,.25,1) 420ms}
+.monogram{position:relative;overflow:hidden}
+.monogram .metal{position:absolute;inset:0;width:100%;height:100%;border-radius:50%}
+.monogram>span{position:relative}
+.monogram.is-metal{background:#8f8a82;color:rgba(36,33,28,.88);text-shadow:0 1px 0 rgba(255,255,255,.55),0 -1px 0 rgba(0,0,0,.18);box-shadow:0 6px 16px -8px rgba(43,40,34,.55)}
 </style>
 
 <div id="stage" aria-label="Project map">
@@ -1799,7 +1816,144 @@ function inRect(x,y,r,m){return x>r.left-m&&x<r.right+m&&y>r.top-m&&y<r.bottom+m
 const mouse={fx:.5,fy:.5,has:false};
 let introP=1, introStart=0;
 document.body.classList.add('intro-on');
-function endIntro(){$('#intro').classList.add('gone');document.body.classList.remove('intro-on')}
+function endIntro(){$('#intro').classList.add('gone');document.body.classList.remove('intro-on');meltIntroMetal()}
+/* ---------- liquid metal ----------
+   The name in the opening (and the monogram in the bio) is drawn as polished liquid metal: soft
+   chrome bands drift across the letters, bend near the edges like a thick rounded surface, and
+   split into faint colour fringes at the rim. The shape is a mask drawn from the real text, so the
+   metal sits exactly where the type is. It only runs while it is on screen. */
+function liquidMetal(cv,drawMask,opt={}){
+  const gl=cv.getContext('webgl',{premultipliedAlpha:true,alpha:true,antialias:false});if(!gl)return null;
+  const vs='attribute vec2 p;varying vec2 uv;void main(){uv=p*.5+.5;gl_Position=vec4(p,0.,1.);}';
+  const fs=`precision highp float;uniform sampler2D m;uniform vec2 res;uniform float t,rr;varying vec2 uv;
+  float A(vec2 q){return texture2D(m,q).a;}
+  float metal(float v){float c=.5+.5*cos(6.2832*v);c=c*c*(3.-2.*c);return mix(.3,.985,c);}
+  void main(){
+    float a=A(uv);if(a<.004){gl_FragColor=vec4(0.);return;}
+    vec2 px=1./res;float s=0.;
+    for(int i=0;i<12;i++){float an=float(i)*.5236;vec2 d=vec2(cos(an),sin(an))*px;s+=A(uv+d*rr)+A(uv+d*rr*2.2);}
+    float depth=s/24.,edge=1.-smoothstep(.3,1.,depth);
+    vec2 q=uv*vec2(res.x/res.y,1.);
+    float w=sin(q.x*2.3+t*.55)*.07+sin(q.y*4.1-t*.8+q.x*1.3)*.05;
+    float v=q.x*.22-q.y*.55+w+edge*.7-t*.08;
+    float dsp=.05*edge+.006;
+    vec3 col=vec3(metal(v-dsp),metal(v),metal(v+dsp*1.4));
+    float gy=A(uv+vec2(0.,px.y*rr*.8))-A(uv-vec2(0.,px.y*rr*.8));
+    col+=gy*.22;col*=vec3(1.,.985,.955);
+    col=mix(col,vec3(.77,.45,.11),.12*edge);col+=smoothstep(.55,1.,edge)*.08;
+    gl_FragColor=vec4(clamp(col,0.,1.)*a,a);
+  }`;
+  const sh=(type,src)=>{const s=gl.createShader(type);gl.shaderSource(s,src);gl.compileShader(s);return s};
+  const pr=gl.createProgram();gl.attachShader(pr,sh(gl.VERTEX_SHADER,vs));gl.attachShader(pr,sh(gl.FRAGMENT_SHADER,fs));gl.linkProgram(pr);
+  if(!gl.getProgramParameter(pr,gl.LINK_STATUS))return null;
+  gl.useProgram(pr);
+  const b=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,b);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,1,1]),gl.STATIC_DRAW);
+  const lp=gl.getAttribLocation(pr,'p');gl.enableVertexAttribArray(lp);gl.vertexAttribPointer(lp,2,gl.FLOAT,false,0,0);
+  const tex=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,tex);
+  [gl.TEXTURE_MIN_FILTER,gl.TEXTURE_MAG_FILTER].forEach(k=>gl.texParameteri(gl.TEXTURE_2D,k,gl.LINEAR));
+  [gl.TEXTURE_WRAP_S,gl.TEXTURE_WRAP_T].forEach(k=>gl.texParameteri(gl.TEXTURE_2D,k,gl.CLAMP_TO_EDGE));
+  const U=n=>gl.getUniformLocation(pr,n),uRes=U('res'),uT=U('t'),uR=U('rr');
+  let raf=0,t0=performance.now();
+  function size(){
+    const r=Math.min(devicePixelRatio||1,2),w=cv.clientWidth,h=cv.clientHeight;if(!w||!h)return false;
+    cv.width=Math.round(w*r);cv.height=Math.round(h*r);
+    const mc=document.createElement('canvas');mc.width=cv.width;mc.height=cv.height;const x=mc.getContext('2d');x.scale(r,r);drawMask(x,w,h);
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,true);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,mc);
+    gl.viewport(0,0,cv.width,cv.height);gl.uniform2f(uRes,cv.width,cv.height);gl.uniform1f(uR,(opt.bevel||3)*r);return true;
+  }
+  function draw(now){gl.uniform1f(uT,RM?2:(now-t0)/1000);gl.clear(gl.COLOR_BUFFER_BIT);gl.drawArrays(gl.TRIANGLE_STRIP,0,4)}
+  const loop=now=>{draw(now);raf=requestAnimationFrame(loop)};
+  return{
+    ok:size(),size,
+    start(){if(raf)return;if(RM){draw(performance.now());return}raf=requestAnimationFrame(loop)},
+    stop(){cancelAnimationFrame(raf);raf=0}
+  };
+}
+// the opening name in liquid metal: a canvas laid exactly over the letters, which turn clear while
+// it shows; as the name starts its flight to the corner the metal melts back into the ink type
+let introMetal=null;
+function setupIntroMetal(){
+  const nm=$('#introName');if(!nm||nm.querySelector('canvas'))return;
+  const cs=getComputedStyle(nm),fsz=parseFloat(cs.fontSize),lh=parseFloat(cs.lineHeight)||fsz*1.05;
+  if(nm.offsetHeight>lh*1.6)return; // only when the name sits on one line
+  const pad=Math.round(fsz*.32),cv=document.createElement('canvas');cv.className='metal';cv.setAttribute('aria-hidden','true');
+  Object.assign(cv.style,{left:-pad+'px',top:-pad+'px',width:nm.offsetWidth+pad*2+'px',height:nm.offsetHeight+pad*2+'px'});
+  nm.append(cv);
+  const lm=liquidMetal(cv,(x,w,h)=>{
+    x.font=`${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;if('letterSpacing' in x)x.letterSpacing=cs.letterSpacing;
+    x.textBaseline='alphabetic';x.fillStyle='#000';
+    const m=x.measureText(nm.firstChild.textContent),asc=m.fontBoundingBoxAscent||fsz*.9,desc=m.fontBoundingBoxDescent||fsz*.25;
+    x.fillText(nm.firstChild.textContent,pad,pad+(lh-(asc+desc))/2+asc);
+  },{bevel:Math.max(2,fsz/22)});
+  if(!lm||!lm.ok){cv.remove();return}
+  // the letters only turn clear once the metal has drawn a frame, so the name is never blank
+  introMetal=lm;lm.start();requestAnimationFrame(()=>requestAnimationFrame(()=>{if(introMetal===lm&&!nm.classList.contains('metal-out'))nm.classList.add('is-metal')}));
+}
+function meltIntroMetal(){const nm=$('#introName');if(!introMetal)return;nm.classList.add('metal-out');
+  setTimeout(()=>{introMetal&&introMetal.stop();introMetal=null;const c=nm.querySelector('canvas.metal');c&&c.remove();nm.classList.remove('is-metal','metal-out')},1700)}
+// the monogram in the bio is a small liquid-metal coin with the initials set into it
+let monoMetal=null;
+function setupMonoMetal(){
+  const mo=$('#aboutMono');if(!mo||monoMetal)return;
+  const cv=document.createElement('canvas');cv.className='metal';cv.setAttribute('aria-hidden','true');mo.prepend(cv);
+  monoMetal=liquidMetal(cv,(x,w,h)=>{x.fillStyle='#000';x.beginPath();x.arc(w/2,h/2,Math.min(w,h)/2,0,Math.PI*2);x.fill()},{bevel:4});
+  if(!monoMetal||!monoMetal.ok){cv.remove();monoMetal=null;return}
+  mo.classList.add('is-metal');
+}
+
+/* ---------- liquid glass ----------
+   The floating panels behave like thick, clear glass rather than frosted plastic: near their rounded
+   edges the map behind bends, as if seen through a lens, and the bright rim catches the light from
+   wherever the pointer is. The bending is an SVG displacement map sized to each panel's own shape;
+   only Chromium can apply an SVG filter to what is behind an element, so other browsers keep the
+   frosted glass and the moving rim light. */
+const liquidGlass=(()=>{
+  const SEL='.brand,.controls,.readout,.fullmap,.bar-ui .pill';
+  const ok=/Chrome\//.test(navigator.userAgent)&&matchMedia('(pointer:fine)').matches&&CSS.supports('backdrop-filter','url(#x)');
+  let defs=null,n=0;
+  if(ok){const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.setAttribute('aria-hidden','true');
+    Object.assign(svg.style,{position:'absolute',width:0,height:0,overflow:'hidden'});
+    defs=document.createElementNS(svg.namespaceURI,'defs');svg.append(defs);document.body.append(svg)}
+  // each pixel stores which way, and how far, to look: zero across the flat middle, rising toward
+  // the edge along the surface normal, so the rim magnifies what lies just inside it
+  function map(w,h,r,bz){
+    const c=document.createElement('canvas');c.width=w;c.height=h;const x=c.getContext('2d'),im=x.createImageData(w,h),d=im.data;
+    for(let j=0;j<h;j++)for(let i=0;i<w;i++){
+      const px=i+.5-w/2,py=j+.5-h/2,qx=Math.abs(px)-(w/2-r),qy=Math.abs(py)-(h/2-r);
+      const ox=Math.max(qx,0),oy=Math.max(qy,0),out=Math.hypot(ox,oy),depth=-(out+Math.min(Math.max(qx,qy),0)-r);
+      let dx=0,dy=0;
+      if(depth>0&&depth<bz){
+        let nx,ny;if(qx>0&&qy>0){nx=ox/out;ny=oy/out}else if(qx>qy){nx=1;ny=0}else{nx=0;ny=1}
+        const k=1-depth/bz,m=k*k;dx=-nx*Math.sign(px||1)*m;dy=-ny*Math.sign(py||1)*m;
+      }
+      const o=(j*w+i)*4;d[o]=128+dx*127;d[o+1]=128+dy*127;d[o+2]=128;d[o+3]=255;
+    }
+    x.putImageData(im,0,0);return c.toDataURL();
+  }
+  function apply(el){
+    const w=Math.round(el.offsetWidth),h=Math.round(el.offsetHeight);if(!w||!h)return;
+    const key=w+'x'+h;if(el.dataset.lg===key)return;el.dataset.lg=key;
+    const r=Math.min(parseFloat(getComputedStyle(el).borderTopLeftRadius)||0,w/2,h/2),bz=Math.min(18,h/2,w/2);
+    const id=el._lgId||(el._lgId='lg'+(n++));let f=defs.querySelector('#'+id);
+    if(!f){f=document.createElementNS('http://www.w3.org/2000/svg','filter');f.id=id;defs.append(f)}
+    f.setAttribute('x',0);f.setAttribute('y',0);f.setAttribute('width',w);f.setAttribute('height',h);
+    f.setAttribute('filterUnits','userSpaceOnUse');f.setAttribute('primitiveUnits','userSpaceOnUse');f.setAttribute('color-interpolation-filters','sRGB');
+    f.innerHTML=`<feImage href="${map(w,h,r,bz)}" x="0" y="0" width="${w}" height="${h}" preserveAspectRatio="none" result="m"/>`+
+      `<feGaussianBlur in="SourceGraphic" stdDeviation="2" result="b"/>`+
+      `<feDisplacementMap in="b" in2="m" scale="${(bz*2.2).toFixed(1)}" xChannelSelector="R" yChannelSelector="G"/>`;
+    el.style.setProperty('--lg-filter',`url(#${id})`);el.classList.add('lg');
+  }
+  const ro=ok&&new ResizeObserver(es=>es.forEach(e=>apply(e.target)));
+  function scan(){if(!ok)return;document.querySelectorAll(SEL).forEach(el=>{if(!el._lgObs){el._lgObs=1;ro.observe(el)}apply(el)})}
+  // the rim light: each glass panel's bright edge turns to face the pointer
+  let mx=-1,my=-1,pend=0;
+  function light(){pend=0;document.querySelectorAll('.brand,.controls,.readout,.chip,.about,.preview,.film .card,.index,.intro-plate').forEach(el=>{
+    const b=el.getBoundingClientRect();if(!b.width)return;
+    const a=Math.atan2(b.left+b.width/2-mx,-(b.top+b.height/2-my))*180/Math.PI;el.style.setProperty('--la',a.toFixed(1)+'deg')})}
+  if(matchMedia('(pointer:fine)').matches)addEventListener('pointermove',e=>{mx=e.clientX;my=e.clientY;if(!pend)pend=requestAnimationFrame(light)},{passive:true});
+  return{scan,ok};
+})();
+
 // the opening name travels into the top-left and lands on the name card (see .intro in the CSS)
 function flyIntro(){
   const it=$('#intro'),card=it.querySelector('div'),nm=$('#introName'),bn=$('.brand-name');
@@ -1813,10 +1967,10 @@ function flyIntro(){
   // corners and glass of the full name card, so by the landing the two backgrounds are identical
   const plate=it.querySelector('.intro-plate'),brand=$('.brand'),bc=brand.getBoundingClientRect(),bs=getComputedStyle(brand);
   plate.style.backgroundColor=bs.backgroundColor;plate.style.backgroundImage=bs.backgroundImage;plate.style.boxShadow=bs.boxShadow;
-  plate.style.backdropFilter=plate.style.webkitBackdropFilter=bs.backdropFilter||bs.webkitBackdropFilter||'none';
+  plate.style.backdropFilter=plate.style.webkitBackdropFilter=(bs.backdropFilter||bs.webkitBackdropFilter||'none').replace(/url\([^)]*\)\s*/g,'')||'none';
   const box=r=>({left:r.left+'px',top:r.top+'px',width:r.width+'px',height:r.height+'px'});
   Object.assign(plate.style,box(cr),{borderRadius:'24px'});
-  it.classList.add('flying');
+  it.classList.add('flying');meltIntroMetal();
   const opt={duration:1400,delay:220,easing:'cubic-bezier(.6,0,.2,1)',fill:'forwards'};
   plate.animate([{...box(cr),borderRadius:'24px'},{...box(bc),borderRadius:bs.borderRadius}],opt);
   card.animate([{transform:'none'},{transform:`translate(${tx.toFixed(1)}px,${ty.toFixed(1)}px) scale(${k.toFixed(4)})`}],opt)
@@ -2176,7 +2330,7 @@ const visible=()=>PROJECTS.filter(p=>inFilter(p,filter));
 // ---- About & contact
 const about=$('#about'),aboutBtn=$('#aboutBtn');
 (function fillAbout(){
-  $('#aboutMono').textContent=OWNER.name.split(/\s+/).map(w=>w[0]||'').join('').slice(0,2).toUpperCase();
+  {const sp=document.createElement('span');sp.textContent=OWNER.name.split(/\s+/).map(w=>w[0]||'').join('').slice(0,2).toUpperCase();$('#aboutMono').replaceChildren(sp)}
   $('#aboutRole').textContent=OWNER.role;$('#aboutName').textContent=OWNER.name;$('#aboutMeta').textContent=OWNER.based||'';
   $('#aboutAvail').textContent=OWNER.available||'';$('#aboutAvail').hidden=!OWNER.available;
   $('#aboutBio').textContent=OWNER.bio||'';
@@ -2207,6 +2361,7 @@ const about=$('#about'),aboutBtn=$('#aboutBtn');
 function toggleAbout(open){
   about.classList.toggle('open',open);about.inert=!open;aboutBtn.setAttribute('aria-expanded',String(open));
   document.body.classList.toggle('about-open',open);
+  if(open){try{setupMonoMetal();monoMetal&&monoMetal.start()}catch(err){}}else monoMetal&&monoMetal.stop();
   if(open){releaseFocus();setTimeout(()=>$('#aboutClose').focus({preventScroll:true}),60)}
   else aboutBtn.focus({preventScroll:true});
 }
@@ -2438,8 +2593,9 @@ Promise.all([reliefReady,Promise.race([document.fonts?document.fonts.ready:Promi
   // whatever happens while drawing, the intro still opens so the page is never stuck on black
   try{drawTerrain()}catch(err){console.error('Map drawing failed',err)}
   try{placeCities();measureLabels();declutter();buildClusters()}catch(err){console.error('Labels failed',err)}
+  try{setupIntroMetal()}catch(err){console.error('Liquid metal failed',err)}
   setTimeout(()=>{introStart=performance.now();flyIntro()},RM?0:900);
-  setTimeout(()=>{hudRects=null;declutter()},RM?50:2400); // panels have their final size once the intro ends
+  setTimeout(()=>{hudRects=null;declutter();try{liquidGlass.scan()}catch(err){console.error('Liquid glass failed',err)}},RM?50:2400); // panels have their final size once the intro ends
   // a shared link to a project opens it once the map is ready
   setTimeout(()=>{const p=projectFromHash();if(p&&(mode==='roam'||mode==='intro')){if(mode==='intro'){introP=0;mode='roam';endIntro()}openProject(p)}},RM?60:2200);
   if(!RM)setTimeout(()=>document.querySelector('.brand-more').classList.add('nudge'),RM?0:2600);
