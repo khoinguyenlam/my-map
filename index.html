@@ -8,7 +8,7 @@
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700&family=JetBrains+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700&family=JetBrains+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&family=Nunito:wght@700;800;900&display=swap">
 <style>
 /* Layout: a full-bleed map of Canada steered by the cursor; each project opens as a letterboxed screening card. */
 :root{
@@ -43,6 +43,7 @@
   --body-2:#4d483f;
   --f-display:"Big Shoulders Display","Arial Narrow","Helvetica Neue",sans-serif;
   --f-body:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-round:"Nunito","Manrope",system-ui,-apple-system,sans-serif;
   --f-mono:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,monospace;
   --ease-cine:cubic-bezier(.22,.8,.12,1);
   --barH:0px;
@@ -851,6 +852,13 @@ body.brand-in button.brand>.brand-more{animation-delay:140ms}
 .index .ix-title{font:800 17px/1.15 var(--f-body);text-transform:none;letter-spacing:-.015em}
 .about h2{font:800 30px/1.1 var(--f-body);text-transform:none;letter-spacing:-.025em}
 @media (max-width:520px){.brand-name{font-size:22px}.about h2{font-size:26px}}
+/* the name in the intro is set in Nunito: fully rounded strokes and ends, softer and warmer than
+   Manrope at this size. The name card and the About heading use it too, so the name keeps one
+   face as it flies from the intro into the corner. */
+.intro strong{font:900 clamp(40px,7vw,80px)/1.05 var(--f-round);letter-spacing:-.015em}
+.brand-name{font:900 clamp(25px,2.5vw,33px)/1.05 var(--f-round);letter-spacing:-.01em}
+.about h2{font:900 31px/1.1 var(--f-round);letter-spacing:-.01em}
+@media (max-width:520px){.brand-name{font-size:23px}.about h2{font-size:27px}}
 /* street detail: the street map carries its own place names, so the drawn ones step aside, and
    its credit shows while it is visible */
 body.detail-on .city,body.detail-on .region{opacity:0!important;transition:opacity 300ms ease}
