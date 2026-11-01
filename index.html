@@ -930,6 +930,9 @@ body.film-open .map-credit,body.about-open .map-credit{opacity:0;pointer-events:
 .bar-ui .side.r b{color:var(--muted);font-weight:500}
 @media (max-width:520px){.bar-ui{font-size:14px}.bar-ui .side.r b{display:none}}
 @media (max-width:520px){.intro strong{font-size:34px}}
+.frame-bar{align-items:center}
+#fCaption[hidden]{display:none}
+.frame-sub{font-size:14px}.frame-no,.frame-when{font-size:14px}
 </style>
 
 <div id="stage" aria-label="Project map">
@@ -2372,7 +2375,8 @@ function showMedia(p,i){
   if(el.tagName==='IMG'&&el.decode)Promise.race([el.decode().catch(()=>{}),new Promise(r=>setTimeout(r,900))]).then(reveal);else reveal();
   const layers=screen.querySelectorAll('.layer');
   layers.forEach((l,k)=>{if(k<layers.length-1){l.classList.remove('in');setTimeout(()=>l.remove(),1100)}});
-  $('#fCaption').textContent=m.caption||'';
+  // no visible caption under the photo: the description stays as its alt text for screen readers
+  $('#fCaption').textContent='';$('#fCaption').hidden=true;
   $('#fNo').textContent=`${i+1} of ${p.media.length}`;
   $('#fTc').innerHTML=m.type==='video'&&!m.src?'<span class="rec">TC 00:00:00:00</span>':'';
   // the camera data for this photo, as labelled values
