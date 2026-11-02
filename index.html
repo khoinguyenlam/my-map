@@ -3,7 +3,7 @@
 <meta property="og:title" content="Khoi Nguyen Lam · Photography &amp; Video">
 <meta property="og:description" content="Photo and video projects across Canada, pinned where they were shot.">
 <meta property="og:type" content="website">
-<meta name="theme-color" content="#f4efe5">
+<meta name="theme-color" content="#ffffff">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232b2822'/%3E%3Ccircle cx='32' cy='32' r='15' fill='none' stroke='%23c4741c' stroke-width='6'/%3E%3C/svg%3E">
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -12,33 +12,33 @@
 <style>
 /* Layout: a full-bleed map of Canada steered by the cursor; each project opens as a letterboxed screening card. */
 :root{
-  /* light atlas: cream land, soft grey water, charcoal ink, burnt-amber markers */
+  /* light atlas: white land, soft grey water, charcoal ink, burnt-amber markers */
   --ocean:#e2e4e0;
   --ocean-deep:#d9dcd8;
-  --land:#f6f1e6;
-  --land-north:#fcfbf7;
-  --land-foreign:#ebe6da;
+  --land:#fbfbfb;
+  --land-north:#ffffff;
+  --land-foreign:#ececec;
   --water-line:#8ea2a6;
   --border:rgba(43,40,34,.28);
   --label-region:rgba(43,40,34,.42);
   --label-foreign:rgba(43,40,34,.24);
   --label-water:rgba(84,110,118,.9);
-  --ink:#f4efe5;
-  --ink-2:#ece6d9;
-  --line:#d8d0c1;
-  --contour:#a99f8d;
+  --ink:#ffffff;
+  --ink-2:#f3f3f3;
+  --line:#dddddd;
+  --contour:#a6a6a6;
   --paper:#2b2822;
   --muted:#7f786b;
   --tungsten:#c4741c;
   --tungsten-soft:rgba(196,116,28,.16);
-  --scrim:rgba(244,239,229,.94);
-  --card-bg:rgba(255,253,248,.78);
-  --card-bg-fade:rgba(255,253,248,.5);
+  --scrim:rgba(255,255,255,.94);
+  --card-bg:rgba(255,255,255,.78);
+  --card-bg-fade:rgba(255,255,255,.5);
   --card-edge:rgba(255,255,255,.95);
   --card-edge-warm:rgba(196,116,28,.3);
-  --halo:rgba(250,247,240,.95);
+  --halo:rgba(255,255,255,.95);
   --shadow:rgba(70,58,38,.22);
-  --bar:#ebe5d8;
+  --bar:#eeeeee;
   --road:#9a6b3c;
   --body-2:#4d483f;
   --f-display:"Big Shoulders Display","Arial Narrow","Helvetica Neue",sans-serif;
@@ -113,7 +113,7 @@ body.is-flying .city{opacity:.25}
 .pin:active .pin-mark{transform:scale(.92);transition-duration:80ms}
 /* the project's name sits on a small cream tag so it reads apart from the map's own labels */
 .pin-label{position:absolute;left:38px;top:50%;transform:translateY(-50%);white-space:nowrap;display:flex;align-items:baseline;gap:7px;
-  padding:5px 10px 4px 9px;border-radius:999px;background:rgba(255,253,248,.95);
+  padding:5px 10px 4px 9px;border-radius:999px;background:rgba(255,255,255,.95);
   box-shadow:inset 0 1px 0 #fff,0 0 0 1px rgba(43,40,34,.08),0 4px 12px -5px rgba(70,58,38,.45);
   pointer-events:none;transition:opacity .35s var(--ease-cine),transform .45s var(--ease-cine)}
 .pin.label-l .pin-label{left:auto;right:38px}
@@ -207,7 +207,7 @@ kbd{font:inherit;border:1px solid var(--line);padding:2px 5px;color:var(--muted)
 
 /* ---------- film (project) overlay ---------- */
 .film{position:fixed;left:0;right:0;top:var(--barH);bottom:var(--barH);z-index:20;overflow:auto;
-  background:linear-gradient(90deg,rgba(244,239,229,.7),var(--scrim) 55%);opacity:0;transition:opacity .7s var(--ease-cine)}
+  background:linear-gradient(90deg,rgba(255,255,255,.7),var(--scrim) 55%);opacity:0;transition:opacity .7s var(--ease-cine)}
 .film.is-on{opacity:1}
 .film.closing{transition-duration:.36s}
 .film-inner{min-height:100%;display:grid;grid-template-columns:minmax(0,1fr) minmax(300px,380px);gap:clamp(24px,3vw,48px);align-items:center;
@@ -223,15 +223,15 @@ kbd{font:inherit;border:1px solid var(--line);padding:2px 5px;color:var(--muted)
 @keyframes kb{from{transform:scale(1)}to{transform:scale(1.07) translate(-1.2%,-.8%)}}
 /* viewfinder frame lines */
 .vf{position:absolute;inset:12px;pointer-events:none;z-index:2}
-.vf i{position:absolute;width:18px;height:18px;border-color:rgba(235,230,218,.7);border-style:solid;border-width:0}
+.vf i{position:absolute;width:18px;height:18px;border-color:rgba(236,236,236,.7);border-style:solid;border-width:0}
 .vf i:nth-child(1){left:0;top:0;border-left-width:1px;border-top-width:1px}
 .vf i:nth-child(2){right:0;top:0;border-right-width:1px;border-top-width:1px}
 .vf i:nth-child(3){left:0;bottom:0;border-left-width:1px;border-bottom-width:1px}
 .vf i:nth-child(4){right:0;bottom:0;border-right-width:1px;border-bottom-width:1px}
 .vf::after{content:"";position:absolute;left:50%;top:50%;width:14px;height:14px;margin:-7px 0 0 -7px;
-  background:linear-gradient(rgba(235,230,218,.5),rgba(235,230,218,.5)) center/1px 100% no-repeat,linear-gradient(rgba(235,230,218,.5),rgba(235,230,218,.5)) center/100% 1px no-repeat}
+  background:linear-gradient(rgba(236,236,236,.5),rgba(236,236,236,.5)) center/1px 100% no-repeat,linear-gradient(rgba(236,236,236,.5),rgba(236,236,236,.5)) center/100% 1px no-repeat}
 .screen-hud{position:absolute;left:22px;right:22px;top:20px;z-index:3;display:flex;justify-content:space-between;
-  font:400 12px/1 var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:rgba(235,230,218,.85);text-shadow:0 1px 4px rgba(0,0,0,.8);font-variant-numeric:tabular-nums}
+  font:400 12px/1 var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:rgba(236,236,236,.85);text-shadow:0 1px 4px rgba(0,0,0,.8);font-variant-numeric:tabular-nums}
 .rec{display:inline-flex;gap:6px;align-items:center}
 .rec::before{content:"";width:7px;height:7px;border-radius:50%;background:#e2483d;animation:blink 1.2s steps(2) infinite}
 @keyframes blink{50%{opacity:0}}
@@ -260,7 +260,7 @@ kbd{font:inherit;border:1px solid var(--line);padding:2px 5px;color:var(--muted)
 .film.is-on .rv{opacity:1;transform:none}
 
 /* ---------- index ---------- */
-.index{position:fixed;top:0;bottom:0;right:0;z-index:25;width:min(380px,100%);background:rgba(250,247,240,.97);border-left:1px solid var(--line);
+.index{position:fixed;top:0;bottom:0;right:0;z-index:25;width:min(380px,100%);background:rgba(255,255,255,.97);border-left:1px solid var(--line);
   display:flex;flex-direction:column;transform:translateX(100%);transition:transform .7s var(--ease-cine);box-sizing:border-box;
   padding-top:calc(20px + env(safe-area-inset-top,0px));padding-bottom:calc(20px + env(safe-area-inset-bottom,0px));padding-right:env(safe-area-inset-right,0px)}
 .index.open{transform:none}
@@ -316,8 +316,8 @@ kbd{font:inherit;border:1px solid var(--line);padding:2px 5px;color:var(--muted)
    get a stronger blur and deeper shadow than small chips. The project view keeps a blurred
    scrim behind its card rather than stacking glass on glass, so text stays legible. */
 :root{
-  --glass-fill:linear-gradient(140deg,rgba(255,255,255,.64),rgba(255,251,244,.36));
-  --glass-fill-strong:linear-gradient(140deg,rgba(255,255,255,.84),rgba(255,251,244,.66));
+  --glass-fill:linear-gradient(140deg,rgba(255,255,255,.64),rgba(255,255,255,.36));
+  --glass-fill-strong:linear-gradient(140deg,rgba(255,255,255,.84),rgba(255,255,255,.66));
   --glass-blur:blur(18px) saturate(170%);
   --glass-blur-sm:blur(14px) saturate(160%);
   --glass-rim:linear-gradient(140deg,rgba(255,255,255,.98),rgba(255,255,255,.2) 42%,rgba(196,116,28,.28));
@@ -346,7 +346,7 @@ kbd{font:inherit;border:1px solid var(--line);padding:2px 5px;color:var(--muted)
 .index li button:hover{background:rgba(255,255,255,.55)}
 .index li img{border-radius:8px}
 /* project view: the map stays faintly visible through a blurred scrim, details sit on a glass card */
-.film{background:rgba(244,239,229,.42);-webkit-backdrop-filter:blur(18px) saturate(140%);backdrop-filter:blur(18px) saturate(140%)}
+.film{background:rgba(255,255,255,.42);-webkit-backdrop-filter:blur(18px) saturate(140%);backdrop-filter:blur(18px) saturate(140%)}
 .film .card{position:relative;background:var(--glass-fill-strong);border-radius:24px;padding:26px 26px 24px}
 .screen{border-radius:14px;box-shadow:0 30px 60px -30px rgba(40,32,20,.55)}
 .thumb{border-radius:8px;border-color:rgba(43,40,34,.12)}
@@ -363,7 +363,7 @@ kbd{font:inherit;border:1px solid var(--line);padding:2px 5px;color:var(--muted)
 .controls .chip:hover:not([aria-pressed="true"]){background:rgba(255,255,255,.6)}
 .controls .chip[aria-pressed="true"]{background:var(--paper);box-shadow:0 2px 6px -2px rgba(43,40,34,.4)}
 /* letterbox bars become frosted strips over the scene */
-.bar{background:rgba(247,243,235,.62);-webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur)}
+.bar{background:rgba(255,255,255,.62);-webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur)}
 .bar.top{box-shadow:inset 0 -1px 0 rgba(255,255,255,.7)}
 .bar.bot{box-shadow:inset 0 1px 0 rgba(255,255,255,.7)}
 .bar-ui kbd{border-radius:6px;border-color:rgba(43,40,34,.18);background:rgba(255,255,255,.5)}
@@ -531,7 +531,7 @@ button.brand:hover{box-shadow:var(--glass-shadow)}
 /* browsers without blur get solid panels instead of see-through ones */
 @supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
   .brand,.preview,.readout,.film .card,.index,.about,.controls,.fullmap,.bar{background:var(--ink)}
-  .film{background:rgba(244,239,229,.95)}
+  .film{background:rgba(255,255,255,.95)}
 }
 /* ---------- project view: photo stage on the left, grouped details on the right ----------
    The photo takes the largest size that leaves room for its caption, camera data and the
@@ -556,7 +556,7 @@ button.brand:hover{box-shadow:var(--glass-shadow)}
 /* camera data: labelled values in an even row */
 .facts{margin:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(84px,1fr));gap:1px;border-radius:12px;overflow:hidden;
   background:rgba(43,40,34,.08);box-shadow:0 0 0 1px rgba(43,40,34,.08)}
-.facts div{padding:8px 12px;background:rgba(255,253,248,.82);min-width:0}
+.facts div{padding:8px 12px;background:rgba(255,255,255,.82);min-width:0}
 .facts .wide{grid-column:span 2}
 .facts dd{overflow-wrap:anywhere}
 .facts dt{font:500 12px/1.2 var(--f-mono);letter-spacing:.06em;color:var(--muted)}
@@ -611,9 +611,9 @@ button.brand:hover{box-shadow:var(--glass-shadow)}
 @media (max-width:400px){.bar-ui .count{display:none}}
 /* no live blur behind the project view: the map keeps moving while it fades in, and re-blurring
    the whole screen every frame is what made the opening stutter. A soft cream veil instead. */
-.film{background:rgba(244,239,229,.88);-webkit-backdrop-filter:none;backdrop-filter:none}
+.film{background:rgba(255,255,255,.88);-webkit-backdrop-filter:none;backdrop-filter:none}
 .film:not(.is-on){pointer-events:none}
-.film .card{-webkit-backdrop-filter:none;backdrop-filter:none;background:linear-gradient(140deg,rgba(255,255,255,.92),rgba(255,251,244,.8))}
+.film .card{-webkit-backdrop-filter:none;backdrop-filter:none;background:linear-gradient(140deg,rgba(255,255,255,.92),rgba(255,255,255,.8))}
 /* the details card scrolls, and a drawn-on rim layer would scroll with its content and show up
    as a stray line part-way down; a real border stays on the card's edge */
 .film .card::before{display:none}
@@ -679,7 +679,7 @@ button.brand:hover{box-shadow:var(--glass-shadow)}
    is what made them stutter); both use a near-solid cream fill instead. They open on one long,
    gentle curve with fade and scale finishing together, and close a little faster on a soft
    ease-in-out rather than snapping away. */
-.about{-webkit-backdrop-filter:none;backdrop-filter:none;background:linear-gradient(160deg,rgba(255,254,250,.97),rgba(250,246,238,.96));
+.about{-webkit-backdrop-filter:none;backdrop-filter:none;background:linear-gradient(160deg,rgba(255,254,250,.97),rgba(255,255,255,.96));
   transform-origin:40px 40px;opacity:0;transform:translateY(-6px) scale(.96);will-change:transform,opacity;
   transition:opacity 380ms cubic-bezier(.22,.8,.12,1),transform 560ms cubic-bezier(.22,.8,.12,1)}
 .about.open{opacity:1;transform:none}
@@ -691,7 +691,7 @@ button.brand:hover{box-shadow:var(--glass-shadow)}
 /* the name card hands over to the panel: it fades out as the panel opens and back in after it closes */
 button.brand{transition:opacity 260ms cubic-bezier(.45,0,.25,1) 120ms,transform var(--t-med) var(--ease-out)}
 body.about-open button.brand{transition-delay:0ms}
-.preview{-webkit-backdrop-filter:none;backdrop-filter:none;background:rgba(255,253,248,.96);will-change:transform,opacity,translate;
+.preview{-webkit-backdrop-filter:none;backdrop-filter:none;background:rgba(255,255,255,.96);will-change:transform,opacity,translate;
   opacity:0;transform:scale(.94);transition:opacity 180ms cubic-bezier(.45,0,.25,1),transform 220ms cubic-bezier(.45,0,.25,1)}
 .preview.show{opacity:1;transform:none;transition:opacity 280ms cubic-bezier(.22,.8,.12,1),transform 440ms cubic-bezier(.2,.9,.3,1)}
 .preview img{background:rgba(43,40,34,.06)}
@@ -795,7 +795,7 @@ body.brand-in button.brand>.brand-more{animation-delay:140ms}
 .ball.off i{transform:scale(0);opacity:0}
 .ball.off span{opacity:0}
 /* flat glass: a frosted, see-through disc with a thin bright rim and no shading or drop shadow */
-.ball i{transform:scale(.34);background:rgba(255,253,248,.55);-webkit-backdrop-filter:blur(6px) saturate(160%);backdrop-filter:blur(6px) saturate(160%);
+.ball i{transform:scale(.34);background:rgba(255,255,255,.55);-webkit-backdrop-filter:blur(6px) saturate(160%);backdrop-filter:blur(6px) saturate(160%);
   box-shadow:inset 0 0 0 2px rgba(255,255,255,.95),0 0 0 2px rgba(43,40,34,.6)}
 .ball.down i{transform:scale(.28)}
 /* a size step smaller: about 19px on the map, 36px near a project, 59px with "Open" */
@@ -808,8 +808,8 @@ body.brand-in button.brand>.brand-more{animation-delay:140ms}
 .ball span{font-size:12px}
 /* more visible on the flat cream map: a slightly larger disc, a firm dark rim, a soft halo that
    lifts it off any background, and a small centre dot that marks the exact point */
-.ball i{transform:scale(.3);background:rgba(255,253,248,.6);
-  box-shadow:inset 0 0 0 2px rgba(255,255,255,.95),0 0 0 2px rgba(43,40,34,.85),0 0 0 6px rgba(255,253,248,.35),0 4px 12px rgba(43,40,34,.18)}
+.ball i{transform:scale(.3);background:rgba(255,255,255,.6);
+  box-shadow:inset 0 0 0 2px rgba(255,255,255,.95),0 0 0 2px rgba(43,40,34,.85),0 0 0 6px rgba(255,255,255,.35),0 4px 12px rgba(43,40,34,.18)}
 .ball.down i{transform:scale(.25)}
 .ball::after{content:"";position:absolute;left:50%;top:50%;width:5px;height:5px;margin:-2.5px 0 0 -2.5px;border-radius:50%;
   background:var(--paper);pointer-events:none;transition:opacity 200ms ease,transform 320ms cubic-bezier(.22,.8,.12,1)}
@@ -820,11 +820,11 @@ body.brand-in button.brand>.brand-more{animation-delay:140ms}
 /* the ring is drawn at full size and then scaled down, so its rim is set thick enough to still
    read about 2px wide at rest: a dark rim between a white inner edge and a pale halo, so it shows
    on cream map, dark street map and photos alike, plus a dark centre dot for the exact point */
-.ball i{transform:scale(.36);background:rgba(255,253,248,.5);
-  box-shadow:inset 0 0 0 4.5px rgba(255,255,255,.95),0 0 0 5.5px rgba(43,40,34,.92),0 0 0 12px rgba(255,253,248,.55),0 6px 18px rgba(43,40,34,.28)}
+.ball i{transform:scale(.36);background:rgba(255,255,255,.5);
+  box-shadow:inset 0 0 0 4.5px rgba(255,255,255,.95),0 0 0 5.5px rgba(43,40,34,.92),0 0 0 12px rgba(255,255,255,.55),0 6px 18px rgba(43,40,34,.28)}
 .ball.down i{transform:scale(.3)}
-.ball::after{width:6px;height:6px;margin:-3px 0 0 -3px;background:rgba(43,40,34,.92);box-shadow:0 0 0 1.5px rgba(255,253,248,.9)}
-.ball.zone i{transform:scale(.54);background:rgba(196,116,28,.16);box-shadow:inset 0 0 0 3px rgba(255,255,255,.9),0 0 0 3.5px var(--tungsten),0 0 0 8px rgba(255,253,248,.5)}
+.ball::after{width:6px;height:6px;margin:-3px 0 0 -3px;background:rgba(43,40,34,.92);box-shadow:0 0 0 1.5px rgba(255,255,255,.9)}
+.ball.zone i{transform:scale(.54);background:rgba(196,116,28,.16);box-shadow:inset 0 0 0 3px rgba(255,255,255,.9),0 0 0 3.5px var(--tungsten),0 0 0 8px rgba(255,255,255,.5)}
 .ball.zone::after{background:var(--tungsten)}
 .ball.hot i{background:rgba(196,116,28,.72);-webkit-backdrop-filter:blur(8px) saturate(170%);backdrop-filter:blur(8px) saturate(170%);
   box-shadow:inset 0 0 0 1.5px rgba(255,236,210,.7),0 0 0 1px rgba(156,90,18,.5)}
@@ -864,7 +864,7 @@ body.brand-in button.brand>.brand-more{animation-delay:140ms}
    its credit shows while it is visible */
 body.detail-on .city,body.detail-on .region{opacity:0!important;transition:opacity 300ms ease}
 .map-credit{position:fixed;left:50%;bottom:calc(2px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:11;margin:0;
-  padding:2px 8px;border-radius:6px;background:rgba(255,253,248,.75);font:400 12px/1.3 var(--f-body);color:var(--muted);white-space:nowrap;
+  padding:2px 8px;border-radius:6px;background:rgba(255,255,255,.75);font:400 12px/1.3 var(--f-body);color:var(--muted);white-space:nowrap;
   opacity:0;pointer-events:none;transition:opacity 300ms ease}
 .map-credit a{color:inherit}
 body.detail-on .map-credit{opacity:1;pointer-events:auto}
@@ -1746,7 +1746,7 @@ function drawDetail(det,x0,y0,f){
     ctx.globalAlpha=det.fade;ctx.globalCompositeOperation='saturation';ctx.fillStyle='#808080';ctx.fill(cover,'nonzero');
     ctx.globalCompositeOperation='screen';ctx.fillStyle='#262626';ctx.fill(cover,'nonzero');
   }
-  ctx.globalCompositeOperation='multiply';ctx.fillStyle='#f5ecdb';ctx.globalAlpha=det.fade*.9;ctx.fill(cover,'nonzero');
+  ctx.globalCompositeOperation='multiply';ctx.fillStyle='#f2f2f2';ctx.globalAlpha=det.fade*.9;ctx.fill(cover,'nonzero');
   ctx.restore();
 }
 // a window can report no size at all (opened in the background, some in-app browsers): count it
