@@ -1,4 +1,4 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body><title>Khoi Nguyen Lam · Photography &amp; Video</title>
+<title>Khoi Nguyen Lam · Photography &amp; Video</title>
 <meta name="description" content="Photographer and videographer working across Canada. Explore every project on a map, see the work and get in touch to book a shoot.">
 <meta property="og:title" content="Khoi Nguyen Lam · Photography &amp; Video">
 <meta property="og:description" content="Photo and video projects across Canada, pinned where they were shot.">
@@ -12,17 +12,18 @@
 <style>
 /* Layout: a full-bleed map of Canada steered by the cursor; each project opens as a letterboxed screening card. */
 :root{
-  /* sky atlas: sky-blue water, cloudy-white land, near-black ink, amber-red markers */
-  --ocean:#1797ec;
-  --ocean-deep:#0a8be4;
+  /* sky atlas: water that fades from soft sky blue at the top of the screen to near-white at the
+     bottom, cloudy-white land, near-black ink, amber-red markers */
+  --ocean:#8ccbf6;
+  --ocean-deep:#e8f4fd;
   --land:#fdfbff;
   --land-north:#ffffff;
-  --land-foreign:#dcedfb;
-  --water-line:#3fa6f2;
+  --land-foreign:#f1f7fc;
+  --water-line:#8ccbf6;
   --border:rgba(18,24,32,.28);
   --label-region:rgba(18,24,32,.42);
   --label-foreign:rgba(18,24,32,.24);
-  --label-water:rgba(255,255,255,.88);
+  --label-water:rgba(38,120,186,.72);
   --ink:#ffffff;
   --ink-2:#f3f3f3;
   --line:#dbe3ec;
@@ -56,8 +57,12 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 :focus-visible{outline:2px solid var(--tungsten);outline-offset:3px}
 
 /* ---------- map ---------- */
-#stage{position:fixed;inset:0;overflow:hidden;perspective:2000px;touch-action:none;background:var(--ocean-deep)}
+#stage{position:fixed;inset:0;overflow:hidden;perspective:2000px;touch-action:none;background:linear-gradient(180deg,var(--ocean) 0%,var(--ocean-deep) 100%)}
 #world{position:absolute;left:0;top:0;transform-origin:0 0}
+/* the tilted map leaves slivers of the stage showing at the screen edges; at street level they
+   turn the street map's grey instead of the sky, so no blue frame shows around it */
+#stage::before{content:"";position:absolute;inset:0;background:#ececec;opacity:0;transition:opacity .4s ease}
+body.detail-on #stage::before{opacity:1}
 /* names and markers are moved in screen pixels with their own layer each, so zooming only
    slides them; nothing is re-scaled or repainted */
 .city,.region,.pin{will-change:translate}
@@ -1325,11 +1330,10 @@ function drawTerrain(k=PHONE?.7:Math.min(1.25,Math.max(1,devicePixelRatio||1))){
   // a simple, flat map: water, land, lakes, soft province lines and a clean coast. No terrain
   // shading, roads, rivers, state lines or grid, so the project markers are what stands out.
   const paint=ctx=>{
-    ctx.fillStyle=C.ocean;ctx.fillRect(0,0,W,H);
     ctx.lineJoin='round';ctx.lineCap='round';
     ctx.fillStyle=C.foreign;ctx.fill(other,'evenodd');
     ctx.fillStyle=C.land;ctx.fill(canLand,'evenodd');
-    ctx.fillStyle=C.ocean;ctx.fill(lakes,'evenodd');
+    ctx.globalCompositeOperation='destination-out';ctx.fill(lakes,'evenodd');ctx.globalCompositeOperation='source-over';
     ctx.strokeStyle=hexA(C.paper,.14);ctx.lineWidth=1;provPaths.forEach(p=>ctx.stroke(p.path));
     ctx.strokeStyle=hexA(C.paper,.28);ctx.lineWidth=1.1;ctx.stroke(canLand);
     ctx.strokeStyle=hexA(C.paper,.16);ctx.lineWidth=.9;ctx.stroke(other);
@@ -1629,7 +1633,12 @@ function drawMapView(){
   const key=`${cam.x.toFixed(2)},${cam.y.toFixed(2)},${cam.s.toFixed(4)}|${det.key}`;
   if(key!==mvKey){
     mvKey=key;
-    mvCtx.fillStyle=css('--ocean-deep');mvCtx.fillRect(0,0,cw,ch);
+    // the water is one sky gradient fixed to the screen, so it blends from blue to white as in a hero
+    const sky=mvCtx.createLinearGradient(0,0,0,ch);sky.addColorStop(0,css('--ocean'));sky.addColorStop(1,css('--ocean-deep'));
+    mvCtx.fillStyle=sky;mvCtx.fillRect(0,0,cw,ch);
+    // at street level the water turns the street map's grey, so wherever its images haven't
+    // arrived or don't reach (the screen edges under the tilt) no blue frame shows
+    if(det.fade>.005){mvCtx.globalAlpha=det.fade;mvCtx.fillStyle='#ececec';mvCtx.fillRect(0,0,cw,ch);mvCtx.globalAlpha=1}
     const s=cam.s,x0=cam.x-vw/2/s,y0=cam.y-vh/2/s,x1=x0+vw/s,y1=y0+vh/s;
     const f=s*dpr;mvCtx.imageSmoothingQuality='medium';
     for(const t of mapTiles){
