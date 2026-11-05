@@ -989,6 +989,23 @@ body.globe-on .legend,body.globe-on .fullmap{display:none}
 .controls .chip[aria-pressed="true"]{background:#9a5b3b;color:#fff}
 .controls .chip[aria-pressed="true"] small{color:#fff}
 .ball.hot span{color:#fff}
+/* narrower windows: the header stays tidy instead of wrapping into the globe. Nothing here touches phones (520px and under) */
+@media (min-width:521px){.brand-name,.chip{white-space:nowrap}.controls{flex-wrap:nowrap}}
+@media (min-width:701px) and (max-width:820px){
+  .brand{padding:14px 18px}
+  .controls .chip small{display:none}
+  .chip{padding:0 12px}
+  .lbl-long{display:none}.lbl-short{display:inline}
+}
+@media (min-width:521px) and (max-width:700px){
+  .hud-top{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:start;row-gap:12px}
+  .hud-right{display:contents}
+  .hud-top .brand{grid-column:1;grid-row:1;justify-self:start}
+  .book{grid-column:2;grid-row:1}
+  .hud-top .controls{grid-column:1/-1;grid-row:2;justify-self:start}
+}
+/* with a mouse, this box has nothing left to show below 860px: its legend and hint are both hidden there */
+@media (max-width:860px) and (pointer:fine){.readout{display:none}}
 </style>
 
 <div id="stage" aria-label="Project map">
@@ -2694,7 +2711,11 @@ const globe=(()=>{
     return true;
   }
   // the sphere's place on screen, leaving the top bar clear on phones
-  const geom=()=>{const R0=Math.min(vh*.37,vw*.42);return{x:vw/2,y:vw<640?vh*.54:vh/2,R:R0*G.z}};
+  const hudTop=document.querySelector('.hud-top');
+  const geom=()=>{
+    if(vw>=640&&vw<900){const a=hudTop.offsetHeight+10,b=vh-14;return{x:vw/2,y:(a+b)/2,R:Math.min(Math.max((b-a)/2,120),vw*.42)*G.z}}
+    const R0=Math.min(vh*.37,vw*.42);return{x:vw/2,y:vw<640?vh*.54:vh/2,R:R0*G.z};
+  };
   // the view rotation, turning (lat,lon) to face the viewer
   function basis(){const la=G.lat*D,lo=G.lon*D,cy=Math.cos(lo),sy=Math.sin(lo),cx=Math.cos(la),sx=Math.sin(la);
     return{cy,sy,cx,sx}}
