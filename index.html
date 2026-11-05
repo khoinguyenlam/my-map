@@ -3,7 +3,7 @@
 <meta property="og:title" content="Khoi Nguyen Lam · Photography &amp; Video">
 <meta property="og:description" content="Photo and video projects across Canada, pinned where they were shot.">
 <meta property="og:type" content="website">
-<meta name="theme-color" content="#05060c">
+<meta name="theme-color" content="#03040e">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232b2822'/%3E%3Ccircle cx='32' cy='32' r='15' fill='none' stroke='%23c4741c' stroke-width='6'/%3E%3C/svg%3E">
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -12,17 +12,17 @@
 <style>
 /* Layout: a full-bleed map of Canada steered by the cursor; each project opens as a letterboxed screening card. */
 :root{
-  /* black globe: electric-blue water, soft lavender glow, acid-green accents */
+  /* electric blue, soft lavender and acid green on black, always bleeding into each other */
   --ocean:#071233;
   --ocean-deep:#02030a;
-  --land:#10205c;
-  --land-north:#142a78;
-  --land-foreign:#0a1030;
-  --water-line:#1c3fa8;
+  --land:rgba(10,16,52,.62);
+  --land-north:rgba(12,20,64,.62);
+  --land-foreign:rgba(4,6,20,.72);
+  --water-line:#4a6bff;
   --border:rgba(200,205,255,.28);
-  --label-region:rgba(215,220,255,.55);
-  --label-foreign:rgba(215,220,255,.3);
-  --label-water:rgba(150,175,255,.7);
+  --label-region:rgba(225,228,255,.62);
+  --label-foreign:rgba(225,228,255,.36);
+  --label-water:rgba(225,228,255,.82);
   --ink:#05060c;
   --ink-2:#0c0e1c;
   --line:#262b45;
@@ -950,7 +950,7 @@ html .lg{-webkit-backdrop-filter:var(--lg-filter) blur(3px) saturate(180%) brigh
 
 /* ---------- the globe: the home view. A glowing sphere on black; beacons mark where the work is,
    and diving in crossfades to the flat map and street detail underneath ---------- */
-:root{--electric:#0a47ff;--lavender:#b9b6ff;--acid:#3dff1a}
+:root{--electric:#1a44ff;--lavender:#c4c2ff;--acid:#3dff1a}
 .vignette{display:none}
 #stage::before{background:#14161f}
 #globe{position:absolute;inset:0;width:100%;height:100%;display:block;z-index:4;background:#02030a;touch-action:none;cursor:grab}
@@ -961,9 +961,9 @@ body.globe-on #mapView,body.globe-on #world{visibility:hidden}
 .gpin{all:unset;position:absolute;left:0;top:0;display:flex;align-items:center;gap:10px;pointer-events:auto;cursor:pointer;white-space:nowrap;will-change:transform;
   transition:opacity .25s ease;-webkit-tap-highlight-color:transparent}
 .gpin.behind{opacity:0;pointer-events:none}
-.gpin i{position:relative;flex:none;width:14px;height:14px;margin:-7px 0 -7px -7px;border-radius:50%;background:var(--acid);
-  box-shadow:0 0 0 2px rgba(4,18,10,.9),0 0 18px 4px rgba(61,255,26,.75)}
-.gpin i::after{content:"";position:absolute;inset:-9px;border-radius:50%;border:1.5px solid var(--acid);animation:gping 2.4s cubic-bezier(.2,.7,.2,1) infinite}
+.gpin i{position:relative;flex:none;width:14px;height:14px;margin:-7px 0 -7px -7px;border-radius:50%;background:#fff;
+  box-shadow:0 0 0 2px rgba(4,8,30,.9),0 0 18px 5px rgba(255,255,255,.7)}
+.gpin i::after{content:"";position:absolute;inset:-9px;border-radius:50%;border:1.5px solid #fff;animation:gping 2.4s cubic-bezier(.2,.7,.2,1) infinite}
 @keyframes gping{0%{transform:scale(.45);opacity:.9}80%,100%{transform:scale(1.9);opacity:0}}
 .gpin span{display:grid;gap:3px;padding:8px 13px 8px 12px;border-radius:14px;background:rgba(8,10,24,.78);color:var(--paper);
   -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 0 0 1px rgba(185,182,255,.22),0 10px 28px rgba(0,0,0,.5);
@@ -987,6 +987,18 @@ body.globe-on .legend,body.globe-on .fullmap{display:none}
 .controls .chip[aria-pressed="true"]{background:var(--lavender);color:#07081a}
 .controls .chip[aria-pressed="true"] small{color:#07081a}
 .pin-label{background:rgba(8,10,24,.9);color:var(--paper)}
+
+/* the colours leak across the page too: nothing is one flat colour for long */
+#stage{background:radial-gradient(90% 90% at 12% 10%,rgba(26,68,255,.7),transparent 70%),radial-gradient(70% 70% at 92% 24%,rgba(196,194,255,.32),transparent 70%),radial-gradient(70% 70% at 74% 98%,rgba(61,255,26,.24),transparent 70%),#03040e}
+#globe{background:#03040e}
+.book,.cta{background:linear-gradient(100deg,#3dff1a 0%,#8bff66 46%,#c4c2ff 100%);box-shadow:0 0 28px -6px rgba(61,255,26,.65),0 0 34px -10px rgba(196,194,255,.7)}
+.book:hover,.cta:hover{background:linear-gradient(100deg,#6bff4d 0%,#a8ff8c 46%,#dcdaff 100%)}
+.brand-more{background:linear-gradient(100deg,rgba(26,68,255,.5),rgba(196,194,255,.28));color:#eeedff}
+.controls .chip[aria-pressed="true"]{background:linear-gradient(100deg,#c4c2ff,#8fa2ff)}
+.gstats h2{background:linear-gradient(90deg,#3dff1a,#c4c2ff 70%,#6f8bff);-webkit-background-clip:text;background-clip:text;color:transparent;border-image:linear-gradient(90deg,#3dff1a,#c4c2ff 50%,#1a44ff) 1}
+.film{background:radial-gradient(70% 80% at 8% 6%,rgba(26,68,255,.42),transparent 70%),radial-gradient(60% 70% at 96% 18%,rgba(196,194,255,.18),transparent 70%),radial-gradient(60% 70% at 78% 100%,rgba(61,255,26,.14),transparent 70%),rgba(6,8,22,.9)}
+.about{background:radial-gradient(90% 40% at 0% 0%,rgba(26,68,255,.38),transparent 75%),radial-gradient(80% 36% at 100% 100%,rgba(61,255,26,.1),transparent 75%),linear-gradient(160deg,rgba(14,17,36,.97),rgba(14,17,36,.96))}
+.brand{background:linear-gradient(135deg,rgba(26,68,255,.34),rgba(14,17,36,.62) 55%,rgba(196,194,255,.16))}
 </style>
 
 <div id="stage" aria-label="Project map">
@@ -1667,6 +1679,20 @@ addEventListener('resize',()=>{vw=innerWidth;vh=innerHeight;mvKey='';buildCluste
    canvas whenever the camera moves, and the camera tilt is applied to that canvas. */
 const mapView=$('#mapView'),mvCtx=mapView.getContext('2d');
 let mapK=1,mvKey='',mvTilt='';
+// electric blue, lavender and acid green pools on black, drawn once per screen size
+let leakCv=null;
+function leakPools(cw,ch){
+  if(leakCv&&leakCv.width===cw&&leakCv.height===ch)return leakCv;
+  leakCv=document.createElement('canvas');leakCv.width=cw;leakCv.height=ch;
+  const x=leakCv.getContext('2d'),m=Math.max(cw,ch);
+  x.fillStyle='#03040e';x.fillRect(0,0,cw,ch);x.globalCompositeOperation='lighter';
+  for(const[fx,fy,fr,rgb,al]of[[.12,.1,.8,'26,68,255',.85],[.92,.24,.62,'196,194,255',.42],[.74,.98,.6,'61,255,26',.3],[.18,.92,.52,'26,68,255',.5],[.5,.5,.46,'196,194,255',.12]]){
+    const g=x.createRadialGradient(fx*cw,fy*ch,0,fx*cw,fy*ch,fr*m);
+    g.addColorStop(0,`rgba(${rgb},${al})`);g.addColorStop(.5,`rgba(${rgb},${al*.32})`);g.addColorStop(1,`rgba(${rgb},0)`);
+    x.fillStyle=g;x.fillRect(0,0,cw,ch);
+  }
+  return leakCv;
+}
 function drawMapView(){
   if(!mapTiles.length||globeCovers)return;
   // 1.5x is as sharp as the map tiles themselves are; going to 2x only adds pixels to push every frame
@@ -1676,12 +1702,11 @@ function drawMapView(){
   const key=`${cam.x.toFixed(2)},${cam.y.toFixed(2)},${cam.s.toFixed(4)}|${det.key}`;
   if(key!==mvKey){
     mvKey=key;
-    // the water is one sky gradient fixed to the screen, so it blends from blue to white as in a hero
-    const sky=mvCtx.createLinearGradient(0,0,0,ch);sky.addColorStop(0,css('--ocean'));sky.addColorStop(1,css('--ocean-deep'));
-    mvCtx.fillStyle=sky;mvCtx.fillRect(0,0,cw,ch);
+    // the water is pools of colour fixed to the screen, which leak through the land drawn over them
+    mvCtx.drawImage(leakPools(cw,ch),0,0);
     // at street level the water turns the street map's grey, so wherever its images haven't
     // arrived or don't reach (the screen edges under the tilt) no blue frame shows
-    if(det.fade>.005){mvCtx.globalAlpha=det.fade;mvCtx.fillStyle='#14161f';mvCtx.fillRect(0,0,cw,ch);mvCtx.globalAlpha=1}
+    if(det.fade>.005){mvCtx.globalAlpha=det.fade*.8;mvCtx.fillStyle='#14161f';mvCtx.fillRect(0,0,cw,ch);mvCtx.globalAlpha=1}
     const s=cam.s,x0=cam.x-vw/2/s,y0=cam.y-vh/2/s,x1=x0+vw/s,y1=y0+vh/s;
     const f=s*dpr;mvCtx.imageSmoothingQuality='medium';
     for(const t of mapTiles){
@@ -1691,7 +1716,12 @@ function drawMapView(){
       const dx0=Math.round((ix0-x0)*f),dy0=Math.round((iy0-y0)*f),dx1=Math.round((ix1-x0)*f),dy1=Math.round((iy1-y0)*f);
       mvCtx.drawImage(t.cv,(ix0-t.x+TILE_PAD)*mapK,(iy0-t.y+TILE_PAD)*mapK,(ix1-ix0)*mapK,(iy1-iy0)*mapK,dx0,dy0,dx1-dx0,dy1-dy0);
     }
-    if(det.fade>.005)drawDetail(det,x0,y0,f);
+    if(det.fade>.005){
+      drawDetail(det,x0,y0,f);
+      // and the colour keeps leaking over the street map
+      mvCtx.globalCompositeOperation='screen';mvCtx.globalAlpha=det.fade*.5;mvCtx.drawImage(leakPools(cw,ch),0,0);
+      mvCtx.globalCompositeOperation='source-over';mvCtx.globalAlpha=1;
+    }
   }
   const tilt=cam.rx||cam.ry?`rotateX(${cam.rx}deg) rotateY(${cam.ry}deg)`:'none';
   if(tilt!==mvTilt){mvTilt=tilt;mapView.style.transform=tilt}
@@ -2654,7 +2684,7 @@ const globe=(()=>{
     gl=cv.getContext('webgl',{alpha:false,antialias:false,powerPreference:'high-performance'});if(!gl)return false;
     const vs='attribute vec2 p;void main(){gl_Position=vec4(p,0.,1.);}';
     const fs=`precision highp float;uniform vec2 c;uniform float R,t;uniform mat3 rot;uniform sampler2D land;
-    const vec3 BLUE=vec3(.04,.28,1.),DEEP=vec3(.008,.05,.42),LAV=vec3(.725,.714,1.),ACID=vec3(.24,1.,.1);
+    const vec3 ELEC=vec3(.03,.16,1.),DEEP=vec3(.006,.03,.34),LAV=vec3(.72,.7,1.),ACID=vec3(.22,1.,.06);
     float h(vec3 p){p=fract(p*.3183099+.1);p*=17.;return fract(p.x*p.y*p.z*(p.x+p.y+p.z));}
     float n3(vec3 x){vec3 i=floor(x),f=fract(x);f=f*f*(3.-2.*f);
       return mix(mix(mix(h(i),h(i+vec3(1,0,0)),f.x),mix(h(i+vec3(0,1,0)),h(i+vec3(1,1,0)),f.x),f.y),
@@ -2662,28 +2692,37 @@ const globe=(()=>{
     float fbm(vec3 p){return .55*n3(p)+.3*n3(p*2.03+7.)+.15*n3(p*4.1+13.);}
     void main(){
       vec2 p=(gl_FragCoord.xy-c)/R;float r=length(p),d=r-1.;
-      vec3 col=vec3(.004,.006,.022)+vec3(.012,.06,.3)*exp(-max(d,0.)*3.2)*.55;
-      if(r>.9&&d<.9){
-        // thin streaks of light leaving the rim: quick around the circle, slow going outward
-        float a=atan(p.y,p.x),n1=fbm(vec3(cos(a)*2.4,sin(a)*2.4,t*.06)),n2=fbm(vec3(cos(a)*9.,sin(a)*9.,d*1.6-t*.16));
-        float m=smoothstep(.5,.72,n1)*smoothstep(.42,.8,n2),fall=exp(-max(d,0.)*(5.5-n2*2.5));
-        col+=mix(BLUE,LAV,n2)*m*fall*1.5+vec3(.8,.85,1.)*m*m*fall*.9+BLUE*exp(-max(d,0.)*17.)*1.2;
+      // the page itself: three soft pools of colour drifting behind the globe and running together
+      vec2 a1=vec2(-1.5+.25*sin(t*.07),1.+.2*cos(t*.05)),a2=vec2(1.6+.2*cos(t*.06),.7+.25*sin(t*.08)),a3=vec2(.9+.3*sin(t*.05),-1.25+.2*cos(t*.07));
+      vec3 col=vec3(.003,.004,.016)+ELEC*.24*exp(-dot(p-a1,p-a1)*.55)+LAV*.11*exp(-dot(p-a2,p-a2)*.7)+ACID*.075*exp(-dot(p-a3,p-a3)*.8);
+      // the rim bleeds outward: colour leaves the sphere in soft tongues that change hue as they go
+      if(r>.85&&d<1.3){
+        float a=atan(p.y,p.x);vec3 ci=vec3(cos(a),sin(a),0.);
+        float n1=fbm(ci*1.8+vec3(0.,0.,d*1.1-t*.07)),n2=fbm(ci*5.+vec3(3.,0.,d*2.4-t*.12)),n3=fbm(ci*2.6+vec3(9.,4.,d*.8+t*.05));
+        vec3 tint=mix(mix(ELEC*1.2,LAV*.8,smoothstep(.46,.72,n1)),ACID*.85,smoothstep(.52,.7,n3));
+        col+=tint*exp(-max(d,0.)*(2.6+(1.-n1)*3.))*(.28+.62*smoothstep(.38,.72,n2))*smoothstep(1.3,.6,d);
+        col+=ELEC*exp(-max(d,0.)*14.)*.7;
       }
       if(r<1.){
         float z=sqrt(1.-r*r);vec3 n=vec3(p,z),q=rot*n;
-        float f=fbm(q*3.4+vec3(0.,0.,t*.03)),f2=fbm(q*9.-t*.02);
-        vec2 uv=vec2(atan(q.x,q.z)/6.28318+.5,.5-asin(clamp(q.y,-1.,1.))/3.14159)+(f-.5)*.004;
-        vec4 mk=texture2D(land,uv);float L=mk.r,C=mk.g,e=L*(1.-L)*4.;
-        vec3 ocean=mix(DEEP,BLUE,smoothstep(.2,.95,z*.62+f*.58))+LAV*.32*smoothstep(.52,.78,f2)*f;
-        vec3 ground=mix(vec3(.02,.42,.34),ACID*.95,smoothstep(.36,.66,f2*.6+f*.5));
-        ground=mix(ground,ACID*1.12+vec3(.05,.1,.03)*f2,C*.88);
-        vec3 s=mix(ocean,ground,L)+vec3(.6,.95,.8)*e*.55;
+        // the surface is one fluid: noise pushed along by more noise, so each colour runs into the next
+        vec3 w=q*2.1,o=vec3(fbm(w+vec3(0.,0.,t*.04)),fbm(w+vec3(5.,1.,-t*.03)),fbm(w+vec3(2.,9.,t*.035)));
+        float A=fbm(w*1.4+o*2.8),B=fbm(w*2.+(o.yzx-.5)*3.6+11.);
+        // the land only steers where the green gathers; its edges are carried off by the same flow
+        vec2 uv=vec2(atan(q.x,q.z)/6.28318+.5,.5-asin(clamp(q.y,-1.,1.))/3.14159)+(o.xy-.5)*.05;
+        vec4 mk=.16*texture2D(land,uv);
+        mk+=.13*(texture2D(land,uv+vec2(.016,.012))+texture2D(land,uv+vec2(-.016,.012))+texture2D(land,uv+vec2(.016,-.012))+texture2D(land,uv+vec2(-.016,-.012)));
+        mk+=.08*(texture2D(land,uv+vec2(.04,0.))+texture2D(land,uv+vec2(-.04,0.))+texture2D(land,uv+vec2(0.,.034))+texture2D(land,uv+vec2(0.,-.034)));
+        vec3 s=mix(DEEP,ELEC*1.15,smoothstep(.2,.58,A));
+        s=mix(s,LAV,smoothstep(.5,.84,B)*.72);
+        s=mix(s,ACID,smoothstep(.3,.98,mk.r*.62+mk.g*.14+(A-.5)*1.5+.14)*.88);
+        s+=vec3(.75,.85,1.)*pow(max(0.,1.-abs(B-.62)*7.),3.)*.14; // a bright seam where two colours meet
         float fr=1.-z;
-        s=mix(s,vec3(.55,.74,1.),fr*fr*fr*.85)+LAV*pow(fr,1.5)*.26+vec3(.22,.38,1.)*pow(z,6.)*.3;
-        s+=pow(max(dot(n,normalize(vec3(-.45,.6,.66))),0.),40.)*.32;
-        col=mix(col,s,smoothstep(1.,.992,r));
+        s=mix(s,mix(LAV,vec3(.55,.74,1.),A),fr*fr*fr*.8)+LAV*pow(fr,1.5)*.22+vec3(.22,.38,1.)*pow(z,6.)*.22;
+        s+=pow(max(dot(n,normalize(vec3(-.45,.6,.66))),0.),40.)*.25;
+        col=mix(col,s,smoothstep(1.,.955,r)); // a soft edge, so the sphere melts into its own glow
       }
-      gl_FragColor=vec4(1.-exp(-col*1.5),1.);
+      gl_FragColor=vec4(1.-exp(-col*1.3),1.);
     }`;
     const sh=(ty,src)=>{const o=gl.createShader(ty);gl.shaderSource(o,src);gl.compileShader(o);if(!gl.getShaderParameter(o,gl.COMPILE_STATUS))throw new Error(gl.getShaderInfoLog(o));return o};
     const pr=gl.createProgram();gl.attachShader(pr,sh(gl.VERTEX_SHADER,vs));gl.attachShader(pr,sh(gl.FRAGMENT_SHADER,fs));gl.linkProgram(pr);gl.useProgram(pr);
