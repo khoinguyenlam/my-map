@@ -2658,11 +2658,14 @@ const globe=(()=>{
     const vec3 PAGE=vec3(.937,.91,.855),WATER=vec3(.863,.812,.725),LAND=vec3(.788,.62,.51),CANADA=vec3(.604,.357,.231);
     void main(){
       vec2 p=(gl_FragCoord.xy-c)/R;float r=length(p),e=2./R;
-      // a soft glow behind the sphere in the terracotta's own tone: a wide warm haze with a brighter
-      // band hugging the edge, which breathes very slowly
-      float d=max(r-1.,0.),br=1.+.07*sin(t*.55);
-      vec3 col=mix(PAGE,vec3(.91,.71,.57),clamp(exp(-d*2.5)*.62*br,0.,1.));
-      col=mix(col,vec3(.98,.86,.74),exp(-d*12.)*.55);
+      // behind the sphere, layered waves in the terracotta's own tone: each ring a flat colour, paler as
+      // it goes out, with an edge that slowly undulates; a faint warm haze sits under them
+      float d=max(r-1.,0.),a=atan(p.y,p.x);
+      vec3 col=mix(PAGE,vec3(.91,.71,.57),exp(-d*2.2)*.26);
+      for(int i=3;i>=0;i--){
+        float k=float(i),rad=1.1+k*.2+.034*sin(a*5.+t*.16+k*1.7)+.017*sin(a*9.-t*.11+k*2.9);
+        col=mix(col,mix(vec3(.925,.745,.61),PAGE,(k+1.)/5.),smoothstep(rad+.006,rad-.006,r));
+      }
       if(r<1.+e){
         float z=sqrt(max(1.-r*r,0.));vec3 q=rot*vec3(p,z);
         vec4 mk=texture2D(land,vec2(atan(q.x,q.z)/6.28318+.5,.5-asin(clamp(q.y,-1.,1.))/3.14159));
