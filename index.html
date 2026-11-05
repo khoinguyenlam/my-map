@@ -2654,24 +2654,22 @@ const globe=(()=>{
   function init(){
     gl=cv.getContext('webgl',{alpha:false,antialias:false,powerPreference:'high-performance'});if(!gl)return false;
     const vs='attribute vec2 p;void main(){gl_Position=vec4(p,0.,1.);}';
-    const fs=`precision highp float;uniform vec2 c;uniform float R,t;uniform mat3 rot;uniform sampler2D land;
+    const fs=`precision highp float;uniform vec2 c;uniform float R,t,D;uniform mat3 rot;uniform sampler2D land;
     const vec3 PAGE=vec3(.937,.91,.855),WATER=vec3(.863,.812,.725),LAND=vec3(.788,.62,.51),CANADA=vec3(.604,.357,.231);
     void main(){
       vec2 p=(gl_FragCoord.xy-c)/R;float r=length(p),e=2./R;
-      // behind the sphere, a halo of fine dots in the terracotta's own tone. The rows of dots undulate, the
-      // outline is lumpy, and the dots swell in slow ripples and grow toward the rim; a faint warm haze sits under them
-      float d=max(r-1.,0.),a=atan(p.y,p.x);
-      vec3 col=mix(PAGE,vec3(.91,.71,.57),exp(-d*2.2)*.2);
-      if(r>.98&&r<1.75){
-        const float dr=.02;
-        float w=.03*sin(a*6.+t*.2)+.015*sin(a*11.-t*.15),u=(r-w-1.)/dr,row=floor(u),rc=1.+(row+.5)*dr;
-        float cnt=floor(6.28318*rc/dr),v=(a/6.28318+.5)*cnt+mod(row,2.)*.5;
-        vec2 f=vec2(fract(v),fract(u))-.5;
-        float outer=1.42+.05*sin(a*9.+t*.22)+.028*sin(a*14.-t*.16+1.)+.02*sin(a*5.+t*.1+2.);
-        float k=clamp((rc-1.)/(outer-1.),0.,1.),rip=.5+.5*sin(a*9.+rc*14.-t*.3);
-        float rad=mix(.1,.36,k)*(.62+.38*rip)*smoothstep(outer+.012,outer-.012,rc),aa=.7/(dr*R);
-        float dot_=smoothstep(rad+aa,rad-aa,length(f))*min(rad/max(aa,.001),1.);
-        col=mix(col,mix(vec3(.788,.62,.51),vec3(.604,.357,.231),k*.85),dot_*(.45+.5*k));
+      // the whole page behind the sphere is a field of fine dots in the terracotta's own tone. Long waves
+      // travel through it freely, bending the rows and swelling the dots along each crest; they
+      // don't circle the sphere, which just sits in front. A faint warm haze stays around it
+      float d=max(r-1.,0.);
+      vec3 col=mix(PAGE,vec3(.91,.71,.57),exp(-d*2.2)*.18);
+      if(r>.98){
+        vec2 q=gl_FragCoord.xy/D;
+        float sw=sin(q.x*.0065+t*.26+1.4*sin(q.y*.0042-t*.09))+.6*sin(q.x*.0031-q.y*.0058+t*.17);
+        vec2 g=vec2(q.x,q.y+sw*18.)/11.;g.x+=mod(floor(g.y),2.)*.5;
+        float k=smoothstep(-.35,1.35,sw),rad=mix(.07,.3,k),aa=.7/(11.*D);
+        float dotA=smoothstep(rad+aa,rad-aa,length(fract(g)-.5))*min(rad/aa,1.);
+        col=mix(col,mix(vec3(.788,.62,.51),vec3(.604,.357,.231),k*.75),dotA*(.28+.42*k));
       }
       if(r<1.+e){
         float z=sqrt(max(1.-r*r,0.));vec3 q=rot*vec3(p,z);
@@ -2692,7 +2690,7 @@ const globe=(()=>{
     gl.bindTexture(gl.TEXTURE_2D,gl.createTexture());gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,bakeLand());
     gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.REPEAT);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
-    U={c:gl.getUniformLocation(pr,'c'),R:gl.getUniformLocation(pr,'R'),t:gl.getUniformLocation(pr,'t'),rot:gl.getUniformLocation(pr,'rot')};
+    U={c:gl.getUniformLocation(pr,'c'),R:gl.getUniformLocation(pr,'R'),t:gl.getUniformLocation(pr,'t'),D:gl.getUniformLocation(pr,'D'),rot:gl.getUniformLocation(pr,'rot')};
     return true;
   }
   // the sphere's place on screen, leaving the top bar clear on phones
@@ -2707,7 +2705,7 @@ const globe=(()=>{
     const dpr=Math.min(PHONE?1:1.5,devicePixelRatio||1),cw=Math.round(vw*dpr),ch=Math.round(vh*dpr);
     if(cv.width!==cw||cv.height!==ch){cv.width=cw;cv.height=ch;gl.viewport(0,0,cw,ch)}
     const g=geom(),b=basis();
-    gl.uniform2f(U.c,g.x*dpr,(vh-g.y)*dpr);gl.uniform1f(U.R,g.R*dpr);gl.uniform1f(U.t,RM?12:now/1000);
+    gl.uniform2f(U.c,g.x*dpr,(vh-g.y)*dpr);gl.uniform1f(U.R,g.R*dpr);gl.uniform1f(U.D,dpr);gl.uniform1f(U.t,RM?12:now/1000);
     // view space to globe space: the transpose of toView, so its rows are the mat3's columns
     gl.uniformMatrix3fv(U.rot,false,new Float32Array([
       b.cy, 0, -b.sy,
