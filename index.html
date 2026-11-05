@@ -2654,11 +2654,15 @@ const globe=(()=>{
   function init(){
     gl=cv.getContext('webgl',{alpha:false,antialias:false,powerPreference:'high-performance'});if(!gl)return false;
     const vs='attribute vec2 p;void main(){gl_Position=vec4(p,0.,1.);}';
-    const fs=`precision highp float;uniform vec2 c;uniform float R;uniform mat3 rot;uniform sampler2D land;
+    const fs=`precision highp float;uniform vec2 c;uniform float R,t;uniform mat3 rot;uniform sampler2D land;
     const vec3 PAGE=vec3(.937,.91,.855),WATER=vec3(.863,.812,.725),LAND=vec3(.788,.62,.51),CANADA=vec3(.604,.357,.231);
     void main(){
       vec2 p=(gl_FragCoord.xy-c)/R;float r=length(p),e=2./R;
-      vec3 col=PAGE-vec3(.05,.055,.06)*exp(-max(r-1.,0.)*11.); // a quiet shadow, so the sphere sits on the page
+      // a soft glow behind the sphere in the terracotta's own tone: a wide warm haze with a brighter
+      // band hugging the edge, which breathes very slowly
+      float d=max(r-1.,0.),br=1.+.07*sin(t*.55);
+      vec3 col=mix(PAGE,vec3(.91,.71,.57),clamp(exp(-d*2.5)*.62*br,0.,1.));
+      col=mix(col,vec3(.98,.86,.74),exp(-d*12.)*.55);
       if(r<1.+e){
         float z=sqrt(max(1.-r*r,0.));vec3 q=rot*vec3(p,z);
         vec4 mk=texture2D(land,vec2(atan(q.x,q.z)/6.28318+.5,.5-asin(clamp(q.y,-1.,1.))/3.14159));
