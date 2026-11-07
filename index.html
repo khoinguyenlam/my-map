@@ -1006,6 +1006,37 @@ body.globe-on .legend,body.globe-on .fullmap{display:none}
 }
 /* with a mouse, this box has nothing left to show below 860px: its legend and hint are both hidden there */
 @media (max-width:860px) and (pointer:fine){.readout{display:none}}
+/* ---------- liquid glass cards ----------
+   Clear, lightly tinted glass instead of frosted panels: a thin blur with strong saturation lets the
+   globe and map show through in colour, a bright specular rim and an inner glow give the glass its
+   thickness, and a soft sheen sits across the top. Works in every browser; Chromium also bends the
+   map at the rims (see liquidGlass). The two reading panels stay mostly solid, with the same rim. */
+:root{
+  --lq-fill:radial-gradient(130% 70% at 18% 0%,rgba(255,255,255,.5),rgba(255,255,255,0) 62%),
+    linear-gradient(160deg,rgba(255,255,255,.4),rgba(255,255,255,.14) 55%,rgba(206,230,250,.26));
+  --lq-blur:blur(10px) saturate(190%) brightness(1.05);
+  --lq-rim:inset 0 1px 1px rgba(255,255,255,.95),inset 0 -1px 1px rgba(255,255,255,.4),inset 1px 0 1px rgba(255,255,255,.45),
+    inset -1px 0 1px rgba(255,255,255,.3),inset 0 0 22px rgba(255,255,255,.3);
+  --lq-shadow:var(--lq-rim),0 0 0 .5px rgba(8,58,94,.16),0 12px 32px -10px rgba(8,58,94,.28);
+}
+.brand,.controls,.readout,.gstats,.gpin span,.preview.gcard,.fullmap,.index{
+  background:var(--lq-fill);-webkit-backdrop-filter:var(--lq-blur);backdrop-filter:var(--lq-blur);box-shadow:var(--lq-shadow)}
+button.brand:hover{box-shadow:var(--lq-rim),0 0 0 .5px rgba(8,58,94,.18),0 16px 40px -10px rgba(8,58,94,.34)}
+.controls .chip:hover:not([aria-pressed="true"]){background:rgba(255,255,255,.45)}
+.brand-more{background:rgba(255,255,255,.55);box-shadow:inset 0 1px 0 #fff,0 0 0 .5px rgba(8,58,94,.14)}
+.gstats div{border-left-color:rgba(8,58,94,.14)}.gstats h2{border-bottom-color:rgba(8,58,94,.14)}
+.gcard button.on{background:rgba(255,255,255,.5)}
+.preview:not(.gcard),.film .card,.about{box-shadow:var(--lq-shadow)}
+.film .card{background:linear-gradient(160deg,rgba(255,255,255,.8),rgba(236,245,253,.66))}
+.about{background:linear-gradient(160deg,rgba(255,255,255,.93),rgba(238,246,253,.9))}
+/* Chromium's bending rim keeps priority over the plain blur above */
+html .lg,html .preview.gcard.lg{-webkit-backdrop-filter:var(--lg-filter) blur(4px) saturate(190%) brightness(1.05);backdrop-filter:var(--lg-filter) blur(4px) saturate(190%) brightness(1.05)}
+@media (prefers-reduced-transparency:reduce){
+  .brand,.controls,.readout,.gstats,.gpin span,.preview.gcard,.fullmap,.index{-webkit-backdrop-filter:none!important;backdrop-filter:none!important;background:#f4f8fc}
+}
+@media (prefers-contrast:more){
+  .brand,.controls,.readout,.gstats,.gpin span,.preview.gcard,.fullmap,.index{background:#fff;box-shadow:0 0 0 1px var(--paper)}
+}
 </style>
 
 <div id="stage" aria-label="Project map">
@@ -1950,7 +1981,7 @@ function setupMonoMetal(){
    only Chromium can apply an SVG filter to what is behind an element, so other browsers keep the
    frosted glass and the moving rim light. */
 const liquidGlass=(()=>{
-  const SEL='.brand,.controls,.readout,.fullmap,.bar-ui .pill';
+  const SEL='.brand,.controls,.readout,.fullmap,.bar-ui .pill,.gstats,.gcard';
   const ok=/Chrome\//.test(navigator.userAgent)&&matchMedia('(pointer:fine)').matches&&CSS.supports('backdrop-filter','url(#x)');
   let defs=null,n=0;
   if(ok){const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.setAttribute('aria-hidden','true');
