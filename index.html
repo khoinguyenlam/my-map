@@ -2777,8 +2777,10 @@ const globe=(()=>{
       el.addEventListener('click',()=>dive(lat,lon,m));
       pinsEl.append(el);beacons.push({el,lat,lon,members:m});
     }
-    const list=visible(),fr=list.reduce((s,p)=>s+(p.media?p.media.length:0),0);
-    const st=[[list.length,'Projects'],[fr,'Photos and clips'],[new Set(list.map(p=>p.place)).size,'Locations'],[Math.max(...list.map(p=>parseInt(String(p.year).match(/\d{4}/)||0)),0)||'–','Latest work']];
+    const list=visible();
+    // clients named on the projects shown, plus the About card's list; personal work isn't a client
+    const cl=new Set([...list.map(p=>p.client),...(OWNER.clients||[])].map(c=>String(c||'').trim()).filter(c=>c&&!/^personal/i.test(c)));
+    const st=[[list.length,'Projects'],[cl.size,cl.size===1?'Client':'Clients'],[new Set(list.map(p=>p.place)).size,'Locations'],[Math.max(...list.map(p=>parseInt(String(p.year).match(/\d{4}/)||0)),0)||'–','Latest work']];
     const dl=$('#gStats');dl.textContent='';st.forEach(([v,k])=>{const d=document.createElement('div'),dd=document.createElement('dd'),dt=document.createElement('dt');dd.textContent=v;dt.textContent=k;d.append(dd,dt);dl.append(d)});
     wake();
   }
