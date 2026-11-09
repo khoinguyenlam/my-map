@@ -1,0 +1,13 @@
+{
+  "name": "my-map",
+  "version": "1.0.0",
+  "description": "A film and photography portfolio on a map of Canada",
+  "private": true,
+  "scripts": {
+    "lint": "echo 'No linter configured for vanilla HTML project'",
+    "test": "echo 'No tests configured for vanilla HTML project'"
+  },
+  "dependencies": {
+    "@vercel/speed-insights": "^1.0.0"
+  }
+}
