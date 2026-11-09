@@ -709,6 +709,29 @@ body.about-open button.brand{transition-delay:0ms}
   .preview.gcard{width:calc(100vw - 32px);max-width:420px}
   body.group-open .hud-bottom,body.group-open .fullmap{opacity:0;pointer-events:none}
 }
+/* phones: a tapped project rises as a sheet along the bottom (like an iOS sheet), with a thumbnail,
+   the title, one clear Open button and a thumb-sized close button; it never covers the header */
+.pv-open,.pv-close{display:none}
+@media (max-width:639px){
+  .preview:not(.gcard){top:auto;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));width:auto;max-width:480px;margin:0 auto;
+    translate:none!important;display:grid;grid-template-columns:112px minmax(0,1fr);align-items:stretch;padding:8px;border-radius:22px;
+    transform-origin:50% 100%!important;transform:translateY(28px);opacity:0}
+  .preview:not(.gcard).show{transform:none;opacity:1}
+  .preview:not(.gcard):active{transform:scale(.985)}
+  .preview:not(.gcard) .pv-pic{position:relative;min-height:104px}
+  .preview:not(.gcard) img{width:112px;height:100%;min-height:104px;margin:0;border-radius:15px}
+  .preview:not(.gcard) .pv-body{padding:6px 44px 2px 14px;gap:6px;align-content:center}
+  .preview:not(.gcard) .pv-title{font-size:23px;line-height:1}
+  .preview:not(.gcard) .pv-cta,.preview:not(.gcard) .wm{display:none}
+  .pv-open{display:inline-flex;align-items:center;gap:8px;justify-self:start;margin-top:6px;min-height:40px;padding:0 16px;border-radius:999px;
+    background:#d4430a;color:#fff;font:600 14px/1 var(--f-body);letter-spacing:0;text-transform:none}
+  .pv-open i{font-style:normal}
+  .pv-close{display:grid;place-items:center;position:absolute;top:4px;right:4px;z-index:3;width:44px;height:44px;padding:0;border:0;border-radius:50%;
+    background:transparent;color:var(--paper);font:300 24px/1 var(--f-body);cursor:pointer;-webkit-tap-highlight-color:transparent}
+  .pv-close::before{content:"";position:absolute;inset:8px;z-index:-1;border-radius:50%;background:rgba(255,255,255,.1)}
+  .pv-close:active::before{background:rgba(255,255,255,.2)}
+  body.sheet-open .hud-bottom,body.sheet-open .fullmap{opacity:0;pointer-events:none}
+}
 .gcard .gc-hint{font:400 11px/1 var(--f-mono);letter-spacing:.06em;color:var(--muted)}
 .gcard ul{list-style:none;margin:0;padding:0 6px 6px;display:grid;gap:2px}
 .gcard button{all:unset;box-sizing:border-box;display:grid;grid-template-columns:60px 1fr;gap:12px;align-items:center;width:100%;
@@ -1187,8 +1210,9 @@ html .lg,html .preview.gcard.lg{-webkit-backdrop-filter:var(--lg-filter) blur(1.
 </footer>
 
 <div class="preview" id="preview" aria-hidden="true">
+  <button class="pv-close" id="pvClose" type="button" aria-label="Close">&times;</button>
   <div class="pv-pic"><img id="pvImg" alt=""><span class="wm" aria-hidden="true"></span></div>
-  <div class="pv-body"><span class="pv-meta" id="pvMeta"></span><strong class="pv-title" id="pvTitle"></strong><span class="pv-cta">Click to open</span></div>
+  <div class="pv-body"><span class="pv-meta" id="pvMeta"></span><strong class="pv-title" id="pvTitle"></strong><span class="pv-cta">Click to open</span><span class="pv-open" aria-hidden="true">Open project <i>&rarr;</i></span></div>
 </div>
 <div class="preview gcard" id="gcard" aria-label="Projects in this area">
   <div class="gc-head"><span class="pv-meta" id="gcMeta"></span><span class="gc-hint">Choose one to open</span></div>
@@ -2445,22 +2469,26 @@ document.addEventListener('mouseleave',()=>{if(!focus)lock={x:cam.x,y:cam.y}});
 /* ---------- hover preview ---------- */
 const pv=$('#preview');
 pv.addEventListener('click',()=>{if(hot&&mode==='roam')openProject(hot)});
+// phones: the sheet closes with its own button as well as a tap on the map
+$('#pvClose').addEventListener('click',e=>{e.stopPropagation();if(focus)releaseFocus();else hover(null)});
 function hover(p){
   if(hot&&hot!==p)hot.pin.classList.remove('is-hot');
   hot=p&&mode==='roam'?p:null;
   gc.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b._p===hot));
-  if(!hot){pv.classList.remove('show');return}
+  if(!hot){pv.classList.remove('show');document.body.classList.remove('sheet-open');return}
   hot.pin.classList.add('is-hot');
-  if(focus&&focus.c&&focus.c.members.includes(hot)){pv.classList.remove('show');return} // the group card covers it
+  if(focus&&focus.c&&focus.c.members.includes(hot)){pv.classList.remove('show');document.body.classList.remove('sheet-open');return} // the group card covers it
   $('#pvImg').src=renderStill(hot,0,500);
   $('#pvMeta').textContent=`${hot.kind} · ${hot.year}`;
   $('#pvTitle').textContent=hot.title;
-  pv.classList.add('show');pvH=pv.offsetHeight||230;pvW=pv.offsetWidth||250;placePreview();
+  pv.classList.add('show');document.body.classList.add('sheet-open');pvH=pv.offsetHeight||230;pvW=pv.offsetWidth||250;placePreview();
 }
 // where a project's marker sits on screen, from the camera alone (no layout reads)
 function screenOf(p){return[vw/2+(p.x-cam.x)*cam.s,vh/2+(p.y-cam.y)*cam.s]}
 let pvH=230,pvW=250,pvBox={left:0,right:0,top:0,bottom:0};
 function placePreview(){
+  // phones: the stylesheet docks it as a sheet along the bottom; only its box is noted here
+  if(vw<640){const b=pv.getBoundingClientRect();pvBox={left:b.left,right:b.right,top:b.top,bottom:b.bottom};return}
   const[cx,cy]=screenOf(hot),r={left:cx-13,right:cx+13,top:cy-13,bottom:cy+13},pw=pvW,ph=pvH;
   let x=r.right+18,y=r.top-ph-12;
   if(x+pw>vw-16)x=r.left-pw-18;
