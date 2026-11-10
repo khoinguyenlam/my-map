@@ -3,7 +3,7 @@
 <meta property="og:title" content="Khoi Nguyen Lam · Photography &amp; Video">
 <meta property="og:description" content="Photo and video projects across Canada, pinned where they were shot.">
 <meta property="og:type" content="website">
-<meta name="theme-color" content="#050505">
+<meta name="theme-color" content="#2c99d6">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232b2822'/%3E%3Ccircle cx='32' cy='32' r='15' fill='none' stroke='%23c4741c' stroke-width='6'/%3E%3C/svg%3E">
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1169,6 +1169,57 @@ html .lg,html .preview.gcard.lg{-webkit-backdrop-filter:var(--lg-filter) blur(1.
   -webkit-backdrop-filter:blur(14px) saturate(160%);backdrop-filter:blur(14px) saturate(160%);text-shadow:0 1px 2px rgba(0,0,0,.45)}
 .gpin small{color:#c4c4c4}
 @media (prefers-contrast:more){.brand::after,.controls::after,.readout::after,.gstats::after,.gpin span::after,.preview::after,.fullmap::after,.index::after,.film .card::after,.about::after{display:none}}
+
+/* ---------- sky blue, cloud white and scarlet ----------
+   A sky-blue page, flat solid cloud-white cards with crisp shadows instead of glass, ink text, and
+   scarlet red only for what you press. The globe and the glowing wave dots stay. */
+:root{
+  --ocean:#2c99d6;--ocean-deep:#2c99d6;--land:#d3e9f7;--land-north:#f8fafc;--land-foreign:#bcdcf1;--water-line:#62b3e2;
+  --border:rgba(16,32,44,.28);--label-region:rgba(16,32,44,.55);--label-foreign:rgba(16,32,44,.36);--label-water:rgba(255,255,255,.88);
+  --ink:#f8fafc;--ink-2:#eef3f7;--line:#dde5ec;--contour:#9db3c4;--road:#9db3c4;--paper:#10202c;--muted:#4f6474;--body-2:#2c3d4a;
+  --tungsten:#d7262b;--tungsten-soft:rgba(215,38,43,.14);--halo:rgba(248,250,252,.92);--shadow:rgba(16,32,44,.2);
+  --scrim:rgba(248,250,252,.9);--card-bg:#f8fafc;--card-bg-fade:#f8fafc;--card-edge:#ffffff;--card-edge-warm:rgba(215,38,43,.2);
+  --flat-shadow:0 1px 2px rgba(16,32,44,.08),0 10px 28px -10px rgba(10,50,80,.35);
+  --glass-fill:#f8fafc;--glass-fill-strong:#f8fafc;--lq-fill:#f8fafc;--lq-shadow:var(--flat-shadow);--glass-shadow:var(--flat-shadow);--glass-shadow-sm:var(--flat-shadow);
+  color-scheme:light;
+}
+body,#globe{background:#2c99d6}
+#stage::before{background:#e9eff4}
+/* flat, solid cards: no blur and no glass rims */
+.brand,.controls,.readout,.gstats,.gpin span,.preview,.preview:not(.gcard),.fullmap,.index,.film .card,.about,.pin-label,.bar-ui .pill,.icon-btn{
+  background:#f8fafc;-webkit-backdrop-filter:none!important;backdrop-filter:none!important;box-shadow:var(--flat-shadow);text-shadow:none}
+html .lg,html .preview.gcard.lg{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+.brand::before,.preview::before,.readout::before,.index::before,.chip::before,.controls::before,.about::before,.film .card::before,
+.brand::after,.controls::after,.readout::after,.gstats::after,.gpin span::after,.preview::after,.fullmap::after,.index::after,.film .card::after,.about::after{display:none}
+button.brand:hover{box-shadow:0 1px 2px rgba(16,32,44,.1),0 14px 34px -10px rgba(10,50,80,.45)}
+.brand-name,.about h2{color:#10202c}
+.brand-more{background:#eaf0f5;color:#10202c;box-shadow:none}
+.controls .chip:hover:not([aria-pressed="true"]){background:#eaf0f5}
+.controls .chip[aria-pressed="true"]{background:#10202c;color:#fff}
+.controls .chip[aria-pressed="true"] small{color:#fff}
+.book,.cta,.pv-open{background:#d7262b;color:#fff}
+.book:hover,.cta:hover{background:#bf1f24}
+.gpin i{box-shadow:0 0 0 3px #f8fafc}
+.gpin small{color:#4f6474}
+.gstats div{border-left-color:#dde5ec}.gstats h2{border-bottom-color:#dde5ec}
+.gcard button.on,.gcard button:hover{background:#eaf0f5}
+.gcard button:active{background:#dde6ee}
+.film{background:rgba(232,241,248,.72)}
+.bar{background:rgba(248,250,252,.92)}
+.bar.top{box-shadow:inset 0 -1px 0 #dde5ec}.bar.bot{box-shadow:inset 0 1px 0 #dde5ec}
+.bar-ui kbd{background:#eef3f7;border-color:#cdd8e1}
+.bar-ui .pill:hover,.fullmap:hover,.icon-btn:hover{background:#fff;color:#10202c}
+.about-close{background:#eaf0f5;box-shadow:none}.about-close:hover{background:#dde6ee}
+.about-clients li,.about-contact li{background:#eef3f7;box-shadow:none}
+.about-avail{color:#1d7a3a}
+.facts{background:#dde5ec;box-shadow:0 0 0 1px #dde5ec}.facts div{background:#f8fafc}
+.intro div::after{background:#f8fafc}
+.map-credit{background:rgba(248,250,252,.85);color:#4f6474}.map-credit a{color:#10202c}
+.info section,.card-cta,.meta,.about h3{border-top-color:#dde5ec}
+.index li button:hover{background:#eaf0f5}
+.pv-close{color:#10202c}.pv-close::before{background:#eaf0f5}.pv-close:active::before{background:#dde6ee}
+.monogram.is-metal{box-shadow:0 6px 16px -8px rgba(16,32,44,.5)}
+@media (prefers-contrast:more){.brand,.controls,.readout,.gstats,.gpin span,.preview,.fullmap,.index{background:#fff;box-shadow:0 0 0 1px #10202c}}
 </style>
 
 <div id="stage" aria-label="Project map">
@@ -1878,7 +1929,7 @@ function drawMapView(){
     mvCtx.fillStyle=sky;mvCtx.fillRect(0,0,cw,ch);
     // at street level the water turns the street map's grey, so wherever its images haven't
     // arrived or don't reach (the screen edges under the tilt) no blue frame shows
-    if(det.fade>.005){mvCtx.globalAlpha=det.fade;mvCtx.fillStyle='#121212';mvCtx.fillRect(0,0,cw,ch);mvCtx.globalAlpha=1}
+    if(det.fade>.005){mvCtx.globalAlpha=det.fade;mvCtx.fillStyle='#e9eff4';mvCtx.fillRect(0,0,cw,ch);mvCtx.globalAlpha=1}
     const s=cam.s,x0=cam.x-vw/2/s,y0=cam.y-vh/2/s,x1=x0+vw/s,y1=y0+vh/s;
     const f=s*dpr;mvCtx.imageSmoothingQuality='medium';
     for(const t of mapTiles){
@@ -1995,8 +2046,7 @@ function drawDetail(det,x0,y0,f){
     ctx.globalAlpha=det.fade;ctx.globalCompositeOperation='saturation';ctx.fillStyle='#808080';ctx.fill(cover,'nonzero');
     ctx.globalCompositeOperation='screen';ctx.fillStyle='#262626';ctx.fill(cover,'nonzero');
   }
-  ctx.globalCompositeOperation='difference';ctx.fillStyle='#ffffff';ctx.globalAlpha=det.fade;ctx.fill(cover,'nonzero');
-  ctx.globalCompositeOperation='multiply';ctx.fillStyle='#9c9c9c';ctx.fill(cover,'nonzero');
+  ctx.globalCompositeOperation='multiply';ctx.fillStyle='#e8f3fb';ctx.globalAlpha=det.fade*.9;ctx.fill(cover,'nonzero');
   ctx.restore();
 }
 // a window can report no size at all (opened in the background, some in-app browsers): count it
@@ -2863,7 +2913,7 @@ const globe=(()=>{
     gl=cv.getContext('webgl',{alpha:false,antialias:false,powerPreference:'high-performance'});if(!gl)return false;
     const vs='attribute vec2 p;void main(){gl_Position=vec4(p,0.,1.);}';
     const fs=`precision highp float;uniform vec2 c;uniform float R,t,D;uniform mat3 rot;uniform sampler2D land;
-    const vec3 PAGE=vec3(.018,.018,.02),WATER=vec3(.07,.07,.075),LAND=vec3(.3,.3,.31),CANADA=vec3(.93,.93,.93);
+    const vec3 PAGE=vec3(.173,.6,.839),WATER=vec3(.11,.48,.74),LAND=vec3(.8,.9,.965),CANADA=vec3(.973,.98,.988);
     void main(){
       vec2 p=(gl_FragCoord.xy-c)/R;float r=length(p),e=2./R;
       // the whole page behind the sphere is a field of fine dots in the terracotta's own tone. Long waves
